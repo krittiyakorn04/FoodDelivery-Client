@@ -141,7 +141,7 @@ const StoreOrderDetail = () => {
 
   const [order, setOrder] = useState(location.state?.order || null);
 
-  const [loading, setLoading] = useState(!location.state?.order);
+  const [loading, setLoading] = useState(true);
 
   const [previewSlip, setPreviewSlip] = useState(null);
 
@@ -466,7 +466,37 @@ const StoreOrderDetail = () => {
     }
   };
 
+  // =====================================================
+  // LOADING ORDER
+  // =====================================================
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#FFF8F0] px-4 py-6">
+        <div className="mx-auto max-w-6xl animate-pulse">
+          <div className="mb-5 flex items-center gap-3">
+            <div className="h-10 w-10 rounded-full bg-orange-100" />
+            <div>
+              <div className="h-5 w-40 rounded bg-orange-100" />
+              <div className="mt-2 h-3 w-24 rounded bg-orange-50" />
+            </div>
+          </div>
+
+          <div className="rounded-3xl border border-orange-50 bg-white p-5 shadow-sm">
+            <div className="h-4 w-24 rounded bg-orange-100" />
+            <div className="mt-3 h-6 w-48 rounded bg-orange-100" />
+            <div className="mt-5 h-16 rounded-xl bg-orange-50" />
+          </div>
+
+          <div className="mt-4 rounded-3xl border border-orange-50 bg-white p-5 shadow-sm">
+            <div className="h-5 w-36 rounded bg-orange-100" />
+            <div className="mt-5 h-12 rounded-xl bg-orange-50" />
+            <div className="mt-3 h-12 rounded-xl bg-orange-50" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // =====================================================
   // NO ORDER

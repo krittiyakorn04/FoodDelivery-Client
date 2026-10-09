@@ -871,15 +871,15 @@ const OrderUser = () => {
 
                         <div className="min-w-0">
                           <h2 className="font-bold text-lg text-[#2A1B12]">
+                            {order.store?.storeName || "ไม่พบชื่อร้าน"}
+                          </h2>
+
+                          <p className="text-xs text-gray-400 mt-1 truncate">
                             ออเดอร์
                             <span className="ml-1 text-orange-500">
                               #ORD
                               {String(order.id).padStart(4, "0")}
                             </span>
-                          </h2>
-
-                          <p className="text-xs text-gray-400 mt-1 truncate">
-                            {order.store?.storeName || "ไม่พบชื่อร้าน"}
                           </p>
                         </div>
                       </div>

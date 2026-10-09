@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 import usefoodDelivery from "../../globalState/fooddeliveryStore";
 import {
   createMenu,
@@ -64,7 +64,13 @@ const FormEditMenu = () => {
       });
     } catch (error) {
       console.log(error);
-      toast.error("ไม่สามารถโหลดข้อมูลเมนูได้");
+      Swal.fire({
+        icon: "error",
+        title: "โหลดข้อมูลเมนูไม่สำเร็จ",
+        text: "ไม่สามารถโหลดข้อมูลเมนูได้",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#f97316",
+      });
     }
   };
 
@@ -153,19 +159,29 @@ const FormEditMenu = () => {
       // 3. สำเร็จ
       // ==========================================
 
-      toast.success(
-        `แก้ไขข้อมูล ${res.data.menu?.menuItem || form.menuItem} สำเร็จ`,
-      );
+      await Swal.fire({
+        icon: "success",
+        title: "แก้ไขเมนูสำเร็จ",
+        text: `แก้ไขข้อมูล ${res.data.menu?.menuItem || form.menuItem} สำเร็จ`,
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#f97316",
+      });
 
       navigate("/store/menu");
+      
     } catch (error) {
       console.error("UPDATE MENU ERROR =", error);
 
-      toast.error(
-        error?.response?.data?.message ||
+      Swal.fire({
+        icon: "error",
+        title: "แก้ไขเมนูไม่สำเร็จ",
+        text:
+          error?.response?.data?.message ||
           error?.message ||
           "ไม่สามารถแก้ไขเมนูได้",
-      );
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#f97316",
+      });
     }
   };
 

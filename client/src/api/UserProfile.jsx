@@ -61,3 +61,15 @@ export const removeAddress = async (token, id) => {
     },
   });
 };
+
+export const updateUserPassword = (token, data) => {
+  return axios.patch(
+    "http://localhost:5000/api/user/change-password",
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};

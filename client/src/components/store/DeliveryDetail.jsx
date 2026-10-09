@@ -358,37 +358,99 @@ const DeliveryDetail = () => {
   // PROOF CHANGE
   // ====================================================
 
-  const handleProofChange = (proofType, event) => {
-    const file = event.target.files?.[0];
+const handleProofChange = async (proofType, event) => {
+  const file = event.target.files?.[0];
+  event.target.value = "";
 
-    if (!file) return;
+  if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      Swal.fire({
-        icon: "warning",
-        title: "กรุณาเลือกรูปภาพ",
-        confirmButtonColor: "#f97316",
-      });
+  if (!file.type.startsWith("image/")) {
+    await Swal.fire({
+      icon: "warning",
+      title: "กรุณาเลือกรูปภาพ",
+      confirmButtonColor: "#f97316",
+    });
+    return;
+  }
 
-      event.target.value = "";
-      return;
-    }
+  if (!delivery || proofUploading) return;
 
-    const preview = URL.createObjectURL(file);
+  const preview = URL.createObjectURL(file);
 
+  setProofFiles((prev) => ({
+    ...prev,
+    [proofType]: file,
+  }));
+
+  setProofPreviews((prev) => ({
+    ...prev,
+    [proofType]: preview,
+  }));
+
+  try {
+    setProofUploading(true);
+
+    // ปรับขนาดรูปก่อนอัปโหลด
+    const resizedImage = await resizeProofImage(file);
+
+    // อัปโหลดทันที ไม่ต้องกดบันทึก
+    await uploadDeliveryProof(
+      token,
+      delivery.id,
+      resizedImage,
+      proofType,
+    );
+
+    // ล้างรูปพรีวิวหลังอัปโหลดสำเร็จ
     setProofFiles((prev) => ({
       ...prev,
-      [proofType]: file,
+      [proofType]: null,
     }));
 
     setProofPreviews((prev) => ({
       ...prev,
-      [proofType]: preview,
+      [proofType]: null,
     }));
 
-    event.target.value = "";
-  };
+    await loadDelivery();
 
+    await Swal.fire({
+      icon: "success",
+      title: "อัปโหลดรูปสำเร็จ",
+      text:
+        proofType === "PRIMARY"
+          ? "บันทึกหลักฐานการจัดส่งเรียบร้อยแล้ว"
+          : "บันทึกรูปหลักฐานเพิ่มเติมเรียบร้อยแล้ว",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  } catch (error) {
+    console.error("Upload Delivery Proof Error =", error);
+
+    setProofFiles((prev) => ({
+      ...prev,
+      [proofType]: null,
+    }));
+
+    setProofPreviews((prev) => ({
+      ...prev,
+      [proofType]: null,
+    }));
+
+    await Swal.fire({
+      icon: "error",
+      title: "อัปโหลดรูปไม่สำเร็จ",
+      text:
+        error?.response?.data?.message ||
+        "ไม่สามารถบันทึกรูปหลักฐานได้ กรุณาลองอีกครั้ง",
+      confirmButtonText: "ตกลง",
+      confirmButtonColor: "#f97316",
+    });
+  } finally {
+    URL.revokeObjectURL(preview);
+    setProofUploading(false);
+  }
+};
   // ====================================================
   // REMOVE PREVIEW
   // ====================================================
@@ -592,17 +654,74 @@ const DeliveryDetail = () => {
     }
   };
 
-  // ====================================================
-  // LOADING
-  // ====================================================
+  // ======================================================
+  // LOADING SKELETON
+  // ======================================================
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-orange-50/40 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-10 h-10 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto mb-4" />
+      <div className="min-h-screen bg-orange-50/40 p-4 md:p-6 animate-pulse">
+        <div className="max-w-5xl mx-auto space-y-6">
+          {/* Header */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gray-200" />
+            <div className="space-y-2 flex-1">
+              <div className="h-5 w-48 rounded-lg bg-gray-200" />
+              <div className="h-3 w-32 rounded-lg bg-gray-200" />
+            </div>
+          </div>
 
-          <p className="text-gray-500">กำลังโหลดรายละเอียดการจัดส่ง...</p>
+          {/* สถานะการจัดส่ง */}
+          <div className="bg-white rounded-3xl p-5 md:p-6 border border-orange-100 space-y-4">
+            <div className="h-5 w-40 rounded-lg bg-gray-200" />
+
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gray-200 shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-36 rounded-lg bg-gray-200" />
+                <div className="h-3 w-52 max-w-full rounded-lg bg-gray-100" />
+              </div>
+              <div className="h-8 w-20 rounded-full bg-gray-200" />
+            </div>
+
+            <div className="h-2 w-full rounded-full bg-gray-100" />
+          </div>
+
+          {/* ข้อมูลออเดอร์ */}
+          <div className="bg-white rounded-3xl p-5 md:p-6 border border-orange-100 space-y-5">
+            <div className="h-5 w-36 rounded-lg bg-gray-200" />
+
+            <div className="flex gap-4">
+              <div className="w-20 h-20 rounded-2xl bg-gray-200 shrink-0" />
+              <div className="flex-1 space-y-3 py-1">
+                <div className="h-4 w-40 max-w-full rounded-lg bg-gray-200" />
+                <div className="h-3 w-28 rounded-lg bg-gray-100" />
+                <div className="h-4 w-24 rounded-lg bg-gray-200" />
+              </div>
+            </div>
+
+            <div className="border-t border-gray-100 pt-4 space-y-3">
+              <div className="flex justify-between gap-4">
+                <div className="h-3 w-24 rounded-lg bg-gray-100" />
+                <div className="h-3 w-20 rounded-lg bg-gray-200" />
+              </div>
+              <div className="flex justify-between gap-4">
+                <div className="h-3 w-28 rounded-lg bg-gray-100" />
+                <div className="h-4 w-24 rounded-lg bg-gray-200" />
+              </div>
+            </div>
+          </div>
+
+          {/* ข้อมูลผู้รับและที่อยู่ */}
+          <div className="bg-white rounded-3xl p-5 md:p-6 border border-orange-100 space-y-4">
+            <div className="h-5 w-40 rounded-lg bg-gray-200" />
+            <div className="h-4 w-48 max-w-full rounded-lg bg-gray-200" />
+            <div className="h-3 w-full rounded-lg bg-gray-100" />
+            <div className="h-3 w-3/4 rounded-lg bg-gray-100" />
+          </div>
+
+          {/* ปุ่มด้านล่าง */}
+          <div className="h-12 w-full rounded-2xl bg-gray-200" />
         </div>
       </div>
     );

@@ -1,5 +1,8 @@
 const prisma = require("../../config/prisma");
 
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+
 exports.profileUser = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -209,3 +212,78 @@ exports.userRemoveImages = (req, res) => {
 
   }
 }
+
+
+exports.updatePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.user.id;
+
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({
+        message: "กรุณากรอกรหัสผ่านให้ครบ",
+      });
+    }
+
+    // ตรวจสอบกฎรหัสผ่านให้เหมือนตอนสมัครร้านค้า
+    if (
+      typeof newPassword !== "string" ||
+      newPassword.length < 8 ||
+      newPassword.length > 64 ||
+      /\s/.test(newPassword) ||
+      !/[a-z]/.test(newPassword) ||
+      !/[A-Z]/.test(newPassword) ||
+      !/[0-9]/.test(newPassword) ||
+      !/[^A-Za-z0-9\s]/.test(newPassword)
+    ) {
+      return res.status(400).json({
+        message:
+          "รหัสผ่านต้องมี 8-64 ตัวอักษร มีตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก ตัวเลข และอักขระพิเศษ โดยไม่มีช่องว่าง",
+      });
+    }
+
+    const user = await prisma.customer.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "ไม่พบข้อมูลผู้ใช้งาน",
+      });
+    }
+
+    const valid = await bcrypt.compare(
+      oldPassword,
+      user.password
+    );
+
+    if (!valid) {
+      return res.status(400).json({
+        message: "รหัสผ่านปัจจุบันไม่ถูกต้อง",
+      });
+    }
+
+    if (oldPassword === newPassword) {
+      return res.status(400).json({
+        message: "รหัสผ่านใหม่ต้องแตกต่างจากรหัสผ่านเดิม",
+      });
+    }
+
+    const hashPassword = await bcrypt.hash(newPassword, 10);
+
+    await prisma.customer.update({
+      where: { id: userId },
+      data: { password: hashPassword },
+    });
+
+    return res.status(200).json({
+      message: "เปลี่ยนรหัสผ่านสำเร็จ",
+    });
+  } catch (error) {
+    console.error("UPDATE USER PASSWORD ERROR =", error);
+
+    return res.status(500).json({
+      message: "เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน",
+    });
+  }
+};

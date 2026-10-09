@@ -332,6 +332,14 @@ const StoreClient = () => {
       });
 
       await reloadCart();
+
+      Swal.fire({
+        icon: "success",
+        title: "เพิ่มลงตะกร้าสำเร็จ",
+        text: `เพิ่ม ${menu.menuItem} ลงในตะกร้าแล้ว`,
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (error) {
       console.log("เพิ่มตะกร้าไม่สำเร็จ =", error);
 
@@ -362,6 +370,14 @@ const StoreClient = () => {
       setSelectedMenu(null);
 
       await reloadCart();
+
+      Swal.fire({
+        icon: "success",
+        title: "เพิ่มลงตะกร้าสำเร็จ",
+        text: `เพิ่ม ${menu.menuItem} ลงในตะกร้าแล้ว`,
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (error) {
       console.log("เพิ่มเมนูไม่สำเร็จ =", error);
 

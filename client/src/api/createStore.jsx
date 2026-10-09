@@ -234,3 +234,18 @@ export const getDeliveryDetailStaff = (token, id) => {
     },
   });
 };
+
+export const updateStorePassword = (token, data) => {
+  return axios.patch(
+    "http://localhost:5000/api/store/profile/change-password",
+    {
+      oldPassword: data.oldPassword,
+      newPassword: data.newPassword,
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+};

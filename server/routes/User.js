@@ -35,6 +35,7 @@ const {
   userImages,
   userRemoveImages,
   readMenu,
+  updatePassword,
 } = require("../controllers/User/UserProfile");
 const {
   getDelivery,
@@ -80,7 +81,8 @@ router.delete("/user/address/:id", authUser, userCheck, removeAddress);//fb
 
 //Profile
 router.get("/user/profile", authUser, userCheck, profileUser); //fb
-router.put("/user/profile", authUser, userCheck, updateProfileUser); 
+router.put("/user/profile", authUser, userCheck, updateProfileUser);
+router.patch("/user/change-password", authUser,userCheck, updatePassword); 
 
 router.post("/user/image", authUser, userCheck, userImages);
 router.post("/user/removeImage", authUser, userCheck, userRemoveImages);

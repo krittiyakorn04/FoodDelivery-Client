@@ -9,6 +9,9 @@ import {
   X,
   Navigation,
   LocateFixed,
+  LockKeyhole,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
@@ -16,13 +19,12 @@ import Resizer from "react-image-file-resizer";
 
 import {
   updateStoreProfile,
+  updateStorePassword,
   uploadFiles,
   uploadFilesBanner,
   removeFiles,
   removeFilesBanner,
 } from "../../api/createStore";
-
-import { toast } from "react-toastify";
 
 import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
 
@@ -88,6 +90,132 @@ const FormEditProfile = () => {
 
   const bannerInputRef = useRef(null);
   const profileInputRef = useRef(null);
+
+  const [passwordForm, setPasswordForm] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const [showPasswords, setShowPasswords] = useState({
+    oldPassword: false,
+    newPassword: false,
+    confirmPassword: false,
+  });
+
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+
+    setPasswordForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleChangePassword = async () => {
+    const { oldPassword, newPassword, confirmPassword } = passwordForm;
+
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      await Swal.fire({
+        icon: "warning",
+        title: "กรุณากรอกข้อมูลให้ครบ",
+        confirmButtonColor: "#f97316",
+      });
+      return;
+    }
+
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9\s])\S{8,64}$/;
+
+    if (!passwordRegex.test(newPassword)) {
+      await Swal.fire({
+        icon: "warning",
+        title: "รหัสผ่านใหม่ไม่ถูกต้อง",
+        text: "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร มีตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก ตัวเลข และอักขระพิเศษ โดยไม่มีช่องว่าง",
+        confirmButtonColor: "#f97316",
+      });
+      return;
+    }
+
+    if (!passwordRegex.test(newPassword)) {
+      await Swal.fire({
+        icon: "warning",
+        title: "รหัสผ่านใหม่ไม่ถูกต้อง",
+        text: "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร มีตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก ตัวเลข และอักขระพิเศษ",
+        confirmButtonColor: "#f97316",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      await Swal.fire({
+        icon: "warning",
+        title: "รหัสผ่านไม่ตรงกัน",
+        text: "กรุณายืนยันรหัสผ่านใหม่ให้ตรงกัน",
+        confirmButtonColor: "#f97316",
+      });
+      return;
+    }
+
+    if (oldPassword === newPassword) {
+      await Swal.fire({
+        icon: "warning",
+        title: "รหัสผ่านใหม่ซ้ำกับรหัสผ่านเดิม",
+        text: "กรุณากำหนดรหัสผ่านใหม่ที่แตกต่างจากเดิม",
+        confirmButtonColor: "#f97316",
+      });
+      return;
+    }
+
+    const result = await Swal.fire({
+      icon: "question",
+      title: "ยืนยันเปลี่ยนรหัสผ่าน?",
+      text: "คุณต้องการเปลี่ยนรหัสผ่านบัญชีร้านค้าหรือไม่",
+      showCancelButton: true,
+      confirmButtonText: "เปลี่ยนรหัสผ่าน",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#f97316",
+      cancelButtonColor: "#6b7280",
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      setPasswordLoading(true);
+
+      const response = await updateStorePassword(token, {
+        oldPassword,
+        newPassword,
+      });
+
+      setPasswordForm({
+        oldPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+
+      await Swal.fire({
+        icon: "success",
+        title: "เปลี่ยนรหัสผ่านสำเร็จ",
+        text: response?.data?.message || "เปลี่ยนรหัสผ่านเรียบร้อยแล้ว",
+        confirmButtonColor: "#f97316",
+      });
+    } catch (error) {
+      await Swal.fire({
+        icon: "error",
+        title: "เปลี่ยนรหัสผ่านไม่สำเร็จ",
+        text:
+          error?.response?.data?.message ||
+          "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
+        confirmButtonColor: "#f97316",
+      });
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
 
   // =========================================================
   // Form
@@ -258,7 +386,13 @@ const FormEditProfile = () => {
 
   const handleFindLocation = () => {
     if (!navigator.geolocation) {
-      toast.error("เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง");
+      Swal.fire({
+        icon: "error",
+        title: "ไม่สามารถค้นหาพิกัดได้",
+        text: "เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#f97316",
+      });
       return;
     }
 
@@ -286,7 +420,13 @@ const FormEditProfile = () => {
         setLocationFound(true);
         setLocationLoading(false);
 
-        toast.success("ค้นหาพิกัดสำเร็จ");
+        Swal.fire({
+          icon: "success",
+          title: "ค้นหาพิกัดสำเร็จ",
+          text: "กำหนดตำแหน่งร้านของคุณเรียบร้อยแล้ว",
+          timer: 1500,
+          showConfirmButton: false,
+        });
       },
 
       (error) => {
@@ -294,15 +434,23 @@ const FormEditProfile = () => {
 
         setLocationLoading(false);
 
+        let message = "ไม่สามารถค้นหาพิกัดได้";
+
         if (error.code === 1) {
-          toast.error("กรุณาอนุญาตให้เว็บไซต์เข้าถึงตำแหน่งของคุณ");
+          message = "กรุณาอนุญาตให้เว็บไซต์เข้าถึงตำแหน่งของคุณ";
         } else if (error.code === 2) {
-          toast.error("ไม่สามารถระบุตำแหน่งได้");
+          message = "ไม่สามารถระบุตำแหน่งได้";
         } else if (error.code === 3) {
-          toast.error("ค้นหาพิกัดใช้เวลานานเกินไป");
-        } else {
-          toast.error("ไม่สามารถค้นหาพิกัดได้");
+          message = "ค้นหาพิกัดใช้เวลานานเกินไป";
         }
+
+        Swal.fire({
+          icon: "error",
+          title: "ค้นหาพิกัดไม่สำเร็จ",
+          text: message,
+          confirmButtonText: "ตกลง",
+          confirmButtonColor: "#f97316",
+        });
       },
 
       {
@@ -338,7 +486,12 @@ const FormEditProfile = () => {
       lng,
     }));
 
-    toast.success("เปลี่ยนตำแหน่งร้านแล้ว");
+    Swal.fire({
+      icon: "success",
+      title: "เปลี่ยนตำแหน่งร้านแล้ว",
+      timer: 1200,
+      showConfirmButton: false,
+    });
   };
 
   // =========================================================
@@ -568,7 +721,13 @@ const FormEditProfile = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("ไฟล์ต้องเป็นรูปภาพ");
+      Swal.fire({
+        icon: "error",
+        title: "ไฟล์ไม่ถูกต้อง",
+        text: "กรุณาเลือกไฟล์รูปภาพเท่านั้น",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#f97316",
+      });
       e.target.value = "";
       return;
     }
@@ -616,13 +775,24 @@ const FormEditProfile = () => {
 
           await getStore(token);
 
-          toast.success("เปลี่ยนรูปโปรไฟล์ร้านสำเร็จ");
+          Swal.fire({
+            icon: "success",
+            title: "เปลี่ยนรูปโปรไฟล์ร้านสำเร็จ",
+            timer: 1500,
+            showConfirmButton: false,
+          });
         } catch (error) {
           console.error("เปลี่ยนรูปโปรไฟล์ไม่สำเร็จ =", error);
 
-          toast.error(
-            error?.response?.data?.message || "เปลี่ยนรูปโปรไฟล์ไม่สำเร็จ",
-          );
+          Swal.fire({
+            icon: "error",
+            title: "เปลี่ยนรูปโปรไฟล์ไม่สำเร็จ",
+            text:
+              error?.response?.data?.message ||
+              "เปลี่ยนรูปโปรไฟล์ไม่สำเร็จ กรุณาลองใหม่",
+            confirmButtonText: "ตกลง",
+            confirmButtonColor: "#f97316",
+          });
         } finally {
           e.target.value = "";
         }
@@ -641,7 +811,13 @@ const FormEditProfile = () => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("ไฟล์ต้องเป็นรูปภาพ");
+      Swal.fire({
+        icon: "error",
+        title: "ไฟล์ไม่ถูกต้อง",
+        text: "กรุณาเลือกไฟล์รูปภาพเท่านั้น",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#f97316",
+      });
       e.target.value = "";
       return;
     }
@@ -689,13 +865,24 @@ const FormEditProfile = () => {
 
           await getStore(token);
 
-          toast.success("เปลี่ยน Banner สำเร็จ");
+          Swal.fire({
+            icon: "success",
+            title: "เปลี่ยน Banner สำเร็จ",
+            timer: 1500,
+            showConfirmButton: false,
+          });
         } catch (error) {
           console.error("เปลี่ยน Banner ไม่สำเร็จ =", error);
 
-          toast.error(
-            error?.response?.data?.message || "เปลี่ยน Banner ไม่สำเร็จ",
-          );
+          Swal.fire({
+            icon: "error",
+            title: "เปลี่ยน Banner ไม่สำเร็จ",
+            text:
+              error?.response?.data?.message ||
+              "เปลี่ยน Banner ไม่สำเร็จ กรุณาลองใหม่",
+            confirmButtonText: "ตกลง",
+            confirmButtonColor: "#f97316",
+          });
         } finally {
           e.target.value = "";
         }
@@ -932,6 +1119,109 @@ const FormEditProfile = () => {
                     placeholder="store@gmail.com"
                     className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-700 outline-none transition focus:border-orange-300 focus:bg-white focus:ring-2 focus:ring-orange-100"
                   />
+                </div>
+              </div>
+            </section>
+
+            <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-orange-100 sm:p-6">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-500">
+                  <LockKeyhole size={19} />
+                </div>
+
+                <div>
+                  <h2 className="font-bold text-gray-800">เปลี่ยนรหัสผ่าน</h2>
+                  <p className="text-xs text-gray-400">
+                    เปลี่ยนรหัสผ่านสำหรับเข้าสู่ระบบร้านค้า
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  {
+                    name: "oldPassword",
+                    label: "รหัสผ่านปัจจุบัน",
+                    placeholder: "กรอกรหัสผ่านปัจจุบัน",
+                  },
+                  {
+                    name: "newPassword",
+                    label: "รหัสผ่านใหม่",
+                    placeholder: "อย่างน้อย 8 ตัวอักษร",
+                  },
+                  {
+                    name: "confirmPassword",
+                    label: "ยืนยันรหัสผ่านใหม่",
+                    placeholder: "กรอกรหัสผ่านใหม่อีกครั้ง",
+                  },
+                ].map((field) => (
+                  <div key={field.name}>
+                    <label className="mb-2 block text-sm font-medium text-gray-600">
+                      {field.label}
+                    </label>
+
+                    <div className="relative">
+                      <input
+                        type={showPasswords[field.name] ? "text" : "password"}
+                        name={field.name}
+                        value={passwordForm[field.name]}
+                        onChange={handlePasswordChange}
+                        placeholder={field.placeholder}
+                        autoComplete="new-password"
+                        disabled={passwordLoading}
+                        className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 pr-12 text-sm text-gray-700 outline-none transition focus:border-orange-300 focus:bg-white focus:ring-2 focus:ring-orange-100 disabled:opacity-60"
+                      />
+
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setShowPasswords((prev) => ({
+                            ...prev,
+                            [field.name]: !prev[field.name],
+                          }))
+                        }
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500"
+                        aria-label={
+                          showPasswords[field.name]
+                            ? "ซ่อนรหัสผ่าน"
+                            : "แสดงรหัสผ่าน"
+                        }
+                      >
+                        {showPasswords[field.name] ? (
+                          <EyeOff size={18} />
+                        ) : (
+                          <Eye size={18} />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="rounded-2xl bg-[#FFF8F0] border border-orange-100 p-4 mb-6">
+                  <p className="text-sm font-semibold text-[#5F4638] mb-2">
+                    เงื่อนไขรหัสผ่าน
+                  </p>
+                  <ul className="text-sm text-[#9A8170] space-y-1 list-disc pl-5">
+                    <li>ความยาว 8–64 ตัวอักษร</li>
+                    <li>มีตัวพิมพ์เล็กและตัวพิมพ์ใหญ่ภาษาอังกฤษ</li>
+                    <li>มีตัวเลขอย่างน้อย 1 ตัว</li>
+                    <li>มีอักขระพิเศษอย่างน้อย 1 ตัว</li>
+                    <li>ไม่มีช่องว่าง</li>
+                  </ul>
+                </div>
+
+                <div className="flex justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={handleChangePassword}
+                    disabled={passwordLoading}
+                    className="flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <LockKeyhole size={17} />
+                    {passwordLoading
+                      ? "กำลังเปลี่ยนรหัสผ่าน..."
+                      : "เปลี่ยนรหัสผ่าน"}
+                  </button>
                 </div>
               </div>
             </section>
@@ -1232,11 +1522,13 @@ const FormEditProfile = () => {
 
               {/* Map */}
               <div className="relative overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
+                {" "}
                 <MapContainer
                   center={markerPosition || [DEFAULT_LAT, DEFAULT_LNG]}
                   zoom={15}
                   scrollWheelZoom={true}
                   className="h-[400px] w-full"
+                  style={{ zIndex: 0, position: "relative" }}
                 >
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>'
@@ -1255,7 +1547,6 @@ const FormEditProfile = () => {
                     />
                   )}
                 </MapContainer>
-
                 {!locationFound && (
                   <div className="absolute inset-0 z-[1000] flex items-center justify-center bg-white/65 backdrop-blur-[2px]">
                     <div className="mx-4 rounded-2xl bg-white px-6 py-5 text-center shadow-xl ring-1 ring-gray-100">

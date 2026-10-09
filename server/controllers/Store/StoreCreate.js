@@ -274,40 +274,81 @@ exports.updateEmail = async (req, res) => {
   }
 };
 
+
 exports.updatePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
     const storeId = req.store.id;
 
-    const store = await prisma.store.findFirst({
-      where: {
-        id: storeId,
-      },
-    });
-
-    // ต้องเช็ค password เก่าก่อน
-    const valid = await bcrypt.compare(oldPassword, store.password);
-    if (!valid) {
-      return res.status(400).json({ message: "รหัสผ่านเก่าไม่ถูกต้อง" });
+    if (!oldPassword || !newPassword) {
+      return res.status(400).json({
+        message: "กรุณากรอกรหัสผ่านให้ครบ",
+      });
     }
 
-    // ค่อยเปลี่ยนใหม่
+    // ตรวจรหัสผ่านใหม่ให้เหมือนตอนสมัครร้านค้า
+    if (
+      typeof newPassword !== "string" ||
+      newPassword.length < 8 ||
+      newPassword.length > 64 ||
+      /\s/.test(newPassword) ||
+      !/[a-z]/.test(newPassword) ||
+      !/[A-Z]/.test(newPassword) ||
+      !/[0-9]/.test(newPassword) ||
+      !/[^A-Za-z0-9\s]/.test(newPassword)
+    ) {
+      return res.status(400).json({
+        message:
+          "รหัสผ่านต้องมี 8-64 ตัวอักษร มีตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก ตัวเลข และอักขระพิเศษ โดยไม่มีช่องว่าง",
+      });
+    }
+
+    const store = await prisma.store.findUnique({
+      where: { id: storeId },
+    });
+
+    if (!store) {
+      return res.status(404).json({
+        message: "ไม่พบข้อมูลร้านค้า",
+      });
+    }
+
+    const valid = await bcrypt.compare(
+      oldPassword,
+      store.password
+    );
+
+    if (!valid) {
+      return res.status(400).json({
+        message: "รหัสผ่านปัจจุบันไม่ถูกต้อง",
+      });
+    }
+
+    // ห้ามใช้รหัสผ่านเดิมซ้ำ
+    if (oldPassword === newPassword) {
+      return res.status(400).json({
+        message: "รหัสผ่านใหม่ต้องแตกต่างจากรหัสผ่านเดิม",
+      });
+    }
+
     const hashPassword = await bcrypt.hash(newPassword, 10);
 
     await prisma.store.update({
-      where: {
-        id: storeId,
-      },
+      where: { id: storeId },
       data: { password: hashPassword },
     });
 
-    res.send({ message: "เปลี่ยนรหัสผ่านสำเร็จ" });
+    return res.status(200).json({
+      message: "เปลี่ยนรหัสผ่านสำเร็จ",
+    });
   } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Server Error" });
+    console.error("UPDATE STORE PASSWORD ERROR =", error);
+
+    return res.status(500).json({
+      message: "เกิดข้อผิดพลาดในการเปลี่ยนรหัสผ่าน",
+    });
   }
 };
-
 exports.updateUsername = async (req, res) => {
   // จำกัดการเปลี่ยน username ทุก 30 วัน
   try {

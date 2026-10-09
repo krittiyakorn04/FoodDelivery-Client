@@ -11,8 +11,7 @@ import {
 } from "lucide-react";
 
 import Resizer from "react-image-file-resizer";
-
-import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 import usefoodDelivery from "../../globalState/fooddeliveryStore";
 
@@ -23,121 +22,89 @@ import {
 
 const FormVerifyStore = () => {
   const token = usefoodDelivery((state) => state.token);
-
   const stores = usefoodDelivery((state) => state.stores);
-
   const getStore = usefoodDelivery((state) => state.getStore);
 
   const inputRef = useRef(null);
 
-  // ==========================================
-  // รูปที่เลือก แต่ยังไม่ได้อัปโหลด
-  // ==========================================
-
   const [images, setImages] = useState([]);
-
-  // ==========================================
-  // Loading
-  // ==========================================
-
   const [loading, setLoading] = useState(false);
 
   // ==========================================
   // โหลดข้อมูลร้าน
   // ==========================================
-
   useEffect(() => {
     if (token) {
       getStore(token);
     }
-  }, [token]);
+  }, [token, getStore]);
 
   // ==========================================
   // รูป Verify ที่อัปโหลดแล้ว
-  //
-  // รองรับทั้ง:
-  // Verify2026/xxxxx
-  // Verify2026xxxxx
   // ==========================================
-
   const verifyImages =
     stores?.images?.filter((image) =>
       image.public_id?.startsWith("Verify2026"),
     ) || [];
 
-  console.log("Store Data:", stores);
-  console.log("Store Images:", stores?.images);
-  console.log("Verify Images:", verifyImages);
-
   // ==========================================
   // เลือกรูป
   // ==========================================
-
   const handleSelectImages = (event) => {
     const files = Array.from(event.target.files || []);
 
-    if (files.length === 0) {
-      return;
-    }
-
-    // ========================================
-    // ตรวจสอบไฟล์
-    // ========================================
+    if (files.length === 0) return;
 
     const invalidFile = files.find(
       (file) => !file.type.startsWith("image/"),
     );
 
     if (invalidFile) {
-      toast.error("กรุณาเลือกรูปภาพเท่านั้น");
+      Swal.fire({
+        icon: "warning",
+        title: "ไฟล์ไม่ถูกต้อง",
+        text: "กรุณาเลือกรูปภาพเท่านั้น",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#FF6B35",
+      });
 
       event.target.value = "";
-
       return;
     }
-
-    // ========================================
-    // จำกัดขนาดไฟล์ก่อน Resize
-    // ========================================
 
     const largeFile = files.find(
       (file) => file.size > 10 * 1024 * 1024,
     );
 
     if (largeFile) {
-      toast.error("รูปภาพต้องมีขนาดไม่เกิน 10 MB");
+      Swal.fire({
+        icon: "warning",
+        title: "ไฟล์มีขนาดใหญ่เกินไป",
+        text: "รูปภาพต้องมีขนาดไม่เกิน 10 MB",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#FF6B35",
+      });
 
       event.target.value = "";
-
       return;
     }
 
-    // ========================================
-    // สร้าง Preview
-    // ========================================
-
     const newImages = files.map((file) => ({
       id: `${Date.now()}-${Math.random()}`,
-
       file,
-
       preview: URL.createObjectURL(file),
     }));
 
     setImages((prev) => [...prev, ...newImages]);
 
-    // เลือกรูปเดิมซ้ำได้
     event.target.value = "";
   };
 
   // ==========================================
   // ลบรูปที่ยังไม่ได้อัปโหลด
   // ==========================================
-
   const handleRemoveSelectedImage = (id) => {
-    if (loading) {
-      return;
-    }
+    if (loading) return;
 
     setImages((prev) => {
       const image = prev.find((item) => item.id === id);
@@ -152,36 +119,18 @@ const FormVerifyStore = () => {
 
   // ==========================================
   // Resize Image
-  //
-  // ใช้แบบเดียวกับ QR ร้านค้า
   // ==========================================
-
   const resizeImage = (file) => {
     return new Promise((resolve, reject) => {
       try {
         Resizer.default.imageFileResizer(
           file,
-
-          // Width
           1000,
-
-          // Height
           1000,
-
-          // Format
           "JPEG",
-
-          // Quality
           100,
-
-          // Rotation
           0,
-
-          (data) => {
-            resolve(data);
-          },
-
-          // Output
+          (data) => resolve(data),
           "base64",
         );
       } catch (error) {
@@ -193,16 +142,27 @@ const FormVerifyStore = () => {
   // ==========================================
   // Upload รูป Verify
   // ==========================================
-
   const handleUpload = async () => {
     if (!token) {
-      toast.error("ไม่พบข้อมูลการเข้าสู่ระบบ");
+      await Swal.fire({
+        icon: "warning",
+        title: "ไม่พบข้อมูลการเข้าสู่ระบบ",
+        text: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#FF6B35",
+      });
 
       return;
     }
 
     if (images.length === 0) {
-      toast.error("กรุณาเลือกรูปยืนยันตัวตนก่อนอัปโหลด");
+      await Swal.fire({
+        icon: "warning",
+        title: "ยังไม่ได้เลือกรูป",
+        text: "กรุณาเลือกรูปยืนยันตัวตนก่อนอัปโหลด",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#FF6B35",
+      });
 
       return;
     }
@@ -210,38 +170,19 @@ const FormVerifyStore = () => {
     try {
       setLoading(true);
 
-      // ========================================
-      // Upload ทีละรูป
-      // ========================================
-
       for (let index = 0; index < images.length; index++) {
         const image = images[index];
 
-        // Resize รูปเป็น Base64
         const data = await resizeImage(image.file);
 
         console.log(
           `กำลังอัปโหลดรูปยืนยันตัวตน ${index + 1}/${images.length}`,
         );
 
-        // ======================================
-        // Upload เฉพาะรูปยืนยันตัวตน
-        // ======================================
-
         await uploadFilesVerify(token, data);
       }
 
-      // ========================================
-      // โหลดข้อมูลร้านใหม่
-      // เพื่อให้รูปที่อัปโหลด
-      // แสดงใน "รูปที่ส่งแล้ว"
-      // ========================================
-
       await getStore(token);
-
-      // ========================================
-      // ล้าง Preview เดิม
-      // ========================================
 
       images.forEach((image) => {
         if (image.preview) {
@@ -251,14 +192,27 @@ const FormVerifyStore = () => {
 
       setImages([]);
 
-      toast.success("อัปโหลดรูปยืนยันตัวตนสำเร็จ");
+      await Swal.fire({
+        icon: "success",
+        title: "อัปโหลดสำเร็จ",
+        text: "อัปโหลดรูปยืนยันตัวตนสำเร็จ",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#FF6B35",
+        timer: 1800,
+        timerProgressBar: true,
+      });
     } catch (error) {
-      console.log("Upload Verify Error:", error);
+      console.error("Upload Verify Error:", error);
 
-      toast.error(
-        error.response?.data?.message ||
+      await Swal.fire({
+        icon: "error",
+        title: "อัปโหลดไม่สำเร็จ",
+        text:
+          error.response?.data?.message ||
           "อัปโหลดรูปยืนยันตัวตนไม่สำเร็จ",
-      );
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#FF6B35",
+      });
     } finally {
       setLoading(false);
     }
@@ -267,36 +221,73 @@ const FormVerifyStore = () => {
   // ==========================================
   // ลบรูป Verify ที่อัปโหลดแล้ว
   // ==========================================
-
   const handleRemoveVerifyImage = async (image) => {
     if (!token) {
-      toast.error("ไม่พบข้อมูลการเข้าสู่ระบบ");
+      await Swal.fire({
+        icon: "warning",
+        title: "ไม่พบข้อมูลการเข้าสู่ระบบ",
+        text: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#FF6B35",
+      });
 
       return;
     }
 
     if (!image?.public_id) {
-      toast.error("ไม่พบข้อมูลรูปภาพ");
+      await Swal.fire({
+        icon: "error",
+        title: "ไม่พบข้อมูลรูปภาพ",
+        text: "ไม่สามารถลบรูปภาพนี้ได้",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#FF6B35",
+      });
 
       return;
     }
+
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "ยืนยันการลบรูปภาพ",
+      text: "คุณต้องการลบรูปยืนยันตัวตนนี้ใช่หรือไม่?",
+      showCancelButton: true,
+      confirmButtonText: "ลบรูปภาพ",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#E8491D",
+      cancelButtonColor: "#9CA3AF",
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       setLoading(true);
 
       await removeFilesVerify(token, image.public_id);
 
-      // โหลดข้อมูลร้านใหม่
       await getStore(token);
 
-      toast.success("ลบรูปยืนยันตัวตนสำเร็จ");
+      await Swal.fire({
+        icon: "success",
+        title: "ลบสำเร็จ",
+        text: "ลบรูปยืนยันตัวตนสำเร็จ",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#FF6B35",
+        timer: 1800,
+        timerProgressBar: true,
+      });
     } catch (error) {
-      console.log("Remove Verify Error:", error);
+      console.error("Remove Verify Error:", error);
 
-      toast.error(
-        error.response?.data?.message ||
+      await Swal.fire({
+        icon: "error",
+        title: "ลบรูปไม่สำเร็จ",
+        text:
+          error.response?.data?.message ||
           "ลบรูปไม่สำเร็จ",
-      );
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#FF6B35",
+      });
     } finally {
       setLoading(false);
     }
@@ -305,7 +296,6 @@ const FormVerifyStore = () => {
   // ==========================================
   // Cleanup Preview
   // ==========================================
-
   useEffect(() => {
     return () => {
       images.forEach((image) => {
@@ -319,17 +309,11 @@ const FormVerifyStore = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-5 pb-20">
       <div className="mx-auto max-w-xl space-y-6">
-        {/* ==================================
-            HEADER
-        =================================== */}
-
+        {/* HEADER */}
         <div className="rounded-3xl bg-white p-6 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100">
-              <ShieldCheck
-                size={30}
-                className="text-orange-500"
-              />
+              <ShieldCheck size={30} className="text-orange-500" />
             </div>
 
             <div>
@@ -344,10 +328,7 @@ const FormVerifyStore = () => {
           </div>
         </div>
 
-        {/* ==================================
-            STATUS
-        =================================== */}
-
+        {/* STATUS */}
         <div className="rounded-3xl border border-yellow-200 bg-yellow-50 p-5">
           <div className="flex items-start gap-3">
             <AlertCircle
@@ -368,10 +349,7 @@ const FormVerifyStore = () => {
           </div>
         </div>
 
-        {/* ==================================
-            GUIDE
-        =================================== */}
-
+        {/* GUIDE */}
         <div className="rounded-3xl bg-white p-6 shadow-sm">
           <h2 className="mb-4 text-lg font-bold">
             รูปที่ต้องเตรียม
@@ -379,40 +357,22 @@ const FormVerifyStore = () => {
 
           <div className="space-y-3 text-sm text-gray-600">
             <div className="flex gap-3">
-              <span className="font-bold text-orange-500">
-                1.
-              </span>
-
-              <p>
-                รูปบัตรหรือเอกสารที่ใช้สำหรับยืนยันตัวตน
-              </p>
+              <span className="font-bold text-orange-500">1.</span>
+              <p>รูปบัตรหรือเอกสารที่ใช้สำหรับยืนยันตัวตน</p>
             </div>
 
             <div className="flex gap-3">
-              <span className="font-bold text-orange-500">
-                2.
-              </span>
-
-              <p>
-                รูปต้องเห็นข้อมูลชัดเจน ไม่เบลอ
-              </p>
+              <span className="font-bold text-orange-500">2.</span>
+              <p>รูปต้องเห็นข้อมูลชัดเจน ไม่เบลอ</p>
             </div>
 
             <div className="flex gap-3">
-              <span className="font-bold text-orange-500">
-                3.
-              </span>
-
-              <p>
-                สามารถเพิ่มได้มากกว่า 1 รูป
-              </p>
+              <span className="font-bold text-orange-500">3.</span>
+              <p>สามารถเพิ่มได้มากกว่า 1 รูป</p>
             </div>
 
             <div className="flex gap-3">
-              <span className="font-bold text-orange-500">
-                4.
-              </span>
-
+              <span className="font-bold text-orange-500">4.</span>
               <p>
                 รูปที่อัปโหลดในหน้านี้ใช้สำหรับยืนยันตัวตนร้านเท่านั้น
               </p>
@@ -420,32 +380,21 @@ const FormVerifyStore = () => {
           </div>
         </div>
 
-        {/* ==================================
-            UPLOAD
-        =================================== */}
-
+        {/* UPLOAD */}
         <div className="rounded-3xl bg-white p-6 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold">
-                รูปยืนยันตัวตน
-              </h2>
+              <h2 className="text-lg font-bold">รูปยืนยันตัวตน</h2>
 
               <p className="mt-1 text-sm text-gray-400">
                 เลือกรูปภาพที่ต้องการส่งตรวจสอบ
               </p>
             </div>
 
-            <ImagePlus
-              size={28}
-              className="text-orange-500"
-            />
+            <ImagePlus size={28} className="text-orange-500" />
           </div>
 
-          {/* ==================================
-              IMPORTANT NOTICE
-          =================================== */}
-
+          {/* IMPORTANT NOTICE */}
           <div className="mb-5 rounded-2xl border border-orange-200 bg-orange-50 p-4">
             <div className="flex items-start gap-3">
               <ShieldCheck
@@ -467,32 +416,12 @@ const FormVerifyStore = () => {
             </div>
           </div>
 
-          {/* ================================
-              SELECT IMAGE BUTTON
-          ================================= */}
-
+          {/* SELECT IMAGE BUTTON */}
           <button
             type="button"
             disabled={loading}
             onClick={() => inputRef.current?.click()}
-            className="
-              flex
-              w-full
-              cursor-pointer
-              flex-col
-              items-center
-              justify-center
-              rounded-2xl
-              border-2
-              border-dashed
-              border-orange-200
-              bg-orange-50
-              p-8
-              transition
-              hover:bg-orange-100
-              disabled:cursor-not-allowed
-              disabled:opacity-50
-            "
+            className="flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-orange-200 bg-orange-50 p-8 transition hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-50"
           >
             <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-orange-500 text-white">
               <ImagePlus size={28} />
@@ -511,8 +440,6 @@ const FormVerifyStore = () => {
             </p>
           </button>
 
-          {/* INPUT */}
-
           <input
             ref={inputRef}
             type="file"
@@ -522,10 +449,7 @@ const FormVerifyStore = () => {
             onChange={handleSelectImages}
           />
 
-          {/* ==================================
-              รูปที่เลือก แต่ยังไม่ Upload
-          =================================== */}
-
+          {/* รูปที่เลือก แต่ยังไม่ Upload */}
           {images.length > 0 && (
             <div className="mt-6">
               <div className="mb-3 flex items-center justify-between">
@@ -557,30 +481,13 @@ const FormVerifyStore = () => {
                       className="h-48 w-full object-cover"
                     />
 
-                    {/* DELETE */}
-
                     <button
                       type="button"
                       disabled={loading}
                       onClick={() =>
                         handleRemoveSelectedImage(image.id)
                       }
-                      className="
-                        absolute
-                        right-2
-                        top-2
-                        flex
-                        h-9
-                        w-9
-                        items-center
-                        justify-center
-                        rounded-full
-                        bg-black/60
-                        text-white
-                        transition
-                        hover:bg-red-500
-                        disabled:opacity-50
-                      "
+                      className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-red-500 disabled:opacity-50"
                     >
                       <X size={18} />
                     </button>
@@ -594,10 +501,7 @@ const FormVerifyStore = () => {
             </div>
           )}
 
-          {/* ==================================
-              รูป Verify ที่ Upload แล้ว
-          =================================== */}
-
+          {/* รูป Verify ที่ Upload แล้ว */}
           {verifyImages.length > 0 && (
             <div className="mt-6">
               <div className="mb-3 flex items-center justify-between">
@@ -620,48 +524,23 @@ const FormVerifyStore = () => {
               <div className="grid grid-cols-2 gap-4">
                 {verifyImages.map((image, index) => (
                   <div
-                    key={
-                      image.id ||
-                      image.public_id ||
-                      index
-                    }
+                    key={image.id || image.public_id || index}
                     className="relative overflow-hidden rounded-2xl border bg-gray-100"
                   >
                     <img
-                      src={image.url}
+                      src={image.secure_url || image.url}
                       alt={`รูปยืนยันตัวตน ${index + 1}`}
                       className="h-48 w-full object-cover"
                     />
 
-                    {/* DELETE */}
-
                     <button
                       type="button"
                       disabled={loading}
-                      onClick={() =>
-                        handleRemoveVerifyImage(image)
-                      }
-                      className="
-                        absolute
-                        right-2
-                        top-2
-                        flex
-                        h-9
-                        w-9
-                        items-center
-                        justify-center
-                        rounded-full
-                        bg-black/60
-                        text-white
-                        transition
-                        hover:bg-red-500
-                        disabled:opacity-50
-                      "
+                      onClick={() => handleRemoveVerifyImage(image)}
+                      className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-red-500 disabled:opacity-50"
                     >
                       <X size={18} />
                     </button>
-
-                    {/* LABEL */}
 
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-3 py-2 text-xs text-white">
                       รูปยืนยันตัวตน {index + 1}
@@ -672,54 +551,25 @@ const FormVerifyStore = () => {
             </div>
           )}
 
-          {/* ==================================
-              EMPTY UPLOADED IMAGE
-          =================================== */}
+          {/* EMPTY UPLOADED IMAGE */}
+          {verifyImages.length === 0 && images.length === 0 && (
+            <div className="mt-5 rounded-2xl bg-gray-50 p-4 text-center">
+              <p className="text-sm text-gray-400">
+                ยังไม่มีรูปยืนยันตัวตนที่ส่งแล้ว
+              </p>
+            </div>
+          )}
 
-          {verifyImages.length === 0 &&
-            images.length === 0 && (
-              <div className="mt-5 rounded-2xl bg-gray-50 p-4 text-center">
-                <p className="text-sm text-gray-400">
-                  ยังไม่มีรูปยืนยันตัวตนที่ส่งแล้ว
-                </p>
-              </div>
-            )}
-
-          {/* ==================================
-              UPLOAD BUTTON
-          =================================== */}
-
+          {/* UPLOAD BUTTON */}
           <button
             type="button"
-            disabled={
-              loading || images.length === 0
-            }
+            disabled={loading || images.length === 0}
             onClick={handleUpload}
-            className="
-              mt-6
-              flex
-              w-full
-              items-center
-              justify-center
-              gap-2
-              rounded-2xl
-              bg-orange-500
-              py-4
-              font-bold
-              text-white
-              shadow-lg
-              transition
-              hover:bg-orange-600
-              disabled:cursor-not-allowed
-              disabled:bg-gray-300
-            "
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 py-4 font-bold text-white shadow-lg transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-gray-300"
           >
             {loading ? (
               <>
-                <Loader2
-                  size={20}
-                  className="animate-spin"
-                />
+                <Loader2 size={20} className="animate-spin" />
                 กำลังอัปโหลด...
               </>
             ) : (
@@ -731,10 +581,7 @@ const FormVerifyStore = () => {
           </button>
         </div>
 
-        {/* ==================================
-            NOTE
-        =================================== */}
-
+        {/* NOTE */}
         <div className="rounded-2xl bg-gray-100 p-4">
           <p className="text-sm text-gray-500">
             <span className="font-semibold text-gray-700">

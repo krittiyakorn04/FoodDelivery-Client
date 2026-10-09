@@ -1161,7 +1161,8 @@ STORE CATEGORIES
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 max-w-2xl">
+            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 w-full">
+              {" "}
               {recommendedMenus.map((menu) => (
                 <div
                   key={`recommended-${menu.id}`}
@@ -1437,12 +1438,13 @@ STORE CATEGORIES
                   ) : (
                     <div
                       className="
-                    grid
-                    grid-cols-2
-                    gap-4
-                    max-w-2xl
-                    justify-start
-                  "
+    grid
+    grid-cols-2
+    lg:grid-cols-3
+    xl:grid-cols-4
+    gap-5
+    w-full
+  "
                     >
                       {list.map((menu) => (
                         <div

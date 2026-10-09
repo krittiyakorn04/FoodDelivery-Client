@@ -403,21 +403,24 @@ const StoreNav = () => {
                   />
 
                   <div
-                    className="
-                      absolute
-                      right-0
-                      z-50
-                      mt-2
-                      w-[360px]
-                      max-w-[calc(100vw-2rem)]
-                      overflow-hidden
-                      rounded-2xl
-                      border
-                      border-orange-100
-                      bg-white
-                      shadow-xl
-                      shadow-gray-200/60
-                    "
+                   className="
+  fixed
+  top-[72px]
+  right-3
+  z-[60]
+  w-[calc(100vw-24px)]
+  max-w-[360px]
+  overflow-hidden
+  rounded-2xl
+  border
+  border-orange-100
+  bg-white
+  shadow-xl
+  shadow-gray-200/60
+  sm:right-6
+  sm:w-[360px]
+  lg:right-[max(24px,calc((100vw-1280px)/2+24px))]
+"
                   >
                     {/* Header */}
                     <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
@@ -466,9 +469,7 @@ const StoreNav = () => {
                           <button
                             key={notification.id}
                             type="button"
-                            onClick={() =>
-                              handleReadNotification(notification)
-                            }
+                            onClick={() => handleReadNotification(notification)}
                             className={`
                               flex
                               w-full
@@ -515,9 +516,7 @@ const StoreNav = () => {
                               </p>
 
                               <p className="mt-1.5 text-[10px] text-gray-400">
-                                {formatNotificationTime(
-                                  notification.createdAt,
-                                )}
+                                {formatNotificationTime(notification.createdAt)}
                               </p>
                             </div>
                           </button>
@@ -547,7 +546,7 @@ const StoreNav = () => {
                   border
                   border-orange-100
                   bg-white
-                  px-2
+                  px-0
                   py-1.5
                   shadow-sm
                   transition
@@ -595,23 +594,7 @@ const StoreNav = () => {
                     className="fixed inset-0 z-40"
                     onClick={() => setOpen(false)}
                   />
-
-                  <div
-                    className="
-                      absolute
-                      right-0
-                      z-50
-                      mt-2
-                      w-64
-                      overflow-hidden
-                      rounded-2xl
-                      border
-                      border-orange-100
-                      bg-white
-                      shadow-xl
-                      shadow-gray-200/60
-                    "
-                  >
+                  <div className=" absolute right-0 z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-xl shadow-gray-200/60 ">
                     {/* ข้อมูลร้าน */}
                     <div
                       className="
@@ -644,7 +627,6 @@ const StoreNav = () => {
                         </div>
                       </div>
                     </div>
-
                     {/* จัดการโปรไฟล์ */}
                     <button
                       type="button"
@@ -674,7 +656,6 @@ const StoreNav = () => {
                         โปรไฟล์ร้าน
                       </span>
                     </button>
-
                     {/* Logout */}
                     <button
                       type="button"

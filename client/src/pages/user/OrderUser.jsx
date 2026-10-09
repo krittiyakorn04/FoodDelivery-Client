@@ -88,10 +88,8 @@ const CheckoutPage = () => {
 
         setCart(res.data);
       } catch (error) {
-        console.log("Cart ไม่มีแล้ว:", error);
 
-        // ไม่ต้อง Swal / toast / setError
-        // ให้ถือว่าเป็นตะกร้าว่าง
+
         setCart(null);
       } finally {
         setLoading(false);
