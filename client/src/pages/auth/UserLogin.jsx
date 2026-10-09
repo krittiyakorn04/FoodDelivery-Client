@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 import usefoodDelivery from "../../globalState/fooddeliveryStore";
 import { useLocation, useNavigate } from "react-router-dom";
 import { enablePushNotification } from "../../utils/pushNotification";
@@ -40,12 +40,7 @@ const UserLogin = () => {
       // Login ต้องไปต่อก่อน
       roldRediract(role);
 
-      toast.success("Welcome Back");
-
       // Push ทำงานเบื้องหลัง ไม่ขวาง Login
-      console.log("========== CUSTOMER PUSH TEST ==========");
-      console.log("role =", role);
-      console.log("token exists =", !!token);
 
       if (token && role === "CUSTOMER") {
         console.log("กำลังเรียก enablePushNotification...");
@@ -61,9 +56,15 @@ const UserLogin = () => {
     } catch (error) {
       console.log(error);
 
-      const errMsg = error.response?.data?.message || "Login failed";
+      const errMsg = error.response?.data?.message || "เข้าสู่ระบบไม่สำเร็จ";
 
-      toast.error(errMsg);
+      Swal.fire({
+        icon: "warning",
+        title: "เข้าสู่ระบบไม่สำเร็จ",
+        text: errMsg,
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#f97316",
+      });
     }
   };
 
@@ -119,13 +120,14 @@ const UserLogin = () => {
           --herb: #5B8C5A;
           --herb-deep: #3F6B3F;
 
-          position: relative;
-          min-height: 100vh;
-          overflow: hidden;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 40px 24px;
+            position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
           font-family: 'Noto Sans Thai', sans-serif;
           color: var(--charcoal);
           background:
@@ -216,21 +218,17 @@ const UserLogin = () => {
         href="https://fonts.googleapis.com/css2?family=Kanit:wght@600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap"
       />
 
-      <div></div>
-
-      <div>
+      <div className="w-full max-w-4xl">
         <form onSubmit={handleSubmit}>
-          <div className=" bg-white rounded-3xl border border-orange-100 shadow-[0_20px_50px_-20px_rgba(42,27,18,0.25)] p-20 md:p-8 ">
-            <h1 className="text-3xl font-bold text-gray-800">
-              Login User Account
-            </h1>
-
-            <p className="text-gray-500 mt-2 mb-6">Register your Account.</p>
-
+          <div className="w-full bg-white rounded-3xl border border-orange-100 shadow-[0_20px_50px_-20px_rgba(42,27,18,0.25)] p-8 sm:p-10 md:p-12">
+            <h1 className="text-3xl font-bold text-gray-800">เข้าสู่ระบบ</h1>
+            <p className="text-gray-500 mt-2 mb-6">
+              เข้าสู่ระบบผู้ใช้ของคุณเพื่อสร้างคำสั่งซื้อ
+            </p>
             {/* Username */}
             <div className="mb-4">
               <label className="text-sm text-gray-600 mb-2 block">
-                Username
+                ชื่อผู้ใช้
               </label>
 
               <input
@@ -239,14 +237,13 @@ const UserLogin = () => {
                 value={form.username}
                 onChange={handleOnChacng}
                 placeholder="username"
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full min-w-0 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-base text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400"
               />
             </div>
-
             {/* Password */}
             <div className="mb-4">
               <label className="text-sm text-gray-600 mb-2 block">
-                Password
+                รหัสผ่าน
               </label>
 
               <input
@@ -255,40 +252,37 @@ const UserLogin = () => {
                 value={form.password}
                 onChange={handleOnChacng}
                 placeholder="********"
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                className="w-full min-w-0 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3.5 text-base text-gray-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-400"
               />
             </div>
-
             <button
               type="submit"
-              className="w-full rounded-xl bg-orange-500 py-3 text-white font-semibold hover:bg-orange-600 transition"
+              className="w-full rounded-xl bg-orange-500 py-3 text-white font-semibold hover:bg-orange-600 transition touch-manipulation"
             >
-              Register
+              เข้าสู่ระบบ
             </button>
-
             {/* Divider */}
             <div className="flex items-center gap-3 my-6">
               <div className="h-px bg-gray-200 flex-1"></div>
               <span className="text-gray-400 text-sm">or</span>
               <div className="h-px bg-gray-200 flex-1"></div>
             </div>
-
-            {/* Google */}
-            <button className="w-full border rounded-xl py-3 flex items-center justify-center gap-3 hover:bg-gray-50">
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                className="w-5 h-5"
-              />
-              Continue with Google
-            </button>
-
             {/* Login */}
             <p className="text-center mt-6 text-gray-500">
-              Already have an account?{" "}
-              <button className="text-orange-500 font-semibold">Login</button>
+              คุณยังไม่มีบัญชีใช่ไหม?{" "}
+              <button
+                type="button"
+                onClick={() => navigate("/UserRegister")}
+                className="text-orange-500 font-semibold"
+              >
+                สมัครสมาชิก
+              </button>
             </p>
           </div>
         </form>
+        <p className="text-center text-xs text-gray-400 mt-5">
+          © 2026 RobMorFood
+        </p>
       </div>
     </div>
   );

@@ -28,12 +28,6 @@ import { getOrder } from "../../api/UserOrder";
 
 const STATUS_TABS = [
   {
-    key: "ALL",
-    label: "ทั้งหมด",
-    icon: ShoppingBag,
-    activeClass: "bg-orange-500 text-white",
-  },
-  {
     key: "PENDING",
     label: "รอร้านยืนยัน",
     icon: Hourglass,
@@ -68,6 +62,12 @@ const STATUS_TABS = [
     label: "ยกเลิก",
     icon: X,
     activeClass: "bg-red-500 text-white",
+  },
+  {
+    key: "ALL",
+    label: "ทั้งหมด",
+    icon: ShoppingBag,
+    activeClass: "bg-orange-500 text-white",
   },
 ];
 
@@ -137,8 +137,7 @@ const getStatusMeta = (order) => {
     return {
       label: "ยกเลิก",
       icon: X,
-      className:
-        "bg-red-100 text-red-700 border-red-200",
+      className: "bg-red-100 text-red-700 border-red-200",
     };
   }
 
@@ -146,8 +145,7 @@ const getStatusMeta = (order) => {
     return {
       label: "รอร้านยืนยัน",
       icon: Hourglass,
-      className:
-        "bg-yellow-100 text-yellow-700 border-yellow-200",
+      className: "bg-yellow-100 text-yellow-700 border-yellow-200",
     };
   }
 
@@ -155,8 +153,7 @@ const getStatusMeta = (order) => {
     return {
       label: "รอชำระเงิน",
       icon: CreditCard,
-      className:
-        "bg-sky-100 text-sky-700 border-sky-200",
+      className: "bg-sky-100 text-sky-700 border-sky-200",
     };
   }
 
@@ -164,8 +161,7 @@ const getStatusMeta = (order) => {
     return {
       label: "ร้านยืนยันแล้ว",
       icon: CheckCircle2,
-      className:
-        "bg-blue-100 text-blue-700 border-blue-200",
+      className: "bg-blue-100 text-blue-700 border-blue-200",
     };
   }
 
@@ -173,8 +169,7 @@ const getStatusMeta = (order) => {
     return {
       label: "กำลังทำอาหาร",
       icon: ChefHat,
-      className:
-        "bg-orange-100 text-orange-700 border-orange-200",
+      className: "bg-orange-100 text-orange-700 border-orange-200",
     };
   }
 
@@ -182,8 +177,7 @@ const getStatusMeta = (order) => {
     return {
       label: "รอจัดส่ง",
       icon: Package,
-      className:
-        "bg-purple-100 text-purple-700 border-purple-200",
+      className: "bg-purple-100 text-purple-700 border-purple-200",
     };
   }
 
@@ -191,8 +185,7 @@ const getStatusMeta = (order) => {
     return {
       label: "กำลังจัดส่ง",
       icon: Truck,
-      className:
-        "bg-blue-100 text-blue-700 border-blue-200",
+      className: "bg-blue-100 text-blue-700 border-blue-200",
     };
   }
 
@@ -200,16 +193,14 @@ const getStatusMeta = (order) => {
     return {
       label: "เสร็จสิ้น",
       icon: CheckCircle2,
-      className:
-        "bg-green-100 text-green-700 border-green-200",
+      className: "bg-green-100 text-green-700 border-green-200",
     };
   }
 
   return {
     label: "ไม่ทราบสถานะ",
     icon: Hourglass,
-    className:
-      "bg-gray-100 text-gray-600 border-gray-200",
+    className: "bg-gray-100 text-gray-600 border-gray-200",
   };
 };
 
@@ -237,10 +228,7 @@ const parseOptions = (options) => {
   if (!options) return [];
 
   try {
-    const parsed =
-      typeof options === "string"
-        ? JSON.parse(options)
-        : options;
+    const parsed = typeof options === "string" ? JSON.parse(options) : options;
 
     return Array.isArray(parsed) ? parsed : [];
   } catch {
@@ -255,29 +243,21 @@ const parseOptions = (options) => {
 const addMinutesToTime = (time, minutes) => {
   if (!time) return "-";
 
-  const [hour, minute] = String(time)
-    .slice(0, 5)
-    .split(":")
-    .map(Number);
+  const [hour, minute] = String(time).slice(0, 5).split(":").map(Number);
 
-  if (
-    Number.isNaN(hour) ||
-    Number.isNaN(minute)
-  ) {
+  if (Number.isNaN(hour) || Number.isNaN(minute)) {
     return "-";
   }
 
-  const totalMinutes =
-    hour * 60 + minute + minutes;
+  const totalMinutes = hour * 60 + minute + minutes;
 
-  const finalHour =
-    Math.floor(totalMinutes / 60) % 24;
+  const finalHour = Math.floor(totalMinutes / 60) % 24;
 
   const finalMinute = totalMinutes % 60;
 
   return `${String(finalHour).padStart(
     2,
-    "0"
+    "0",
   )}:${String(finalMinute).padStart(2, "0")}`;
 };
 
@@ -288,18 +268,14 @@ const addMinutesToTime = (time, minutes) => {
 const OrderUser = () => {
   const navigate = useNavigate();
 
-  const token = usefoodDelivery(
-    (state) => state.token
-  );
+  const token = usefoodDelivery((state) => state.token);
 
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const [openOrders, setOpenOrders] =
-    useState({});
+  const [openOrders, setOpenOrders] = useState({});
 
-  const [activeStatus, setActiveStatus] =
-    useState("ALL");
+  const [activeStatus, setActiveStatus] = useState("PENDING");
 
   // =========================================================
   // LOAD ORDERS
@@ -315,9 +291,7 @@ const OrderUser = () => {
     let mounted = true;
     let isLoading = false;
 
-    const loadOrders = async (
-      showLoading = false
-    ) => {
+    const loadOrders = async (showLoading = false) => {
       if (isLoading) return;
 
       isLoading = true;
@@ -331,37 +305,21 @@ const OrderUser = () => {
 
         if (!mounted) return;
 
-        const newOrders = Array.isArray(
-          res.data
-        )
-          ? res.data
-          : [];
+        const newOrders = Array.isArray(res.data) ? res.data : [];
 
         setOrders(newOrders);
       } catch (error) {
-        console.log(
-          "โหลด Order ไม่สำเร็จ =",
-          error
-        );
+        console.log("โหลด Order ไม่สำเร็จ =", error);
 
-        console.log(
-          "status =",
-          error.response?.status
-        );
+        console.log("status =", error.response?.status);
 
-        console.log(
-          "data =",
-          error.response?.data
-        );
+        console.log("data =", error.response?.data);
 
         if (showLoading && mounted) {
           Swal.fire({
             icon: "error",
-            title:
-              "ไม่สามารถโหลดรายการสั่งซื้อได้",
-            text:
-              error.response?.data?.message ||
-              "กรุณาลองใหม่อีกครั้ง",
+            title: "ไม่สามารถโหลดรายการสั่งซื้อได้",
+            text: error.response?.data?.message || "กรุณาลองใหม่อีกครั้ง",
             confirmButtonColor: "#f97316",
           });
         }
@@ -398,10 +356,7 @@ const OrderUser = () => {
     }
 
     return orders.filter((order) => {
-      return (
-        getOrderDisplayStatus(order) ===
-        activeStatus
-      );
+      return getOrderDisplayStatus(order) === activeStatus;
     });
   }, [orders, activeStatus]);
 
@@ -414,10 +369,8 @@ const OrderUser = () => {
       return orders.length;
     }
 
-    return orders.filter(
-      (order) =>
-        getOrderDisplayStatus(order) === status
-    ).length;
+    return orders.filter((order) => getOrderDisplayStatus(order) === status)
+      .length;
   };
 
   // =========================================================
@@ -437,33 +390,178 @@ const OrderUser = () => {
 
   if (loading) {
     return (
-      <div
-        className="
-          min-h-screen
-          bg-[#FFF8F0]
-          flex
-          items-center
-          justify-center
-        "
-      >
-        <div className="text-center">
-          <div
-            className="
-              w-10
-              h-10
-              border-4
-              border-orange-200
-              border-t-orange-500
-              rounded-full
-              animate-spin
-              mx-auto
-              mb-4
-            "
-          />
+      <div className="min-h-screen bg-[#FFF8F0] animate-pulse">
+        {/* =====================================================
+          HEADER
+      ===================================================== */}
+        <div className="bg-white border-b border-orange-100">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+            <div className="flex items-center gap-3">
+              {/* ปุ่มย้อนกลับ */}
+              <div className="w-10 h-10 rounded-xl bg-orange-100 shrink-0" />
 
-          <p className="text-gray-500">
-            กำลังโหลดรายการสั่งซื้อ...
-          </p>
+              <div className="space-y-2">
+                {/* ชื่อหน้า */}
+                <div className="h-5 w-32 rounded-lg bg-gray-200" />
+
+                {/* คำอธิบาย */}
+                <div className="h-3 w-44 rounded-lg bg-gray-100" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* =====================================================
+          CONTENT
+      ===================================================== */}
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5">
+          {/* =====================================================
+            STATUS TABS
+        ===================================================== */}
+          <div className="flex gap-2 overflow-hidden pb-3 mb-5">
+            {[1, 2, 3, 4, 5].map((item) => (
+              <div
+                key={item}
+                className="h-10 w-28 shrink-0 rounded-full bg-orange-100"
+              />
+            ))}
+          </div>
+
+          {/* =====================================================
+            CURRENT STATUS
+        ===================================================== */}
+          <div className="mb-5 flex items-center justify-between gap-3 bg-white border border-orange-100 rounded-2xl px-4 py-3">
+            <div className="space-y-2">
+              <div className="h-3 w-16 rounded bg-gray-100" />
+              <div className="h-4 w-28 rounded bg-gray-200" />
+            </div>
+
+            <div className="rounded-xl bg-orange-100 px-5 py-2">
+              <div className="h-5 w-8 rounded bg-orange-200" />
+            </div>
+          </div>
+
+          {/* =====================================================
+            ORDER CARDS
+        ===================================================== */}
+          <div className="space-y-5">
+            {[1, 2, 3].map((order) => (
+              <div
+                key={order}
+                className="
+                bg-white
+                rounded-3xl
+                shadow-sm
+                border
+                border-orange-100
+                overflow-hidden
+              "
+              >
+                {/* =================================================
+                  ORDER HEADER
+              ================================================= */}
+                <div className="p-5 sm:p-6">
+                  <div className="flex items-start justify-between gap-4">
+                    {/* ร้าน / Order */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className="
+                        w-12
+                        h-12
+                        rounded-2xl
+                        bg-orange-100
+                        shrink-0
+                      "
+                      />
+
+                      <div className="space-y-2">
+                        <div className="h-5 w-36 rounded-lg bg-gray-200" />
+                        <div className="h-3 w-28 rounded-lg bg-gray-100" />
+                      </div>
+                    </div>
+
+                    {/* วันที่ */}
+                    <div className="h-7 w-28 rounded-xl bg-gray-100 shrink-0" />
+                  </div>
+                </div>
+
+                {/* =================================================
+                  STATUS
+              ================================================= */}
+                <div className="px-5 sm:px-6 pb-5">
+                  <div className="bg-gray-50 border border-gray-100 rounded-2xl p-3">
+                    <div className="h-11 w-full rounded-xl bg-gray-200" />
+                  </div>
+                </div>
+
+                {/* =================================================
+                  ORDER ROUND
+              ================================================= */}
+                <div className="px-5 sm:px-6 pb-5">
+                  <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-orange-100 shrink-0" />
+
+                        <div className="space-y-2">
+                          <div className="h-3 w-20 rounded bg-gray-100" />
+                          <div className="h-4 w-16 rounded bg-gray-200" />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <div className="h-3 w-24 rounded bg-gray-200" />
+                        <div className="h-3 w-20 rounded bg-green-100 ml-auto" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* =================================================
+                  FOOD LIST HEADER
+              ================================================= */}
+                <div className="px-5 sm:px-6 py-4 border-t border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-orange-100" />
+
+                      <div className="space-y-2">
+                        <div className="h-4 w-24 rounded bg-gray-200" />
+                        <div className="h-3 w-16 rounded bg-gray-100" />
+                      </div>
+                    </div>
+
+                    <div className="w-8 h-8 rounded-full bg-gray-100" />
+                  </div>
+                </div>
+
+                {/* =================================================
+                  TOTAL
+              ================================================= */}
+                <div
+                  className="
+                  border-t
+                  border-gray-100
+                  bg-gray-50/50
+                  px-5
+                  sm:px-6
+                  py-5
+                  flex
+                  justify-between
+                  items-center
+                  gap-4
+                "
+                >
+                  <div className="space-y-2">
+                    <div className="h-3 w-20 rounded bg-gray-100" />
+                    <div className="h-7 w-28 rounded-lg bg-orange-100" />
+                  </div>
+
+                  <div className="h-10 w-28 rounded-xl bg-orange-100" />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -475,7 +573,6 @@ const OrderUser = () => {
 
   return (
     <div className="min-h-screen bg-[#FFF8F0] pb-20">
-
       {/* =====================================================
           HEADER
       ===================================================== */}
@@ -483,7 +580,6 @@ const OrderUser = () => {
       <div className="bg-white border-b border-orange-100 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center gap-3">
-
             <button
               type="button"
               onClick={() => navigate(-1)}
@@ -514,7 +610,6 @@ const OrderUser = () => {
                 รายการอาหารที่สั่งไปแล้ว
               </p>
             </div>
-
           </div>
         </div>
       </div>
@@ -524,86 +619,59 @@ const OrderUser = () => {
       ===================================================== */}
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-5">
-
-        {/* ===================================================
-            STATUS TABS
-        ==================================================== */}
+        {/* =====================================================
+    STATUS TABS
+===================================================== */}
 
         {orders.length > 0 && (
-          <div
-            className="
-              mb-5
-              overflow-x-auto
-              rounded-2xl
-              bg-white
-              border
-              border-orange-100
-              shadow-sm
-              p-2
-            "
-          >
-            <div className="flex min-w-max gap-2">
-              {STATUS_TABS.map((tab) => {
-                const Icon = tab.icon;
+          <div className="flex gap-2 overflow-x-auto pb-3 mb-5">
+            {STATUS_TABS.map((tab) => {
+              const count = getStatusCount(tab.key);
+              const active = activeStatus === tab.key;
 
-                const count =
-                  getStatusCount(tab.key);
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setActiveStatus(tab.key)}
+                  className={`
+            flex
+            items-center
+            gap-2
+            whitespace-nowrap
+            px-4
+            py-2
+            rounded-full
+            text-sm
+            font-semibold
+            transition
+            ${
+              active
+                ? "bg-orange-500 text-white shadow-md"
+                : "bg-white text-[#8A6A54] border border-orange-100 hover:bg-orange-50"
+            }
+          `}
+                >
+                  {tab.label}
 
-                const active =
-                  activeStatus === tab.key;
-
-                return (
-                  <button
-                    key={tab.key}
-                    type="button"
-                    onClick={() =>
-                      setActiveStatus(tab.key)
-                    }
+                  <span
                     className={`
-                      flex
-                      items-center
-                      justify-center
-                      gap-2
-                      rounded-xl
-                      px-4
-                      py-3
-                      text-sm
-                      font-semibold
-                      whitespace-nowrap
-                      transition
-                      ${
-                        active
-                          ? tab.activeClass
-                          : "text-gray-500 hover:bg-gray-50"
-                      }
-                    `}
+              text-xs
+              px-2
+              py-0.5
+              rounded-full
+              ${
+                active
+                  ? "bg-white/20 text-white"
+                  : "bg-orange-50 text-[#8A6A54]"
+              }
+            `}
                   >
-                    <Icon size={16} />
-
-                    <span>
-                      {tab.label}
-                    </span>
-
-                    <span
-                      className={`
-                        min-w-6
-                        rounded-full
-                        px-2
-                        py-0.5
-                        text-xs
-                        ${
-                          active
-                            ? "bg-white/20 text-white"
-                            : "bg-gray-100 text-gray-500"
-                        }
-                      `}
-                    >
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         )}
 
@@ -629,17 +697,10 @@ const OrderUser = () => {
             "
           >
             <div>
-              <p className="text-xs text-gray-400">
-                กำลังแสดง
-              </p>
+              <p className="text-xs text-gray-400">กำลังแสดง</p>
 
               <p className="text-sm font-bold text-[#2A1B12] mt-0.5">
-                {
-                  STATUS_TABS.find(
-                    (item) =>
-                      item.key === activeStatus
-                  )?.label
-                }
+                {STATUS_TABS.find((item) => item.key === activeStatus)?.label}
               </p>
             </div>
 
@@ -648,9 +709,7 @@ const OrderUser = () => {
                 {filteredOrders.length}
               </span>
 
-              <span className="ml-1 text-xs text-gray-500">
-                ออเดอร์
-              </span>
+              <span className="ml-1 text-xs text-gray-500">ออเดอร์</span>
             </div>
           </div>
         )}
@@ -685,19 +744,14 @@ const OrderUser = () => {
                 mb-5
               "
             >
-              <ShoppingBag
-                size={38}
-                className="text-orange-400"
-              />
+              <ShoppingBag size={38} className="text-orange-400" />
             </div>
 
             <h2 className="text-xl font-bold text-[#2A1B12] mb-2">
               ยังไม่มีออเดอร์
             </h2>
 
-            <p className="text-gray-400 mb-6">
-              คุณยังไม่มีรายการสั่งซื้อ
-            </p>
+            <p className="text-gray-400 mb-6">คุณยังไม่มีรายการสั่งซื้อ</p>
 
             <button
               type="button"
@@ -720,7 +774,6 @@ const OrderUser = () => {
             </button>
           </div>
         ) : filteredOrders.length === 0 ? (
-
           /* =================================================
              NO ORDER IN CURRENT TAB
           ================================================= */
@@ -749,10 +802,7 @@ const OrderUser = () => {
                 mb-5
               "
             >
-              <Package
-                size={38}
-                className="text-gray-300"
-              />
+              <Package size={38} className="text-gray-300" />
             </div>
 
             <h2 className="text-xl font-bold text-[#2A1B12] mb-2">
@@ -761,39 +811,23 @@ const OrderUser = () => {
 
             <p className="text-gray-400">
               ยังไม่มีรายการสั่งซื้อที่อยู่ในสถานะ{" "}
-              {
-                STATUS_TABS.find(
-                  (item) =>
-                    item.key === activeStatus
-                )?.label
-              }
+              {STATUS_TABS.find((item) => item.key === activeStatus)?.label}
             </p>
           </div>
-
         ) : (
-
           /* =================================================
              ORDER LIST
           ================================================= */
 
           <div className="space-y-5">
-
             {filteredOrders.map((order) => {
-              const orderItems = Array.isArray(
-                order.menu
-              )
-                ? order.menu
-                : [];
+              const orderItems = Array.isArray(order.menu) ? order.menu : [];
 
-              const totalPrice = Number(
-                order.totalPrice || 0
-              );
+              const totalPrice = Number(order.totalPrice || 0);
 
-              const isOpen =
-                openOrders[order.id] === true;
+              const isOpen = openOrders[order.id] === true;
 
-              const statusMeta =
-                getStatusMeta(order);
+              const statusMeta = getStatusMeta(order);
 
               return (
                 <div
@@ -807,19 +841,15 @@ const OrderUser = () => {
                     overflow-hidden
                   "
                 >
-
                   {/* =================================================
                       ORDER HEADER
                   ================================================= */}
 
                   <div className="p-5 sm:p-6">
-
                     <div className="flex items-start justify-between gap-4">
-
                       {/* STORE */}
 
                       <div className="flex items-center gap-3 min-w-0">
-
                         <div
                           className="
                             w-12
@@ -836,33 +866,21 @@ const OrderUser = () => {
                             border-orange-100
                           "
                         >
-                          <Store
-                            size={22}
-                            className="text-orange-500"
-                          />
+                          <Store size={22} className="text-orange-500" />
                         </div>
 
                         <div className="min-w-0">
-
                           <h2 className="font-bold text-lg text-[#2A1B12]">
-
                             ออเดอร์
-
                             <span className="ml-1 text-orange-500">
                               #ORD
-                              {String(
-                                order.id
-                              ).padStart(4, "0")}
+                              {String(order.id).padStart(4, "0")}
                             </span>
-
                           </h2>
 
                           <p className="text-xs text-gray-400 mt-1 truncate">
-                            {order.store
-                              ?.storeName ||
-                              "ไม่พบชื่อร้าน"}
+                            {order.store?.storeName || "ไม่พบชื่อร้าน"}
                           </p>
-
                         </div>
                       </div>
 
@@ -886,11 +904,7 @@ const OrderUser = () => {
                       >
                         <Clock size={13} />
 
-                        <span>
-                          {formatDate(
-                            order.createdAt
-                          )}
-                        </span>
+                        <span>{formatDate(order.createdAt)}</span>
                       </div>
                     </div>
                   </div>
@@ -900,7 +914,6 @@ const OrderUser = () => {
                   ================================================= */}
 
                   <div className="px-5 sm:px-6 pb-5">
-
                     <div
                       className="
                         bg-gray-50/70
@@ -911,7 +924,6 @@ const OrderUser = () => {
                       "
                     >
                       <div className="grid grid-cols-1 gap-2">
-
                         <div
                           className={`
                             flex
@@ -927,15 +939,11 @@ const OrderUser = () => {
                             ${statusMeta.className}
                           `}
                         >
-
                           <div className="shrink-0">
-                            <statusMeta.icon
-                              size={15}
-                            />
+                            <statusMeta.icon size={15} />
                           </div>
 
                           <div className="min-w-0">
-
                             <p className="text-[10px] opacity-60 leading-none mb-1">
                               สถานะออเดอร์
                             </p>
@@ -943,10 +951,8 @@ const OrderUser = () => {
                             <p className="text-xs font-bold truncate">
                               {statusMeta.label}
                             </p>
-
                           </div>
                         </div>
-
                       </div>
                     </div>
                   </div>
@@ -957,7 +963,6 @@ const OrderUser = () => {
 
                   {order.orderRound && (
                     <div className="px-5 sm:px-6 pb-5">
-
                       <div
                         className="
                           bg-orange-50
@@ -967,11 +972,8 @@ const OrderUser = () => {
                           p-4
                         "
                       >
-
                         <div className="flex items-center justify-between gap-3">
-
                           <div className="flex items-center gap-3 min-w-0">
-
                             <div
                               className="
                                 w-10
@@ -985,59 +987,32 @@ const OrderUser = () => {
                                 shadow-sm
                               "
                             >
-                              <Clock
-                                size={18}
-                                className="text-orange-500"
-                              />
+                              <Clock size={18} className="text-orange-500" />
                             </div>
 
                             <div className="min-w-0">
-
                               <p className="text-[11px] text-gray-400">
                                 รอบออเดอร์
                               </p>
 
                               <p className="text-sm font-bold text-[#2A1B12]">
-                                รอบ{" "}
-                                {
-                                  order
-                                    .orderRound
-                                    .roundNumber
-                                }
+                                รอบ {order.orderRound.roundNumber}
                               </p>
-
                             </div>
                           </div>
 
                           <div className="text-right shrink-0">
-
                             <p className="text-xs font-bold text-gray-700">
-                              {
-                                order
-                                  .orderRound
-                                  .startTime
-                              }{" "}
-                              -{" "}
-                              {
-                                order
-                                  .orderRound
-                                  .endTime
-                              }
+                              {order.orderRound.startTime} -{" "}
+                              {order.orderRound.endTime}
                             </p>
 
                             <p className="text-[11px] text-green-600 mt-1">
                               ส่งประมาณ{" "}
-                              {addMinutesToTime(
-                                order
-                                  .orderRound
-                                  .endTime,
-                                20
-                              )}{" "}
+                              {addMinutesToTime(order.orderRound.endTime, 20)}{" "}
                               น.
                             </p>
-
                           </div>
-
                         </div>
                       </div>
                     </div>
@@ -1049,9 +1024,7 @@ const OrderUser = () => {
 
                   <button
                     type="button"
-                    onClick={() =>
-                      toggleOrder(order.id)
-                    }
+                    onClick={() => toggleOrder(order.id)}
                     className="
                       w-full
                       px-5
@@ -1067,9 +1040,7 @@ const OrderUser = () => {
                       transition
                     "
                   >
-
                     <div className="flex items-center gap-2.5">
-
                       <div
                         className="
                           w-9
@@ -1081,14 +1052,10 @@ const OrderUser = () => {
                           justify-center
                         "
                       >
-                        <Package
-                          size={18}
-                          className="text-orange-500"
-                        />
+                        <Package size={18} className="text-orange-500" />
                       </div>
 
                       <div className="text-left">
-
                         <p className="font-bold text-[#2A1B12] text-sm">
                           รายการอาหาร
                         </p>
@@ -1096,7 +1063,6 @@ const OrderUser = () => {
                         <p className="text-xs text-gray-400 mt-0.5">
                           {orderItems.length} รายการ
                         </p>
-
                       </div>
                     </div>
 
@@ -1112,18 +1078,11 @@ const OrderUser = () => {
                       "
                     >
                       {isOpen ? (
-                        <ChevronUp
-                          size={18}
-                          className="text-gray-400"
-                        />
+                        <ChevronUp size={18} className="text-gray-400" />
                       ) : (
-                        <ChevronDown
-                          size={18}
-                          className="text-gray-400"
-                        />
+                        <ChevronDown size={18} className="text-gray-400" />
                       )}
                     </div>
-
                   </button>
 
                   {/* =================================================
@@ -1132,9 +1091,7 @@ const OrderUser = () => {
 
                   {isOpen && (
                     <div className="px-5 sm:px-6 pb-5">
-
                       {orderItems.length === 0 ? (
-
                         <div
                           className="
                             bg-gray-50
@@ -1152,9 +1109,7 @@ const OrderUser = () => {
                             ไม่พบรายการอาหาร
                           </p>
                         </div>
-
                       ) : (
-
                         <div
                           className="
                             border
@@ -1163,73 +1118,47 @@ const OrderUser = () => {
                             overflow-hidden
                           "
                         >
+                          {orderItems.map((item, index) => {
+                            const menu = item.menu;
 
-                          {orderItems.map(
-                            (item, index) => {
+                            const menuName = menu?.menuItem || "ไม่พบชื่อเมนู";
 
-                              const menu =
-                                item.menu;
+                            const description = menu?.description;
 
-                              const menuName =
-                                menu?.menuItem ||
-                                "ไม่พบชื่อเมนู";
+                            const price = Number(item.price || 0);
 
-                              const description =
-                                menu?.description;
+                            const count = Number(item.count || 1);
 
-                              const price =
-                                Number(
-                                  item.price || 0
-                                );
+                            const options = parseOptions(item.options);
 
-                              const count =
-                                Number(
-                                  item.count || 1
-                                );
+                            const itemTotal = price * count;
 
-                              const options =
-                                parseOptions(
-                                  item.options
-                                );
+                            const image =
+                              menu?.images?.[0]?.secure_url ||
+                              menu?.images?.[0]?.url ||
+                              menu?.image ||
+                              menu?.imageUrl ||
+                              null;
 
-                              const itemTotal =
-                                price * count;
-
-                              const image =
-                                menu?.images?.[0]
-                                  ?.secure_url ||
-                                menu?.images?.[0]
-                                  ?.url ||
-                                menu?.image ||
-                                menu?.imageUrl ||
-                                null;
-
-                              return (
-                                <div
-                                  key={
-                                    item.id ||
-                                    index
-                                  }
-                                  className="
+                            return (
+                              <div
+                                key={item.id || index}
+                                className="
                                     p-4
                                     sm:p-5
                                     border-b
                                     last:border-b-0
                                     border-gray-100
                                   "
-                                >
+                              >
+                                <div className="flex gap-4">
+                                  {/* IMAGE */}
 
-                                  <div className="flex gap-4">
-
-                                    {/* IMAGE */}
-
-                                    {image ? (
-                                      <img
-                                        src={image}
-                                        alt={
-                                          menuName
-                                        }
-                                        className="
+                                  {image ? (
+                                    <img
+                                      src={image}
+                                      alt={menuName}
+                                      className="
                                           w-20
                                           h-20
                                           sm:w-24
@@ -1240,28 +1169,21 @@ const OrderUser = () => {
                                           border
                                           border-gray-100
                                         "
-                                        onError={(
-                                          e
-                                        ) => {
-                                          e.currentTarget.style.display =
-                                            "none";
+                                      onError={(e) => {
+                                        e.currentTarget.style.display = "none";
 
-                                          if (
-                                            e
-                                              .currentTarget
-                                              .nextSibling
-                                          ) {
-                                            e.currentTarget.nextSibling.style.display =
-                                              "flex";
-                                          }
-                                        }}
-                                      />
-                                    ) : null}
+                                        if (e.currentTarget.nextSibling) {
+                                          e.currentTarget.nextSibling.style.display =
+                                            "flex";
+                                        }
+                                      }}
+                                    />
+                                  ) : null}
 
-                                    {/* NO IMAGE */}
+                                  {/* NO IMAGE */}
 
-                                    <div
-                                      className="
+                                  <div
+                                    className="
                                         w-20
                                         h-20
                                         sm:w-24
@@ -1272,99 +1194,81 @@ const OrderUser = () => {
                                         justify-center
                                         shrink-0
                                       "
-                                      style={{
-                                        display:
-                                          image
-                                            ? "none"
-                                            : "flex",
-                                      }}
-                                    >
-                                      <ShoppingBag
-                                        size={27}
-                                        className="text-orange-300"
-                                      />
-                                    </div>
+                                    style={{
+                                      display: image ? "none" : "flex",
+                                    }}
+                                  >
+                                    <ShoppingBag
+                                      size={27}
+                                      className="text-orange-300"
+                                    />
+                                  </div>
 
-                                    {/* INFO */}
+                                  {/* INFO */}
 
-                                    <div className="flex-1 min-w-0">
-
-                                      <div className="flex justify-between gap-3">
-
-                                        <div className="min-w-0">
-
-                                          <p
-                                            className="
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex justify-between gap-3">
+                                      <div className="min-w-0">
+                                        <p
+                                          className="
                                               font-bold
                                               text-[#2A1B12]
                                               text-sm
                                               sm:text-base
                                               truncate
                                             "
-                                          >
-                                            {menuName}
-                                          </p>
+                                        >
+                                          {menuName}
+                                        </p>
 
-                                          {description && (
-                                            <p
-                                              className="
+                                        {description && (
+                                          <p
+                                            className="
                                                 text-xs
                                                 sm:text-sm
                                                 text-gray-500
                                                 mt-1
                                                 line-clamp-2
                                               "
-                                            >
-                                              {
-                                                description
-                                              }
-                                            </p>
-                                          )}
+                                          >
+                                            {description}
+                                          </p>
+                                        )}
 
-                                          <p
-                                            className="
+                                        <p
+                                          className="
                                               text-xs
                                               sm:text-sm
                                               text-gray-400
                                               mt-2
                                             "
-                                          >
-                                            ฿
-                                            {price.toFixed(
-                                              2
-                                            )}
-                                            {" × "}
-                                            {count}
-                                          </p>
+                                        >
+                                          ฿{price.toFixed(2)}
+                                          {" × "}
+                                          {count}
+                                        </p>
+                                      </div>
 
-                                        </div>
-
-                                        <p
-                                          className="
+                                      <p
+                                        className="
                                             font-bold
                                             text-orange-500
                                             text-sm
                                             sm:text-base
                                             whitespace-nowrap
                                           "
-                                        >
-                                          ฿
-                                          {itemTotal.toFixed(
-                                            2
-                                          )}
-                                        </p>
-
-                                      </div>
+                                      >
+                                        ฿{itemTotal.toFixed(2)}
+                                      </p>
                                     </div>
-
                                   </div>
+                                </div>
 
-                                  {/* OPTIONS */}
+                                {/* OPTIONS */}
 
-                                  {options.length >
-                                    0 && (
-                                    <div
-                                      className="
+                                {options.length > 0 && (
+                                  <div
+                                    className="
                                         mt-3
                                         bg-[#FFF8F0]
                                         border
@@ -1372,71 +1276,53 @@ const OrderUser = () => {
                                         rounded-xl
                                         p-3
                                       "
-                                    >
-
-                                      <p
-                                        className="
+                                  >
+                                    <p
+                                      className="
                                           text-xs
                                           font-bold
                                           text-gray-600
                                           mb-2
                                         "
-                                      >
-                                        ตัวเลือก
-                                      </p>
+                                    >
+                                      ตัวเลือก
+                                    </p>
 
-                                      <div className="space-y-1.5">
-
-                                        {options.map(
-                                          (
-                                            option,
-                                            optionIndex
-                                          ) => (
-                                            <div
-                                              key={
-                                                optionIndex
-                                              }
-                                              className="
+                                    <div className="space-y-1.5">
+                                      {options.map((option, optionIndex) => (
+                                        <div
+                                          key={optionIndex}
+                                          className="
                                                 flex
                                                 justify-between
                                                 gap-3
                                                 text-sm
                                               "
-                                            >
+                                        >
+                                          <span className="text-gray-600">
+                                            {option.choiceName ||
+                                              option.name ||
+                                              "ตัวเลือก"}
+                                          </span>
 
-                                              <span className="text-gray-600">
-                                                {option.choiceName ||
-                                                  option.name ||
-                                                  "ตัวเลือก"}
-                                              </span>
-
-                                              <span className="text-orange-500 whitespace-nowrap">
-                                                {Number(
-                                                  option.extraPrice ||
-                                                    0
-                                                ) >
-                                                0
-                                                  ? `+฿${Number(
-                                                      option.extraPrice
-                                                    ).toFixed(
-                                                      2
-                                                    )}`
-                                                  : "ฟรี"}
-                                              </span>
-
-                                            </div>
-                                          )
-                                        )}
-
-                                      </div>
+                                          <span className="text-orange-500 whitespace-nowrap">
+                                            {Number(option.extraPrice || 0) > 0
+                                              ? `+฿${Number(
+                                                  option.extraPrice,
+                                                ).toFixed(2)}`
+                                              : "ฟรี"}
+                                          </span>
+                                        </div>
+                                      ))}
                                     </div>
-                                  )}
+                                  </div>
+                                )}
 
-                                  {/* ITEM NOTE */}
+                                {/* ITEM NOTE */}
 
-                                  {item.note && (
-                                    <div
-                                      className="
+                                {item.note && (
+                                  <div
+                                    className="
                                         mt-3
                                         bg-gray-50
                                         border
@@ -1444,30 +1330,25 @@ const OrderUser = () => {
                                         rounded-xl
                                         p-3
                                       "
-                                    >
-
-                                      <p
-                                        className="
+                                  >
+                                    <p
+                                      className="
                                           text-[11px]
                                           text-gray-400
                                           mb-1
                                         "
-                                      >
-                                        หมายเหตุเมนู
-                                      </p>
+                                    >
+                                      หมายเหตุเมนู
+                                    </p>
 
-                                      <p className="text-sm text-gray-600">
-                                        {item.note}
-                                      </p>
-
-                                    </div>
-                                  )}
-
-                                </div>
-                              );
-                            }
-                          )}
-
+                                    <p className="text-sm text-gray-600">
+                                      {item.note}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
@@ -1479,7 +1360,6 @@ const OrderUser = () => {
 
                   {order.note && (
                     <div className="px-5 sm:px-6 pb-5">
-
                       <div
                         className="
                           bg-[#FFF8F0]
@@ -1489,9 +1369,7 @@ const OrderUser = () => {
                           p-4
                         "
                       >
-
                         <div className="flex items-center gap-2 mb-1.5">
-
                           <span
                             className="
                               w-2
@@ -1504,13 +1382,11 @@ const OrderUser = () => {
                           <p className="text-xs font-bold text-gray-500">
                             หมายเหตุถึงร้าน
                           </p>
-
                         </div>
 
                         <p className="text-sm text-gray-700 leading-relaxed">
                           {order.note}
                         </p>
-
                       </div>
                     </div>
                   )}
@@ -1533,12 +1409,8 @@ const OrderUser = () => {
                       gap-4
                     "
                   >
-
                     <div>
-
-                      <p className="text-xs text-gray-400">
-                        ยอดรวมทั้งหมด
-                      </p>
+                      <p className="text-xs text-gray-400">ยอดรวมทั้งหมด</p>
 
                       <p
                         className="
@@ -1549,21 +1421,15 @@ const OrderUser = () => {
                           mt-0.5
                         "
                       >
-                        
                         ฿{totalPrice.toFixed(2)}
                       </p>
-
                     </div>
 
                     {/* ORDER DETAIL */}
 
                     <button
                       type="button"
-                      onClick={() =>
-                        navigate(
-                          `/user/orderDetail/${order.id}`
-                        )
-                      }
+                      onClick={() => navigate(`/user/orderDetail/${order.id}`)}
                       className="
                         flex
                         items-center
@@ -1584,13 +1450,10 @@ const OrderUser = () => {
                     >
                       ดูรายละเอียด
                     </button>
-
                   </div>
-
                 </div>
               );
             })}
-
           </div>
         )}
       </div>

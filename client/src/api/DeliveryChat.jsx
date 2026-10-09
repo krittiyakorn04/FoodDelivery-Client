@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://localhost:5000/api";
+const API = "https://robmorfood-backend.onrender.com/api";
 
 // ==========================================
 // CUSTOMER
@@ -78,7 +78,7 @@ export const sendStoreDeliveryMessage = (token, roomId, message) => {
 
 export const getStaffDeliveryChat = (token, deliveryId) => {
   return axios.get(
-    `http://localhost:5000/api/store/staff/chat/delivery/${deliveryId}`,
+    `${API}/store/staff/chat/delivery/${deliveryId}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,

@@ -937,17 +937,70 @@ const CheckoutPage = () => {
 
   if (loading) {
     return (
-      <div
-        className="
-       min-h-screen
-       bg-[#FFF8F0]
-       flex
-       items-center
-       justify-center
-     "
-      >
-        {" "}
-        <p className="text-gray-500">กำลังโหลดข้อมูลการสั่งซื้อ... </p>{" "}
+      <div className="min-h-screen bg-[#FFF8F0] animate-pulse">
+        <div className="mx-auto max-w-6xl px-4 py-8">
+          {/* หัวข้อ */}
+          <div className="h-8 w-40 rounded-lg bg-orange-100" />
+
+          {/* แถบสถานะ */}
+          <div className="mt-6 flex gap-2 overflow-hidden">
+            {[1, 2, 3, 4, 5].map((item) => (
+              <div
+                key={item}
+                className="h-10 w-28 shrink-0 rounded-full bg-orange-100"
+              />
+            ))}
+          </div>
+
+          {/* Order Card */}
+          <div className="mt-6 space-y-5">
+            {[1, 2, 3].map((order) => (
+              <div key={order} className="rounded-3xl bg-white p-5 shadow-sm">
+                {/* ร้าน + สถานะ */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-2xl bg-orange-100" />
+
+                    <div className="space-y-2">
+                      <div className="h-5 w-40 rounded-lg bg-gray-200" />
+                      <div className="h-4 w-24 rounded-lg bg-gray-100" />
+                    </div>
+                  </div>
+
+                  <div className="h-8 w-24 rounded-full bg-orange-100" />
+                </div>
+
+                {/* รายการอาหาร */}
+                <div className="mt-5 space-y-4">
+                  {[1, 2].map((menu) => (
+                    <div
+                      key={menu}
+                      className="flex items-center gap-4 border-b border-gray-100 pb-4"
+                    >
+                      <div className="h-20 w-20 shrink-0 rounded-2xl bg-gray-100" />
+
+                      <div className="flex-1 space-y-2">
+                        <div className="h-5 w-48 rounded-lg bg-gray-200" />
+                        <div className="h-4 w-32 rounded-lg bg-gray-100" />
+                      </div>
+
+                      <div className="space-y-2 text-right">
+                        <div className="h-4 w-12 rounded bg-gray-100" />
+                        <div className="h-5 w-20 rounded bg-gray-200" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* ยอดรวม */}
+                <div className="mt-5 flex items-center justify-between">
+                  <div className="h-4 w-24 rounded bg-gray-100" />
+                  <div className="h-6 w-28 rounded bg-orange-100" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -990,7 +1043,7 @@ const CheckoutPage = () => {
   }
 
   return (
-    <div className="min-h-screen mb-20 bg-[#FFF8F0]">
+    <div className="min-h-screen mb-10 bg-[#FFF8F0]">
       {" "}
       <div
         className="

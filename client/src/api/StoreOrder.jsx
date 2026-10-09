@@ -1,7 +1,13 @@
 import axios from "axios";
 
+const API = "https://robmorfood-backend.onrender.com/api";
+
+// =====================================================
+// STORE ORDER
+// =====================================================
+
 export const getStoreOrders = async (token) => {
-  return axios.get("http://localhost:5000/api/store/order", {
+  return axios.get(`${API}/store/order`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -9,15 +15,19 @@ export const getStoreOrders = async (token) => {
 };
 
 export const readOrder = async (token, id) => {
-  return axios.get(`http://localhost:5000/api/store/order/${id}`, {
+  return axios.get(`${API}/store/order/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 };
 
+// =====================================================
+// DELIVERY
+// =====================================================
+
 export const getStoreDelivery = async (token) => {
-  return axios.get("http://localhost:5000/api/store/delivery", {
+  return axios.get(`${API}/store/delivery`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -25,7 +35,7 @@ export const getStoreDelivery = async (token) => {
 };
 
 export const getDeliveryDetail = (token, id) => {
-  return axios.get(`http://localhost:5000/api/store/delivery/${id}`, {
+  return axios.get(`${API}/store/delivery/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -34,9 +44,9 @@ export const getDeliveryDetail = (token, id) => {
 
 export const changeStatusOrder = async (token, id, status) => {
   return axios.patch(
-    `http://localhost:5000/api/store/order/${id}`,
+    `${API}/store/order/${id}`,
     {
-      status: status,
+      status,
     },
     {
       headers: {
@@ -49,7 +59,7 @@ export const changeStatusOrder = async (token, id, status) => {
 
 export const cancelStoreOrder = (token, orderId) => {
   return axios.post(
-    `http://localhost:5000/api/store/order/${orderId}/cancel`,
+    `${API}/store/order/${orderId}/cancel`,
     {},
     {
       headers: {
@@ -61,7 +71,7 @@ export const cancelStoreOrder = (token, orderId) => {
 
 export const changeStatusDelivery = async (token, id, status) => {
   return axios.patch(
-    `http://localhost:5000/api/store/delivery/${id}`,
+    `${API}/store/delivery/${id}`,
     {
       status,
     },
@@ -76,7 +86,7 @@ export const changeStatusDelivery = async (token, id, status) => {
 
 export const confirmOrderCompleted = (token, orderId) => {
   return axios.patch(
-    `http://localhost:5000/api/store/order/${orderId}/confirm-completed`,
+    `${API}/store/order/${orderId}/confirm-completed`,
     {},
     {
       headers: {
@@ -86,6 +96,10 @@ export const confirmOrderCompleted = (token, orderId) => {
   );
 };
 
+// =====================================================
+// PAYMENT
+// =====================================================
+
 export const changeStatusPayment = async (
   token,
   id,
@@ -93,7 +107,7 @@ export const changeStatusPayment = async (
   rejectedReason = null,
 ) => {
   return axios.patch(
-    `http://localhost:5000/api/store/payment/${id}/status`,
+    `${API}/store/payment/${id}/status`,
     {
       status,
       rejectedReason,
@@ -107,7 +121,9 @@ export const changeStatusPayment = async (
   );
 };
 
-const API = "http://localhost:5000/api";
+// =====================================================
+// STORE REVIEWS
+// =====================================================
 
 export const getMyStoreReviews = (token) => {
   return axios.get(`${API}/store/reviews`, {
@@ -117,9 +133,18 @@ export const getMyStoreReviews = (token) => {
   });
 };
 
-export const uploadDeliveryProof = (token, deliveryId, image, proofType) => {
+// =====================================================
+// DELIVERY PROOF
+// =====================================================
+
+export const uploadDeliveryProof = (
+  token,
+  deliveryId,
+  image,
+  proofType,
+) => {
   return axios.post(
-    `http://localhost:5000/api/store/delivery/${deliveryId}/proof`,
+    `${API}/store/delivery/${deliveryId}/proof`,
     {
       image,
       proofType,
@@ -132,9 +157,14 @@ export const uploadDeliveryProof = (token, deliveryId, image, proofType) => {
   );
 };
 
-export const uploadRiderProof = (token, deliveryId, image, proofType) => {
+export const uploadRiderProof = (
+  token,
+  deliveryId,
+  image,
+  proofType,
+) => {
   return axios.post(
-    `http://localhost:5000/api/store/deliverystaff/${deliveryId}/proof`,
+    `${API}/store/deliverystaff/${deliveryId}/proof`,
     {
       image,
       proofType,
@@ -147,9 +177,13 @@ export const uploadRiderProof = (token, deliveryId, image, proofType) => {
   );
 };
 
-export const removeDeliveryProof = (token, deliveryId, proofType) => {
+export const removeDeliveryProof = (
+  token,
+  deliveryId,
+  proofType,
+) => {
   return axios.delete(
-    `http://localhost:5000/api/store/delivery/${deliveryId}/proof`,
+    `${API}/store/delivery/${deliveryId}/proof`,
     {
       data: {
         proofType,
@@ -161,9 +195,13 @@ export const removeDeliveryProof = (token, deliveryId, proofType) => {
   );
 };
 
-export const deleteRiderProof = (token, deliveryId, imageId) => {
+export const deleteRiderProof = (
+  token,
+  deliveryId,
+  imageId,
+) => {
   return axios.delete(
-    `http://localhost:5000/api/store/staff/delivery/${deliveryId}/proof/${imageId}`,
+    `${API}/store/staff/delivery/${deliveryId}/proof/${imageId}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -172,18 +210,24 @@ export const deleteRiderProof = (token, deliveryId, imageId) => {
   );
 };
 
+// =====================================================
+// DELIVERY STAFF NOTIFICATIONS
+// =====================================================
 
 export const getDeliveryNotifications = (token) => {
-  return axios.get("http://localhost:5000/api/store/staff/notifications", {
+  return axios.get(`${API}/store/staff/notifications`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 };
 
-export const markDeliveryNotificationRead = (token, notificationId) => {
+export const markDeliveryNotificationRead = (
+  token,
+  notificationId,
+) => {
   return axios.patch(
-    `http://localhost:5000/api/store/staff/notification/${notificationId}/read`,
+    `${API}/store/staff/notification/${notificationId}/read`,
     {},
     {
       headers: {
@@ -195,7 +239,7 @@ export const markDeliveryNotificationRead = (token, notificationId) => {
 
 export const markAllDeliveryNotificationsRead = (token) => {
   return axios.patch(
-    "http://localhost:5000/api/store/staff/notification/read-all",
+    `${API}/store/staff/notification/read-all`,
     {},
     {
       headers: {

@@ -743,59 +743,11 @@ const StoreReport = () => {
             </div>
           </div>
 
-          {/* FOOD */}
-
-          <div
-            className="
-              bg-white
-              border
-              border-orange-100
-              rounded-3xl
-              p-5
-              shadow-sm
-            "
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">จำนวนอาหารที่ขาย</p>
-
-                <p className="text-2xl font-bold text-[#2A1B12] mt-2">
-                  {summary.foodQuantity}
-                </p>
-              </div>
-
-              <div className="w-11 h-11 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shrink-0">
-                <BarChart3 size={21} />
-              </div>
-            </div>
-          </div>
+   
 
           {/* AVERAGE */}
 
-          <div
-            className="
-              bg-white
-              border
-              border-orange-100
-              rounded-3xl
-              p-5
-              shadow-sm
-            "
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">เฉลี่ยต่อออเดอร์</p>
-
-                <p className="text-2xl font-bold text-[#2A1B12] mt-2">
-                  ฿{money(summary.averageOrder)}
-                </p>
-              </div>
-
-              <div className="w-11 h-11 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center shrink-0">
-                <TrendingUp size={21} />
-              </div>
-            </div>
-          </div>
+       
         </div>
 
         {/* ========================= */}

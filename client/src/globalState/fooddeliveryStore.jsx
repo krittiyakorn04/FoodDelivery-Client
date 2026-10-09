@@ -11,6 +11,8 @@ import {
 import { getOrderRound } from "../api/OrderRound";
 import { getUserProfile } from "../api/UserProfile";
 
+const API = "https://robmorfood-backend.onrender.com/api";
+
 const foodDelivery = (set) => ({
   user: null,
   token: null,
@@ -22,52 +24,63 @@ const foodDelivery = (set) => ({
   stores: [],
   users: [],
   staff: null,
+
   actionRegisterStore: async (form) => {
-    const res = await axios.post(
-      "http://localhost:5000/api/store/register",
-      form,
-    );
+    const res = await axios.post(`${API}/store/register`, form);
+
     console.log(res.data.token);
+
     set({
       user: res.data.payload,
       token: res.data.token,
     });
+
     return res;
   },
+
   actionLoginStore: async (form) => {
-    const res = await axios.post("http://localhost:5000/api/store/login", form);
+    const res = await axios.post(`${API}/store/login`, form);
+
     console.log(res.data.token);
+
     set({
       user: res.data.payload,
       token: res.data.token,
     });
+
     return res;
   },
-  
+
   actionRegisterUser: async (form) => {
-    const res = await axios.post(
-      "http://localhost:5000/api/user/register",
-      form,
-    );
+    const res = await axios.post(`${API}/user/register`, form);
+
     console.log(res.data.token);
+
     set({
       user: res.data.payload,
       token: res.data.token,
     });
+
     return res;
   },
+
   actionLoginUser: async (form) => {
-    const res = await axios.post("http://localhost:5000/api/user/login", form);
+    const res = await axios.post(`${API}/user/login`, form);
+
     console.log(res.data.token);
+
     set({
       user: res.data.payload,
       token: res.data.token,
     });
+
     return res;
   },
+
   getCategory: async (token) => {
     try {
       const res = await listCatagory(token);
+
       set({
         catagories: res.data,
       });
@@ -75,9 +88,11 @@ const foodDelivery = (set) => ({
       console.log(error);
     }
   },
+
   getMenus: async (token) => {
     try {
       const res = await listMenu(token);
+
       set({
         menus: res.data,
       });
@@ -85,9 +100,11 @@ const foodDelivery = (set) => ({
       console.log(error);
     }
   },
+
   getStore: async (token) => {
     try {
       const res = await getStoreProfile(token);
+
       set({
         stores: res.data,
       });
@@ -95,9 +112,11 @@ const foodDelivery = (set) => ({
       console.log(error);
     }
   },
+
   getStoreCategory: async (token) => {
     try {
       const res = await getCategoryStore();
+
       set({
         storeCategory: res.data,
       });
@@ -105,9 +124,11 @@ const foodDelivery = (set) => ({
       console.log(error);
     }
   },
+
   getOrderRound: async (token) => {
     try {
       const res = await getOrderRound(token);
+
       set({
         orderRound: res.data,
       });
@@ -115,9 +136,11 @@ const foodDelivery = (set) => ({
       console.log(error);
     }
   },
+
   getAllStore: async (token) => {
     try {
       const res = await getAllStore(token);
+
       set({
         stores: res.data,
       });
@@ -129,6 +152,7 @@ const foodDelivery = (set) => ({
   getUser: async (token) => {
     try {
       const res = await getUserProfile(token);
+
       set({
         users: res.data,
       });

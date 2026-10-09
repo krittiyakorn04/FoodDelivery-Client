@@ -34,7 +34,7 @@ const DeliveryPage = () => {
 
   const [deliveries, setDeliveries] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("ALL");
+  const [filter, setFilter] = useState("PENDING");
 
   // ==========================================
   // BULK ASSIGN
@@ -236,10 +236,6 @@ const DeliveryPage = () => {
 
   const tabs = [
     {
-      label: "ทั้งหมด",
-      value: "ALL",
-    },
-    {
       label: "พร้อมจัดส่ง",
       value: "PENDING",
     },
@@ -250,6 +246,10 @@ const DeliveryPage = () => {
     {
       label: "จัดส่งสำเร็จ",
       value: "COMPLETED",
+    },
+        {
+      label: "ทั้งหมด",
+      value: "ALL",
     },
   ];
 
@@ -778,7 +778,7 @@ const DeliveryPage = () => {
         <div className="text-center">
           <div className="w-10 h-10 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto mb-4" />
 
-          <p className="text-gray-500">กำลังโหลดรายการจัดส่ง...</p>
+          <p className="text-gray-500"></p>
         </div>
       </div>
     );

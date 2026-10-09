@@ -477,9 +477,53 @@ const ClientPublic = () => {
 
   if (!store) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFF8F0]">
-        {" "}
-        <p className="text-gray-500">กำลังโหลดข้อมูลร้าน...</p>{" "}
+      <div className="min-h-screen bg-[#FFF8F0] animate-pulse">
+        {/* Header / Banner */}
+        <div className="h-56 bg-orange-100" />
+
+        <div className="mx-auto max-w-6xl px-4 py-6">
+          {/* Store info */}
+          <div className="flex items-center gap-4">
+            <div className="h-24 w-24 rounded-2xl bg-orange-200" />
+
+            <div className="flex-1 space-y-3">
+              <div className="h-6 w-56 rounded-lg bg-orange-200" />
+              <div className="h-4 w-40 rounded-lg bg-orange-100" />
+              <div className="h-4 w-64 rounded-lg bg-orange-100" />
+            </div>
+          </div>
+
+          {/* Category */}
+          <div className="mt-8 flex gap-3 overflow-hidden">
+            <div className="h-10 w-24 rounded-full bg-orange-200" />
+            <div className="h-10 w-28 rounded-full bg-orange-100" />
+            <div className="h-10 w-24 rounded-full bg-orange-100" />
+            <div className="h-10 w-28 rounded-full bg-orange-100" />
+          </div>
+
+          {/* Menu */}
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+              <div
+                key={item}
+                className="overflow-hidden rounded-3xl bg-white shadow-sm"
+              >
+                <div className="h-48 bg-orange-100" />
+
+                <div className="space-y-3 p-4">
+                  <div className="h-5 w-3/4 rounded-lg bg-orange-200" />
+                  <div className="h-4 w-full rounded-lg bg-orange-100" />
+                  <div className="h-4 w-1/2 rounded-lg bg-orange-100" />
+
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="h-5 w-20 rounded-lg bg-orange-200" />
+                    <div className="h-9 w-9 rounded-full bg-orange-200" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -504,9 +548,9 @@ const ClientPublic = () => {
   // =========================================================
 
   return (
-    <div className="min-h-screen bg-[#FFF8F0]">
-      {" "}
-      <div className="max-w-6xl mx-auto px-4 py-6 mb-14">
+    <div className="min-h-screen w-full bg-[#FFF8F0]">
+     
+      <div className="mx-auto mb-1 w-full max-w-6xl px-4 py-6">
         {/* ================================================= */}
         {/* Banner */}
         {/* ================================================= */}
@@ -624,23 +668,27 @@ const ClientPublic = () => {
 
           {/* ประเภทร้าน */}
 
-          <div className="flex flex-wrap gap-2 mt-2">
+          {/* ประเภทร้าน */}
+
+          <div className="mt-2 flex flex-wrap gap-2">
             {store.storeCategories?.length > 0 ? (
-              store.storeCategories.map((category) => (
-                <span
-                  key={category.id}
-                  className="
-                px-3
-                py-1
-                rounded-full
-                bg-orange-100
-                text-orange-600
-                text-sm
-              "
-                >
-                  {category.name}
-                </span>
-              ))
+              store.storeCategories
+                .filter((item) => item?.storeCategory)
+                .map((item) => (
+                  <span
+                    key={item.storeCategory.id}
+                    className="
+            rounded-full
+            bg-orange-100
+            px-3
+            py-1
+            text-sm
+            text-orange-600
+          "
+                  >
+                    {item.storeCategory.name}
+                  </span>
+                ))
             ) : (
               <p className="text-[#8A6A54]">-</p>
             )}
@@ -649,15 +697,7 @@ const ClientPublic = () => {
           {/* Rating / Delivery */}
 
           <div className="flex items-center gap-5 mt-4 pb-5 border-b border-orange-100">
-            <div className="flex items-center gap-1.5">
-              <Star size={16} className="fill-[#FFC145] text-[#FFC145]" />
-
-              <span className="font-bold">4.8</span>
-
-              <span className="text-[#B7A390] text-sm">(120+ รีวิว)</span>
-            </div>
-
-            <div className="w-px h-4 bg-orange-100" />
+        
 
             <div className="flex items-center gap-1.5 text-[#8A6A54] text-sm">
               <Bike size={16} className="text-[#FF6B35]" />

@@ -147,7 +147,9 @@ const FormEditProfile = () => {
     console.log("STORE CATEGORIES =", stores.storeCategories);
 
     const categoryIds =
-      stores.storeCategories?.map((item) => Number(item.id)) || [];
+      stores.storeCategories
+        ?.filter((item) => item?.storeCategory)
+        .map((item) => Number(item.storeCategory.id)) || [];
 
     const storeLat =
       stores.lat !== null && stores.lat !== undefined
@@ -796,14 +798,16 @@ const FormEditProfile = () => {
                 {/* Categories */}
                 <div className="mt-3 flex flex-wrap justify-center gap-2">
                   {stores?.storeCategories?.length > 0 ? (
-                    stores.storeCategories.map((category) => (
-                      <span
-                        key={category.id}
-                        className="rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-600 ring-1 ring-orange-100"
-                      >
-                        {category.name}
-                      </span>
-                    ))
+                    stores.storeCategories
+                      .filter((item) => item?.storeCategory)
+                      .map((item) => (
+                        <span
+                          key={item.storeCategory.id}
+                          className="rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-600 ring-1 ring-orange-100"
+                        >
+                          {item.storeCategory.name}
+                        </span>
+                      ))
                   ) : (
                     <span className="text-sm text-gray-400">
                       ยังไม่ได้เลือกประเภทร้าน

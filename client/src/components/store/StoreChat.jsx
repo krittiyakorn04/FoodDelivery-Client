@@ -239,7 +239,8 @@ const StoreChat = () => {
   };
 
   return (
-    <div className="flex h-[100dvh] min-h-0 flex-col overflow-hidden bg-[#FFF8F0]">
+    <div className="flex h-[calc(100dvh-128px)] min-h-0 flex-col overflow-hidden bg-[#FFF8F0]">
+      {" "}
       {/* ================================================= */}
       {/* Header */}
       {/* ================================================= */}
@@ -281,11 +282,10 @@ const StoreChat = () => {
           </button>
         </div>
       </div>
-
       {/* ================================================= */}
       {/* Chat Area */}
       {/* ================================================= */}
-      <div className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 px-0 sm:px-4 sm:py-3">
+      <div className="mx-auto flex min-h-0 w-full max-w-7xl flex-1 overflow-hidden px-0 sm:px-4 sm:py-3">
         <div className="grid min-h-0 w-full overflow-hidden bg-white sm:rounded-3xl sm:border sm:border-orange-100 sm:shadow-sm md:grid-cols-[300px_1fr] lg:grid-cols-[340px_1fr]">
           {/* ================================================= */}
           {/* รายชื่อลูกค้า */}
@@ -437,6 +437,7 @@ const StoreChat = () => {
                 {/* Messages */}
                 {/* ================================================= */}
                 <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#FFF8F0]/40 px-3 py-4 sm:px-5 sm:py-5">
+                  {" "}
                   {loadingMessages ? (
                     <div className="flex h-full items-center justify-center">
                       <Loader2 className="h-7 w-7 animate-spin text-orange-500" />
@@ -553,7 +554,8 @@ const StoreChat = () => {
                 {/* ================================================= */}
                 {/* Input */}
                 {/* ================================================= */}
-                <div className="shrink-0 border-t border-gray-100 bg-white p-2.5 pb-[max(0.625rem,env(safe-area-inset-bottom))] sm:p-3">
+                <div className="shrink-0 border-t border-gray-100 bg-white p-2.5 pb-[calc(4rem+env(safe-area-inset-bottom)+0.625rem)] sm:p-3 sm:pb-3">
+                  {" "}
                   <div className="flex items-end gap-2">
                     <textarea
                       value={message}

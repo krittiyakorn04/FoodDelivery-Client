@@ -221,7 +221,9 @@ const FirstPagesStore = () => {
   // STORE CATEGORIES
   // =========================
 
-  const storeCategories = stores?.storeCategories || [];
+  const storeCategories = (stores?.storeCategories || []).filter(
+    (item) => item?.storeCategory,
+  );
 
   // =========================
   // BANNER
@@ -500,32 +502,32 @@ STORE HEADER
           )}
 
           {/* =====================================================
-          STORE CATEGORIES
-      ===================================================== */}
+STORE CATEGORIES
+===================================================== */}
 
           <div className="mt-2">
             <p className="text-sm text-[#8A6A54] mb-2">ประเภทร้าน</p>
 
             {storeCategories.length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {storeCategories.map((category) => (
+                {storeCategories.map((item) => (
                   <span
-                    key={category.id}
+                    key={item.storeCategory?.id || item.id}
                     className="
-                  inline-flex
-                  items-center
-                  px-3
-                  py-1.5
-                  rounded-full
-                  bg-orange-50
-                  border
-                  border-orange-200
-                  text-orange-600
-                  text-sm
-                  font-medium
-                "
+            inline-flex
+            items-center
+            px-3
+            py-1.5
+            rounded-full
+            bg-orange-50
+            border
+            border-orange-200
+            text-orange-600
+            text-sm
+            font-medium
+          "
                   >
-                    {category.name}
+                    {item.storeCategory?.name || "ไม่ระบุประเภท"}
                   </span>
                 ))}
               </div>

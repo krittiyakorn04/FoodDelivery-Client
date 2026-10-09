@@ -74,8 +74,7 @@ const UserPayment = () => {
       case "SLIP_UPLOADED":
         return {
           label: "รอตรวจสอบการชำระเงิน",
-          description:
-            "ระบบได้รับหลักฐานการชำระเงินแล้ว กรุณารอร้านตรวจสอบ",
+          description: "ระบบได้รับหลักฐานการชำระเงินแล้ว กรุณารอร้านตรวจสอบ",
           className: "bg-blue-50 border-blue-200",
           iconBg: "bg-blue-100",
           iconColor: "text-blue-600",
@@ -96,8 +95,7 @@ const UserPayment = () => {
         return {
           label: "สลิปถูกปฏิเสธ",
           description:
-            order?.payment?.rejectedReason ||
-            "กรุณาตรวจสอบและอัปโหลดสลิปใหม่",
+            order?.payment?.rejectedReason || "กรุณาตรวจสอบและอัปโหลดสลิปใหม่",
           className: "bg-red-50 border-red-200",
           iconBg: "bg-red-100",
           iconColor: "text-red-600",
@@ -116,8 +114,7 @@ const UserPayment = () => {
     }
   };
 
-  const paymentStatusData =
-    getPaymentStatusData(paymentStatus);
+  const paymentStatusData = getPaymentStatusData(paymentStatus);
 
   // =========================
   // LOAD ORDER
@@ -129,34 +126,20 @@ const UserPayment = () => {
     }
 
     try {
-      const res = await getOrderDetail(
-        token,
-        orderId
-      );
+      const res = await getOrderDetail(token, orderId);
 
-      console.log(
-        "Order Payment =",
-        res.data
-      );
+      console.log("Order Payment =", res.data);
 
-      console.log(
-        "Payment Status =",
-        res.data?.payment?.status
-      );
+      console.log("Payment Status =", res.data?.payment?.status);
 
       setOrder(res.data);
     } catch (error) {
-      console.log(
-        "โหลดข้อมูล Order ไม่สำเร็จ =",
-        error
-      );
+      console.log("โหลดข้อมูล Order ไม่สำเร็จ =", error);
 
       Swal.fire({
         icon: "error",
         title: "ไม่สามารถโหลดข้อมูลออเดอร์ได้",
-        text:
-          error.response?.data?.message ||
-          "กรุณาลองใหม่อีกครั้ง",
+        text: error.response?.data?.message || "กรุณาลองใหม่อีกครั้ง",
         confirmButtonColor: "#f97316",
       });
     }
@@ -180,29 +163,18 @@ const UserPayment = () => {
       try {
         setLoading(true);
 
-        const res = await getStoreClient(
-          token,
-          storeId
-        );
+        const res = await getStoreClient(token, storeId);
 
-        console.log(
-          "Store Payment =",
-          res.data
-        );
+        console.log("Store Payment =", res.data);
 
         setStore(res.data);
       } catch (error) {
-        console.log(
-          "โหลดข้อมูลร้านไม่สำเร็จ =",
-          error
-        );
+        console.log("โหลดข้อมูลร้านไม่สำเร็จ =", error);
 
         Swal.fire({
           icon: "error",
           title: "ไม่สามารถโหลดข้อมูลร้านได้",
-          text:
-            error.response?.data?.message ||
-            "กรุณาลองใหม่อีกครั้ง",
+          text: error.response?.data?.message || "กรุณาลองใหม่อีกครั้ง",
           confirmButtonColor: "#f97316",
         });
       } finally {
@@ -236,15 +208,10 @@ const UserPayment = () => {
 
   const paymentImage =
     store?.images?.find((image) =>
-      image.public_id?.startsWith(
-        "StoreQR2026"
-      )
+      image.public_id?.startsWith("StoreQR2026"),
     ) || null;
 
-  const paymentImageUrl =
-    paymentImage?.secure_url ||
-    paymentImage?.url ||
-    null;
+  const paymentImageUrl = paymentImage?.secure_url || paymentImage?.url || null;
 
   // =========================
   // CURRENT SLIP
@@ -253,14 +220,10 @@ const UserPayment = () => {
   const currentSlipUrl =
     order?.payment?.slipImageUrl ||
     order?.payment?.images?.find((image) =>
-      image.public_id?.startsWith(
-        "userPayment2026"
-      )
+      image.public_id?.startsWith("userPayment2026"),
     )?.secure_url ||
     order?.payment?.images?.find((image) =>
-      image.public_id?.startsWith(
-        "userPayment2026"
-      )
+      image.public_id?.startsWith("userPayment2026"),
     )?.url ||
     null;
 
@@ -268,24 +231,21 @@ const UserPayment = () => {
   // ORDER DATA
   // =========================
 
-  const orderItems = Array.isArray(
-    order?.menu
-  )
-    ? order.menu
-    : [];
+  const orderItems = Array.isArray(order?.menu) ? order.menu : [];
 
   // =========================
   // DELIVERY FEE
   // =========================
 
-  const deliveryFee = 20;
+  // =========================
+  // DELIVERY FEE
+  // =========================
 
-  const foodPrice = Number(
-    order?.totalPrice || 0
-  );
+  const deliveryFee = Number(store?.deliveryFee || 0);
 
-  const totalPrice =
-    foodPrice + deliveryFee;
+  const totalPrice = Number(order?.totalPrice || 0);
+
+  const foodPrice = Math.max(totalPrice - deliveryFee, 0);
 
   // =========================
   // CHECK CAN UPLOAD
@@ -297,10 +257,7 @@ const UserPayment = () => {
     SLIP_UPLOADED = ไม่สามารถเปลี่ยนสลิป
     CONFIRMED = ไม่สามารถอัปโหลด
   */
-  const canUploadSlip = [
-    "PENDING",
-    "REJECTED",
-  ].includes(paymentStatus);
+  const canUploadSlip = ["PENDING", "REJECTED"].includes(paymentStatus);
 
   // =========================
   // SLIP CHANGE
@@ -328,8 +285,7 @@ const UserPayment = () => {
       URL.revokeObjectURL(slipPreview);
     }
 
-    const preview =
-      URL.createObjectURL(file);
+    const preview = URL.createObjectURL(file);
 
     setSlip(file);
     setSlipPreview(preview);
@@ -355,26 +311,24 @@ const UserPayment = () => {
   // =========================
 
   const resizeImage = (file) => {
-    return new Promise(
-      (resolve, reject) => {
-        try {
-          Resizer.default.imageFileResizer(
-            file,
-            1000,
-            1000,
-            "JPEG",
-            90,
-            0,
-            (data) => {
-              resolve(data);
-            },
-            "base64"
-          );
-        } catch (error) {
-          reject(error);
-        }
+    return new Promise((resolve, reject) => {
+      try {
+        Resizer.default.imageFileResizer(
+          file,
+          1000,
+          1000,
+          "JPEG",
+          90,
+          0,
+          (data) => {
+            resolve(data);
+          },
+          "base64",
+        );
+      } catch (error) {
+        reject(error);
       }
-    );
+    });
   };
 
   // =========================
@@ -430,36 +384,20 @@ const UserPayment = () => {
 
       const data = await resizeImage(slip);
 
-      console.log(
-        "กำลังอัปโหลดสลิป..."
-      );
+      console.log("กำลังอัปโหลดสลิป...");
 
-      console.log(
-        "Order ID =",
-        orderId
-      );
+      console.log("Order ID =", orderId);
 
-      console.log(
-        "Payment Status =",
-        paymentStatus
-      );
+      console.log("Payment Status =", paymentStatus);
 
-      const res = await uploadSlip(
-        token,
-        orderId,
-        data
-      );
+      const res = await uploadSlip(token, orderId, data);
 
-      console.log(
-        "อัปโหลดสลิปสำเร็จ =",
-        res.data
-      );
+      console.log("อัปโหลดสลิปสำเร็จ =", res.data);
 
       await Swal.fire({
         icon: "success",
         title: "อัปโหลดสลิปสำเร็จ",
-        text:
-          "ระบบได้รับหลักฐานการชำระเงินแล้ว รอร้านตรวจสอบ",
+        text: "ระบบได้รับหลักฐานการชำระเงินแล้ว รอร้านตรวจสอบ",
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#f97316",
       });
@@ -470,18 +408,13 @@ const UserPayment = () => {
       // ล้าง Preview
       handleRemoveSlip();
     } catch (error) {
-      console.log(
-        "Upload Slip Error =",
-        error
-      );
+      console.log("Upload Slip Error =", error);
 
       Swal.fire({
         icon: "error",
         title: "อัปโหลดสลิปไม่สำเร็จ",
         text:
-          error.response?.data?.message ||
-          error.message ||
-          "เกิดข้อผิดพลาด",
+          error.response?.data?.message || error.message || "เกิดข้อผิดพลาด",
         confirmButtonColor: "#f97316",
       });
     } finally {
@@ -509,9 +442,7 @@ const UserPayment = () => {
   useEffect(() => {
     return () => {
       if (slipPreview) {
-        URL.revokeObjectURL(
-          slipPreview
-        );
+        URL.revokeObjectURL(slipPreview);
       }
     };
   }, [slipPreview]);
@@ -539,11 +470,7 @@ const UserPayment = () => {
             text-gray-500
           "
         >
-          <Loader2
-            size={22}
-            className="animate-spin"
-          />
-
+          <Loader2 size={22} className="animate-spin" />
           กำลังโหลดข้อมูลการชำระเงิน...
         </div>
       </div>
@@ -616,18 +543,11 @@ const UserPayment = () => {
                 shrink-0
               `}
             >
-              <Clock
-                size={19}
-                className={
-                  paymentStatusData.iconColor
-                }
-              />
+              <Clock size={19} className={paymentStatusData.iconColor} />
             </div>
 
             <div>
-              <p className="text-xs text-gray-500">
-                สถานะการชำระเงิน
-              </p>
+              <p className="text-xs text-gray-500">สถานะการชำระเงิน</p>
 
               <p
                 className={`
@@ -640,9 +560,7 @@ const UserPayment = () => {
 
               {paymentStatusData.description && (
                 <p className="text-xs text-gray-500 mt-1">
-                  {
-                    paymentStatusData.description
-                  }
+                  {paymentStatusData.description}
                 </p>
               )}
             </div>
@@ -681,9 +599,7 @@ const UserPayment = () => {
             </div>
 
             <div>
-              <p className="text-sm text-gray-400">
-                ร้านอาหาร
-              </p>
+              <p className="text-sm text-gray-400">ร้านอาหาร</p>
 
               <h2
                 className="
@@ -692,8 +608,7 @@ const UserPayment = () => {
                   text-[#2A1B12]
                 "
               >
-                {store?.storeName ||
-                  "ไม่พบชื่อร้าน"}
+                {store?.storeName || "ไม่พบชื่อร้าน"}
               </h2>
             </div>
           </div>
@@ -710,12 +625,7 @@ const UserPayment = () => {
             Order ID{" "}
             <span className="font-semibold text-gray-700">
               #ORD
-              {order?.id
-                ? String(order.id).padStart(
-                    4,
-                    "0"
-                  )
-                : "----"}
+              {order?.id ? String(order.id).padStart(4, "0") : "----"}
             </span>
           </div>
         </div>
@@ -769,9 +679,7 @@ const UserPayment = () => {
                 รายการอาหาร
               </h2>
 
-              <p className="text-sm text-gray-400">
-                รายการที่สั่งซื้อ
-              </p>
+              <p className="text-sm text-gray-400">รายการที่สั่งซื้อ</p>
             </div>
           </div>
 
@@ -779,47 +687,32 @@ const UserPayment = () => {
 
           <div className="space-y-4">
             {orderItems.length > 0 ? (
-              orderItems.map(
-                (item, index) => {
-                  const menu =
-                    item.menu || {};
+              orderItems.map((item, index) => {
+                const menu = item.menu || {};
 
-                  const count = Number(
-                    item.count || 1
-                  );
+                const count = Number(item.count || 1);
 
-                  const price = Number(
-                    item.price ??
-                      menu.price ??
-                      0
-                  );
+                const price = Number(item.price ?? menu.price ?? 0);
 
-                  const itemTotal =
-                    price * count;
+                const itemTotal = price * count;
 
-                  let options = [];
+                let options = [];
 
-                  try {
-                    if (item.options) {
-                      options =
-                        typeof item.options ===
-                        "string"
-                          ? JSON.parse(
-                              item.options
-                            )
-                          : item.options;
-                    }
-                  } catch (error) {
-                    options = [];
+                try {
+                  if (item.options) {
+                    options =
+                      typeof item.options === "string"
+                        ? JSON.parse(item.options)
+                        : item.options;
                   }
+                } catch (error) {
+                  options = [];
+                }
 
-                  return (
-                    <div
-                      key={
-                        item.id ||
-                        index
-                      }
-                      className="
+                return (
+                  <div
+                    key={item.id || index}
+                    className="
                         flex
                         gap-3
                         pb-4
@@ -828,11 +721,11 @@ const UserPayment = () => {
                         last:border-0
                         last:pb-0
                       "
-                    >
-                      {/* IMAGE */}
+                  >
+                    {/* IMAGE */}
 
-                      <div
-                        className="
+                    <div
+                      className="
                           w-20
                           h-20
                           rounded-xl
@@ -840,31 +733,20 @@ const UserPayment = () => {
                           bg-gray-100
                           shrink-0
                         "
-                      >
-                        {menu.images?.[0]
-                          ?.url ? (
-                          <img
-                            src={
-                              menu
-                                .images[0]
-                                .secure_url ||
-                              menu
-                                .images[0]
-                                .url
-                            }
-                            alt={
-                              menu.menuItem ||
-                              "อาหาร"
-                            }
-                            className="
+                    >
+                      {menu.images?.[0]?.url ? (
+                        <img
+                          src={menu.images[0].secure_url || menu.images[0].url}
+                          alt={menu.menuItem || "อาหาร"}
+                          className="
                               w-full
                               h-full
                               object-cover
                             "
-                          />
-                        ) : (
-                          <div
-                            className="
+                        />
+                      ) : (
+                        <div
+                          className="
                               w-full
                               h-full
                               flex
@@ -872,153 +754,109 @@ const UserPayment = () => {
                               justify-center
                               text-gray-300
                             "
-                          >
-                            <ImageIcon
-                              size={25}
-                            />
-                          </div>
-                        )}
-                      </div>
+                        >
+                          <ImageIcon size={25} />
+                        </div>
+                      )}
+                    </div>
 
-                      {/* INFO */}
+                    {/* INFO */}
 
-                      <div
-                        className="
+                    <div
+                      className="
                           flex-1
                           min-w-0
                         "
-                      >
-                        <div
-                          className="
+                    >
+                      <div
+                        className="
                             flex
                             justify-between
                             gap-3
                           "
-                        >
-                          <div>
-                            <h3
-                              className="
+                      >
+                        <div>
+                          <h3
+                            className="
                                 font-semibold
                                 text-[#2A1B12]
                               "
-                            >
-                              {menu.menuItem ||
-                                "ไม่พบชื่ออาหาร"}
-                            </h3>
+                          >
+                            {menu.menuItem || "ไม่พบชื่ออาหาร"}
+                          </h3>
 
-                            <p
-                              className="
+                          <p
+                            className="
                                 text-sm
                                 text-gray-400
                                 mt-1
                               "
-                            >
-                              ฿
-                              {price.toFixed(
-                                2
-                              )}{" "}
-                              × {count}
-                            </p>
-                          </div>
+                          >
+                            ฿{price.toFixed(2)} × {count}
+                          </p>
+                        </div>
 
-                          <p
-                            className="
+                        <p
+                          className="
                               font-bold
                               text-[#2A1B12]
                               whitespace-nowrap
                             "
-                          >
-                            ฿
-                            {itemTotal.toFixed(
-                              2
-                            )}
-                          </p>
-                        </div>
+                        >
+                          ฿{itemTotal.toFixed(2)}
+                        </p>
+                      </div>
 
-                        {/* OPTIONS */}
+                      {/* OPTIONS */}
 
-                        {Array.isArray(
-                          options
-                        ) &&
-                          options.length >
-                            0 && (
-                            <div
-                              className="
+                      {Array.isArray(options) && options.length > 0 && (
+                        <div
+                          className="
                                 mt-2
                                 space-y-1
                               "
-                            >
-                              {options.map(
-                                (
-                                  option,
-                                  optionIndex
-                                ) => {
-                                  const optionLabel =
-                                    typeof option ===
-                                    "object"
-                                      ? option.optionLabel
-                                      : option;
+                        >
+                          {options.map((option, optionIndex) => {
+                            const optionLabel =
+                              typeof option === "object"
+                                ? option.optionLabel
+                                : option;
 
-                                  const choiceName =
-                                    typeof option ===
-                                    "object"
-                                      ? option.choiceName
-                                      : null;
+                            const choiceName =
+                              typeof option === "object"
+                                ? option.choiceName
+                                : null;
 
-                                  const extraPrice =
-                                    typeof option ===
-                                    "object"
-                                      ? Number(
-                                          option.extraPrice ||
-                                            0
-                                        )
-                                      : 0;
+                            const extraPrice =
+                              typeof option === "object"
+                                ? Number(option.extraPrice || 0)
+                                : 0;
 
-                                  return (
-                                    <p
-                                      key={
-                                        optionIndex
-                                      }
-                                      className="
+                            return (
+                              <p
+                                key={optionIndex}
+                                className="
                                         text-xs
                                         text-gray-500
                                       "
-                                    >
-                                      •{" "}
-                                      {
-                                        optionLabel
-                                      }
-
-                                      {choiceName && (
-                                        <>
-                                          :{" "}
-                                          {
-                                            choiceName
-                                          }
-                                        </>
-                                      )}
-
-                                      {extraPrice >
-                                        0 && (
-                                        <span className="text-orange-500 ml-1">
-                                          (+฿
-                                          {extraPrice.toFixed(
-                                            2
-                                          )}
-                                          )
-                                        </span>
-                                      )}
-                                    </p>
-                                  );
-                                }
-                              )}
-                            </div>
-                          )}
-                      </div>
+                              >
+                                • {optionLabel}
+                                {choiceName && <>: {choiceName}</>}
+                                {extraPrice > 0 && (
+                                  <span className="text-orange-500 ml-1">
+                                    (+฿
+                                    {extraPrice.toFixed(2)})
+                                  </span>
+                                )}
+                              </p>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
-                  );
-                }
-              )
+                  </div>
+                );
+              })
             ) : (
               <div
                 className="
@@ -1053,9 +891,7 @@ const UserPayment = () => {
             >
               <span>ค่าอาหาร</span>
 
-              <span>
-                ฿{foodPrice.toFixed(2)}
-              </span>
+              <span>฿{foodPrice.toFixed(2)}</span>
             </div>
 
             <div
@@ -1068,9 +904,7 @@ const UserPayment = () => {
             >
               <span>ค่าจัดส่ง</span>
 
-              <span>
-                ฿{deliveryFee.toFixed(2)}
-              </span>
+              <span>฿{deliveryFee.toFixed(2)}</span>
             </div>
 
             <div
@@ -1147,13 +981,9 @@ const UserPayment = () => {
             </div>
 
             <div>
-              <h2 className="font-bold text-lg">
-                ชำระเงินผ่าน PromptPay
-              </h2>
+              <h2 className="font-bold text-lg">ชำระเงินผ่าน PromptPay</h2>
 
-              <p className="text-sm text-gray-400">
-                สแกน QR Code ของร้านค้า
-              </p>
+              <p className="text-sm text-gray-400">สแกน QR Code ของร้านค้า</p>
             </div>
           </div>
 
@@ -1213,10 +1043,7 @@ const UserPayment = () => {
                 text-center
               "
             >
-              <ImageIcon
-                size={35}
-                className="mx-auto text-gray-400"
-              />
+              <ImageIcon size={35} className="mx-auto text-gray-400" />
 
               <p
                 className="
@@ -1234,24 +1061,20 @@ const UserPayment = () => {
               CURRENT SLIP
           ========================= */}
 
-          {currentSlipUrl &&
-            paymentStatus !== "PENDING" && (
-              <div className="mt-8">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h3 className="font-bold text-gray-800">
-                      สลิปการชำระเงิน
-                    </h3>
+          {currentSlipUrl && paymentStatus !== "PENDING" && (
+            <div className="mt-8">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h3 className="font-bold text-gray-800">สลิปการชำระเงิน</h3>
 
-                    <p className="text-sm text-gray-400 mt-1">
-                      หลักฐานการชำระเงินที่ส่งให้ร้าน
-                    </p>
-                  </div>
+                  <p className="text-sm text-gray-400 mt-1">
+                    หลักฐานการชำระเงินที่ส่งให้ร้าน
+                  </p>
+                </div>
 
-                  {paymentStatus ===
-                    "SLIP_UPLOADED" && (
-                    <span
-                      className="
+                {paymentStatus === "SLIP_UPLOADED" && (
+                  <span
+                    className="
                         rounded-full
                         bg-blue-50
                         px-3
@@ -1260,15 +1083,14 @@ const UserPayment = () => {
                         font-semibold
                         text-blue-600
                       "
-                    >
-                      รอตรวจสอบ
-                    </span>
-                  )}
+                  >
+                    รอตรวจสอบ
+                  </span>
+                )}
 
-                  {paymentStatus ===
-                    "REJECTED" && (
-                    <span
-                      className="
+                {paymentStatus === "REJECTED" && (
+                  <span
+                    className="
                         rounded-full
                         bg-red-50
                         px-3
@@ -1277,15 +1099,14 @@ const UserPayment = () => {
                         font-semibold
                         text-red-600
                       "
-                    >
-                      ถูกปฏิเสธ
-                    </span>
-                  )}
+                  >
+                    ถูกปฏิเสธ
+                  </span>
+                )}
 
-                  {paymentStatus ===
-                    "CONFIRMED" && (
-                    <span
-                      className="
+                {paymentStatus === "CONFIRMED" && (
+                  <span
+                    className="
                         rounded-full
                         bg-green-50
                         px-3
@@ -1294,14 +1115,14 @@ const UserPayment = () => {
                         font-semibold
                         text-green-600
                       "
-                    >
-                      ยืนยันแล้ว
-                    </span>
-                  )}
-                </div>
+                  >
+                    ยืนยันแล้ว
+                  </span>
+                )}
+              </div>
 
-                <div
-                  className="
+              <div
+                className="
                     max-w-md
                     mx-auto
                     overflow-hidden
@@ -1309,26 +1130,25 @@ const UserPayment = () => {
                     border
                     bg-gray-50
                   "
-                >
-                  <img
-                    src={currentSlipUrl}
-                    alt="สลิปการชำระเงิน"
-                    className="
+              >
+                <img
+                  src={currentSlipUrl}
+                  alt="สลิปการชำระเงิน"
+                  className="
                       w-full
                       max-h-[600px]
                       object-contain
                     "
-                  />
-                </div>
+                />
               </div>
-            )}
+            </div>
+          )}
 
           {/* =========================
               PAYMENT CONFIRMED
           ========================= */}
 
-          {paymentStatus ===
-            "CONFIRMED" && (
+          {paymentStatus === "CONFIRMED" && (
             <div
               className="
                 mt-8
@@ -1349,8 +1169,7 @@ const UserPayment = () => {
                 ร้านยืนยันการชำระเงินแล้ว
               </p>
 
-              {order?.payment
-                ?.confirmedAt && (
+              {order?.payment?.confirmedAt && (
                 <p
                   className="
                     text-sm
@@ -1372,17 +1191,14 @@ const UserPayment = () => {
             <div className="mt-8">
               <div className="mb-3">
                 <label className="block font-semibold">
-                  {paymentStatus ===
-                  "REJECTED"
+                  {paymentStatus === "REJECTED"
                     ? "อัปโหลดสลิปใหม่"
                     : "อัปโหลดสลิปการโอนเงิน"}
                 </label>
 
-                {paymentStatus ===
-                  "REJECTED" && (
+                {paymentStatus === "REJECTED" && (
                   <p className="mt-1 text-sm text-red-500">
-                    กรุณาตรวจสอบเหตุผลที่ร้านปฏิเสธ
-                    และอัปโหลดสลิปใหม่
+                    กรุณาตรวจสอบเหตุผลที่ร้านปฏิเสธ และอัปโหลดสลิปใหม่
                   </p>
                 )}
               </div>
@@ -1410,9 +1226,7 @@ const UserPayment = () => {
 
                   <button
                     type="button"
-                    onClick={
-                      handleRemoveSlip
-                    }
+                    onClick={handleRemoveSlip}
                     disabled={uploading}
                     className="
                       absolute
@@ -1450,21 +1264,15 @@ const UserPayment = () => {
                     transition
                   "
                 >
-                  <Upload
-                    size={40}
-                    className="text-gray-400"
-                  />
+                  <Upload size={40} className="text-gray-400" />
 
                   <p className="mt-3 text-gray-500">
-                    {paymentStatus ===
-                    "REJECTED"
+                    {paymentStatus === "REJECTED"
                       ? "คลิกเพื่อเลือกสลิปใหม่"
                       : "คลิกเพื่อเลือกรูปสลิป"}
                   </p>
 
-                  <p className="text-xs text-gray-400 mt-1">
-                    รองรับไฟล์รูปภาพ
-                  </p>
+                  <p className="text-xs text-gray-400 mt-1">รองรับไฟล์รูปภาพ</p>
 
                   <input
                     id="slip"
@@ -1472,9 +1280,7 @@ const UserPayment = () => {
                     accept="image/*"
                     className="hidden"
                     disabled={uploading}
-                    onChange={
-                      handleSlipChange
-                    }
+                    onChange={handleSlipChange}
                   />
                 </label>
               )}
@@ -1485,14 +1291,8 @@ const UserPayment = () => {
 
               <button
                 type="button"
-                onClick={
-                  handleUploadSlip
-                }
-                disabled={
-                  uploading ||
-                  !slip ||
-                  !paymentImageUrl
-                }
+                onClick={handleUploadSlip}
+                disabled={uploading || !slip || !paymentImageUrl}
                 className="
                   w-full
                   mt-6
@@ -1514,15 +1314,10 @@ const UserPayment = () => {
               >
                 {uploading ? (
                   <>
-                    <Loader2
-                      size={20}
-                      className="animate-spin"
-                    />
-
+                    <Loader2 size={20} className="animate-spin" />
                     กำลังอัปโหลดสลิป...
                   </>
-                ) : paymentStatus ===
-                  "REJECTED" ? (
+                ) : paymentStatus === "REJECTED" ? (
                   "ส่งสลิปใหม่"
                 ) : (
                   "ยืนยันการชำระเงิน"
@@ -1535,8 +1330,7 @@ const UserPayment = () => {
               WAITING STORE
           ========================= */}
 
-          {paymentStatus ===
-            "SLIP_UPLOADED" && (
+          {paymentStatus === "SLIP_UPLOADED" && (
             <div
               className="
                 mt-8
@@ -1564,8 +1358,7 @@ const UserPayment = () => {
                   mt-1
                 "
               >
-                ระบบได้รับหลักฐานการชำระเงินแล้ว
-                กรุณารอร้านตรวจสอบ
+                ระบบได้รับหลักฐานการชำระเงินแล้ว กรุณารอร้านตรวจสอบ
               </p>
             </div>
           )}
@@ -1574,15 +1367,11 @@ const UserPayment = () => {
               BACK TO ORDER
           ========================= */}
 
-          {(paymentStatus ===
-            "SLIP_UPLOADED" ||
-            paymentStatus ===
-              "CONFIRMED") && (
+          {(paymentStatus === "SLIP_UPLOADED" ||
+            paymentStatus === "CONFIRMED") && (
             <button
               type="button"
-              onClick={
-                handleBackToOrder
-              }
+              onClick={handleBackToOrder}
               className="
                 w-full
                 mt-5
@@ -1601,7 +1390,6 @@ const UserPayment = () => {
               "
             >
               <ArrowLeft size={20} />
-
               กลับหน้ารายละเอียดออเดอร์
             </button>
           )}

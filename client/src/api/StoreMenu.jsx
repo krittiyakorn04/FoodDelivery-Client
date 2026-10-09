@@ -1,7 +1,13 @@
 import axios from "axios";
 
+const API = "https://robmorfood-backend.onrender.com/api";
+
+// =====================================================
+// MENU
+// =====================================================
+
 export const createMenu = async (token, form) => {
-  return axios.post("http://localhost:5000/api/store/addmenu", form, {
+  return axios.post(`${API}/store/addmenu`, form, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -9,7 +15,7 @@ export const createMenu = async (token, form) => {
 };
 
 export const listMenu = async (token) => {
-  return axios.get("http://localhost:5000/api/store/menu", {
+  return axios.get(`${API}/store/menu`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -17,7 +23,7 @@ export const listMenu = async (token) => {
 };
 
 export const readMenu = async (token, id) => {
-  return axios.get("http://localhost:5000/api/store/menu/" + id, {
+  return axios.get(`${API}/store/menu/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -25,15 +31,16 @@ export const readMenu = async (token, id) => {
 };
 
 export const updateMenu = async (token, id, form) => {
-  return axios.put("http://localhost:5000/api/store/menu/" + id, form, {
+  return axios.put(`${API}/store/menu/${id}`, form, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
 };
+
 export const uploadFilesMenu = async (token, image, menuId) => {
   return axios.post(
-    "http://localhost:5000/api/store/imageMenu",
+    `${API}/store/imageMenu`,
     {
       image,
       menuId,
@@ -47,7 +54,7 @@ export const uploadFilesMenu = async (token, image, menuId) => {
 };
 
 export const removeFiles = async (token, public_id) => {
-  return axios.delete("http://localhost:5000/api/store/removeImageMenu", {
+  return axios.delete(`${API}/store/removeImageMenu`, {
     data: {
       public_id,
     },
@@ -58,7 +65,7 @@ export const removeFiles = async (token, public_id) => {
 };
 
 export const deleteMenu = async (token, id) => {
-  return axios.delete(`http://localhost:5000/api/store/deleteMenu/${id}`, {
+  return axios.delete(`${API}/store/deleteMenu/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -67,7 +74,7 @@ export const deleteMenu = async (token, id) => {
 
 export const changeMenuAvailability = async (token, menuId) => {
   return axios.patch(
-    `http://localhost:5000/api/store/availability/${menuId}/status`,
+    `${API}/store/availability/${menuId}/status`,
     {},
     {
       headers: {
@@ -82,7 +89,7 @@ export const changeMenuAvailability = async (token, menuId) => {
 // =========================
 
 export const getOptionFormats = async (token) => {
-  return axios.get("http://localhost:5000/api/store/option-formats", {
+  return axios.get(`${API}/store/option-formats`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -90,7 +97,7 @@ export const getOptionFormats = async (token) => {
 };
 
 export const createOptionFormat = async (token, data) => {
-  return axios.post("http://localhost:5000/api/store/option-formats", data, {
+  return axios.post(`${API}/store/option-formats`, data, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -98,19 +105,15 @@ export const createOptionFormat = async (token, data) => {
 };
 
 export const updateOptionFormat = async (token, id, data) => {
-  return axios.put(
-    `http://localhost:5000/api/store/option-formats/${id}`,
-    data,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  return axios.put(`${API}/store/option-formats/${id}`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
-  );
+  });
 };
 
 export const deleteOptionFormat = async (token, id) => {
-  return axios.delete(`http://localhost:5000/api/store/option-formats/${id}`, {
+  return axios.delete(`${API}/store/option-formats/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

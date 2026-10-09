@@ -332,14 +332,6 @@ const StoreClient = () => {
       });
 
       await reloadCart();
-
-      Swal.fire({
-        icon: "success",
-        title: "เพิ่มลงตะกร้าแล้ว",
-        text: `${menu.menuItem} จำนวน 1 รายการ`,
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#f97316",
-      });
     } catch (error) {
       console.log("เพิ่มตะกร้าไม่สำเร็จ =", error);
 
@@ -370,14 +362,6 @@ const StoreClient = () => {
       setSelectedMenu(null);
 
       await reloadCart();
-
-      Swal.fire({
-        icon: "success",
-        title: "เพิ่มลงตะกร้าแล้ว",
-        text: `${menu.menuItem} จำนวน 1 รายการ`,
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#f97316",
-      });
     } catch (error) {
       console.log("เพิ่มเมนูไม่สำเร็จ =", error);
 
@@ -399,8 +383,53 @@ const StoreClient = () => {
 
   if (!store) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FFF8F0]">
-        <p className="text-gray-500">กำลังโหลดข้อมูลร้าน...</p>
+      <div className="min-h-screen bg-[#FFF8F0] animate-pulse">
+        {/* Header / Banner */}
+        <div className="h-56 bg-orange-100" />
+
+        <div className="mx-auto max-w-6xl px-4 py-6">
+          {/* Store info */}
+          <div className="flex items-center gap-4">
+            <div className="h-24 w-24 rounded-2xl bg-orange-200" />
+
+            <div className="flex-1 space-y-3">
+              <div className="h-6 w-56 rounded-lg bg-orange-200" />
+              <div className="h-4 w-40 rounded-lg bg-orange-100" />
+              <div className="h-4 w-64 rounded-lg bg-orange-100" />
+            </div>
+          </div>
+
+          {/* Category */}
+          <div className="mt-8 flex gap-3 overflow-hidden">
+            <div className="h-10 w-24 rounded-full bg-orange-200" />
+            <div className="h-10 w-28 rounded-full bg-orange-100" />
+            <div className="h-10 w-24 rounded-full bg-orange-100" />
+            <div className="h-10 w-28 rounded-full bg-orange-100" />
+          </div>
+
+          {/* Menu */}
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+              <div
+                key={item}
+                className="overflow-hidden rounded-3xl bg-white shadow-sm"
+              >
+                <div className="h-48 bg-orange-100" />
+
+                <div className="space-y-3 p-4">
+                  <div className="h-5 w-3/4 rounded-lg bg-orange-200" />
+                  <div className="h-4 w-full rounded-lg bg-orange-100" />
+                  <div className="h-4 w-1/2 rounded-lg bg-orange-100" />
+
+                  <div className="flex items-center justify-between pt-2">
+                    <div className="h-5 w-20 rounded-lg bg-orange-200" />
+                    <div className="h-9 w-9 rounded-full bg-orange-200" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
@@ -426,7 +455,7 @@ const StoreClient = () => {
 
   return (
     <div className="min-h-screen bg-[#FFF8F0]">
-      <div className="max-w-6xl mx-auto px-4 py-6 mb-14">
+      <div className="max-w-6xl mx-auto px-3 py-6 mb-14">
         {/* ================================================= */}
         {/* Banner ร้าน */}
         {/* ================================================= */}
@@ -677,15 +706,15 @@ const StoreClient = () => {
                 <span
                   key={category.id}
                   className="
-                      px-3
-                      py-1
-                      rounded-full
-                      bg-orange-100
-                      text-orange-600
-                      text-sm
-                    "
+          px-3
+          py-1
+          rounded-full
+          bg-orange-100
+          text-orange-600
+          text-sm
+        "
                 >
-                  {category.name}
+                  {category.storeCategory?.name}
                 </span>
               ))
             ) : (
@@ -696,7 +725,7 @@ const StoreClient = () => {
           {/* Rating / Delivery */}
 
           <div
-  className="
+            className="
     flex
     items-center
     gap-3
@@ -708,28 +737,28 @@ const StoreClient = () => {
     whitespace-nowrap
     overflow-hidden
   "
->
-  {/* คะแนน */}
-  <div className="flex items-center gap-1 min-w-0 flex-shrink-0">
-    <Star
-      size={15}
-      className="fill-[#FFC145] text-[#FFC145] flex-shrink-0"
-    />
+          >
+            {/* คะแนน */}
+            <div className="flex items-center gap-1 min-w-0 flex-shrink-0">
+              <Star
+                size={15}
+                className="fill-[#FFC145] text-[#FFC145] flex-shrink-0"
+              />
 
-    <span className="font-bold text-sm">
-      {reviews?.totalReviews > 0
-        ? Number(reviews.averageRating).toFixed(1)
-        : "0.0"}
-    </span>
+              <span className="font-bold text-sm">
+                {reviews?.totalReviews > 0
+                  ? Number(reviews.averageRating).toFixed(1)
+                  : "0.0"}
+              </span>
 
-    <span className="text-[#B7A390] text-xs sm:text-sm">
-      ({reviews?.totalReviews || 0} รีวิว)
-    </span>
+              <span className="text-[#B7A390] text-xs sm:text-sm">
+                ({reviews?.totalReviews || 0} รีวิว)
+              </span>
 
-    <button
-      type="button"
-      onClick={() => navigate(`/user/store/${id}/reviews`)}
-      className="
+              <button
+                type="button"
+                onClick={() => navigate(`/user/store/${id}/reviews`)}
+                className="
         text-xs
         sm:text-sm
         font-semibold
@@ -738,32 +767,25 @@ const StoreClient = () => {
         hover:underline
         ml-1
       "
-    >
-      ดูรีวิวทั้งหมด
-    </button>
-  </div>
+              >
+                ดูรีวิวทั้งหมด
+              </button>
+            </div>
 
-  {/* เวลา */}
-  <div className="flex items-center gap-1.5 text-[#8A6A54] text-xs sm:text-sm flex-shrink-0">
-    <Bike
-      size={15}
-      className="text-[#FF6B35] flex-shrink-0"
-    />
+            {/* เวลา */}
+            <div className="flex items-center gap-1.5 text-[#8A6A54] text-xs sm:text-sm flex-shrink-0">
+              <Bike size={15} className="text-[#FF6B35] flex-shrink-0" />
 
-    <span>ส่งภายใน 20-30 นาที</span>
-  </div>
+              <span>ส่งภายใน 20-30 นาที</span>
+            </div>
 
-  {/* ค่าส่ง */}
-  <div className="flex items-center gap-1 text-[#8A6A54] text-xs sm:text-sm flex-shrink-0">
-    <span className="text-[#FF6B35] font-bold">
-      ฿
-    </span>
+            {/* ค่าส่ง */}
+            <div className="flex items-center gap-1 text-[#8A6A54] text-xs sm:text-sm flex-shrink-0">
+              <span className="text-[#FF6B35] font-bold">฿</span>
 
-    <span>
-      ค่าส่ง {Number(store?.deliveryFee ?? 0)} บาท
-    </span>
-  </div>
-</div>
+              <span>ค่าส่ง {Number(store?.deliveryFee ?? 0)} บาท</span>
+            </div>
+          </div>
 
           {/* เวลาเปิดร้าน + ที่ตั้งร้าน */}
 
@@ -850,42 +872,36 @@ const StoreClient = () => {
           </div>
 
           {showStoreLocation && (
-  <div className="mt-4 w-full">
-    <div className="rounded-2xl overflow-hidden border border-orange-100 bg-white">
+            <div className="mt-4 w-full">
+              <div className="rounded-2xl overflow-hidden border border-orange-100 bg-white">
+                <div className="px-4 py-3 bg-[#FFF8F0]">
+                  <div className="flex items-center gap-2">
+                    <MapPin size={17} className="text-orange-500" />
 
-      <div className="px-4 py-3 bg-[#FFF8F0]">
-        <div className="flex items-center gap-2">
-          <MapPin
-            size={17}
-            className="text-orange-500"
-          />
+                    <span className="text-sm font-semibold text-[#2A1B12]">
+                      ที่ตั้งร้าน
+                    </span>
+                  </div>
+                </div>
 
-          <span className="text-sm font-semibold text-[#2A1B12]">
-            ที่ตั้งร้าน
-          </span>
-        </div>
-      </div>
-
-      {store?.lat != null && store?.lng != null ? (
-        <div className="w-full h-[250px]">
-          <iframe
-            title="แผนที่ร้าน"
-            src={`https://www.google.com/maps?q=${store.lat},${store.lng}&output=embed`}
-            className="w-full h-full border-0"
-            loading="lazy"
-            allowFullScreen
-          />
-        </div>
-      ) : (
-        <div className="p-6 text-center text-sm text-gray-500">
-          ยังไม่มีข้อมูลตำแหน่งร้าน
-        </div>
-      )}
-
-    </div>
-  </div>
-)}
-
+                {store?.lat != null && store?.lng != null ? (
+                  <div className="w-full h-[250px]">
+                    <iframe
+                      title="แผนที่ร้าน"
+                      src={`https://www.google.com/maps?q=${store.lat},${store.lng}&output=embed`}
+                      className="w-full h-full border-0"
+                      loading="lazy"
+                      allowFullScreen
+                    />
+                  </div>
+                ) : (
+                  <div className="p-6 text-center text-sm text-gray-500">
+                    ยังไม่มีข้อมูลตำแหน่งร้าน
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* ประกาศร้าน */}
 
@@ -1824,7 +1840,13 @@ const MenuOptionModal = ({
       // ตรวจสอบ required
 
       if (option.required && choices.length === 0) {
-        alert(`กรุณาเลือก ${option.label}`);
+        Swal.fire({
+          icon: "warning",
+          title: "กรุณาเลือกตัวเลือก",
+          text: `กรุณาเลือก ${option.label}`,
+          confirmButtonText: "ตกลง",
+          confirmButtonColor: "#f97316",
+        });
 
         return;
       }

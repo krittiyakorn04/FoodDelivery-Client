@@ -1,9 +1,10 @@
-import axios from "axios"
+import axios from "axios";
 
+const API_URL = "https://robmorfood-backend.onrender.com/api";
 
 export const currentUser = async (token) =>
   await axios.post(
-    "http://localhost:5000/api/user/current-user",
+    `${API_URL}/user/current-user`,
     {},
     {
       headers: {
@@ -14,7 +15,7 @@ export const currentUser = async (token) =>
 
 export const currentRestau = async (token) =>
   await axios.post(
-    "http://localhost:5000/api/store/current-restau",
+    `${API_URL}/store/current-restau`,
     {},
     {
       headers: {

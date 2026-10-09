@@ -799,60 +799,185 @@ const OrderDetail = () => {
   };
 
   // =====================================================
-  // LOADING
+  // LOADING SKELETON
   // =====================================================
 
   if (loading) {
     return (
-      <div
-        className="
-       min-h-screen
-       bg-[#FFF8F0]
-       flex
-       items-center
-       justify-center
-     "
-      >
-        {" "}
-        <div className="text-gray-500">กำลังโหลดรายละเอียดออเดอร์... </div>{" "}
+      <div className="min-h-screen bg-gradient-to-b from-[#FFFCF7] via-[#FFF3E4] to-[#FFF8F0] pb-10 animate-pulse">
+        {/* HEADER */}
+        <div className="sticky top-0 z-30 bg-white/95 border-b border-orange-100">
+          <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full bg-orange-100" />
+            <div className="flex-1 space-y-2">
+              <div className="h-5 w-40 rounded-lg bg-gray-200" />
+              <div className="h-3 w-24 rounded bg-gray-100" />
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-6xl mx-auto px-4 py-5 space-y-4">
+          {/* ORDER STATUS */}
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-50">
+            <div className="flex justify-between items-center gap-4">
+              <div className="space-y-3">
+                <div className="h-3 w-24 rounded bg-gray-200" />
+                <div className="h-5 w-48 max-w-full rounded bg-gray-200" />
+              </div>
+              <div className="h-9 w-28 rounded-full bg-orange-100" />
+            </div>
+          </div>
+
+          {/* CHAT */}
+          <div className="bg-white rounded-2xl p-5 shadow-sm border border-orange-100">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-xl bg-orange-100 shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3 w-24 rounded bg-gray-200" />
+                <div className="h-5 w-44 rounded bg-gray-200" />
+                <div className="h-3 w-52 max-w-full rounded bg-gray-100" />
+              </div>
+            </div>
+            <div className="h-12 w-full mt-4 rounded-xl bg-orange-100" />
+          </div>
+
+          {/* CUSTOMER INFORMATION */}
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-50 space-y-5">
+            <div className="h-6 w-48 rounded bg-gray-200 mb-5" />
+
+            {[1, 2, 3, 4].map((item) => (
+              <div key={item} className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-orange-100 shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-24 rounded bg-gray-100" />
+                  <div className="h-4 w-40 max-w-full rounded bg-gray-200" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* FOOD ITEMS */}
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-50">
+            <div className="h-6 w-32 rounded bg-gray-200 mb-5" />
+
+            {[1, 2, 3].map((item) => (
+              <div
+                key={item}
+                className="flex gap-3 py-4 border-b border-dashed border-orange-100 last:border-0"
+              >
+                <div className="w-20 h-20 rounded-xl bg-orange-100 shrink-0" />
+                <div className="flex-1 space-y-3 pt-1">
+                  <div className="h-4 w-40 max-w-full rounded bg-gray-200" />
+                  <div className="h-3 w-24 rounded bg-gray-100" />
+                  <div className="h-3 w-32 max-w-full rounded bg-gray-100" />
+                </div>
+                <div className="h-4 w-16 rounded bg-gray-200 shrink-0" />
+              </div>
+            ))}
+          </div>
+
+          {/* NOTE */}
+          <div className="bg-white rounded-2xl p-4 border border-orange-50">
+            <div className="h-4 w-36 rounded bg-gray-200 mb-3" />
+            <div className="h-3 w-full rounded bg-gray-100 mb-2" />
+            <div className="h-3 w-2/3 rounded bg-gray-100" />
+          </div>
+
+          {/* DELIVERY ADDRESS */}
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-50">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-11 h-11 rounded-xl bg-red-100 shrink-0" />
+              <div className="space-y-2">
+                <div className="h-5 w-32 rounded bg-gray-200" />
+                <div className="h-3 w-48 max-w-full rounded bg-gray-100" />
+              </div>
+            </div>
+            <div className="h-56 w-full rounded-2xl bg-gray-100" />
+          </div>
+
+          {/* TOTAL */}
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-50">
+            <div className="flex justify-between items-center gap-4">
+              <div className="space-y-2">
+                <div className="h-4 w-28 rounded bg-gray-200" />
+                <div className="h-3 w-40 rounded bg-gray-100" />
+              </div>
+              <div className="h-7 w-28 rounded bg-orange-100" />
+            </div>
+
+            <div className="mt-5 pt-4 border-t border-gray-100 space-y-4">
+              {[1, 2, 3].map((item) => (
+                <div key={item} className="flex justify-between gap-4">
+                  <div className="h-4 w-24 rounded bg-gray-100" />
+                  <div className="h-4 w-20 rounded bg-gray-200" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* PAYMENT */}
+          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-50">
+            <div className="flex justify-between items-center gap-3 mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-orange-100" />
+                <div className="space-y-2">
+                  <div className="h-5 w-32 rounded bg-gray-200" />
+                  <div className="h-3 w-44 max-w-full rounded bg-gray-100" />
+                </div>
+              </div>
+              <div className="h-7 w-24 rounded-full bg-blue-100" />
+            </div>
+            <div className="h-32 w-48 max-w-full mx-auto rounded-2xl bg-gray-100" />
+          </div>
+
+          {/* ACTION BUTTONS */}
+          <div className="bg-white rounded-3xl p-4 border border-orange-100 space-y-3">
+            <div className="h-12 w-full rounded-xl bg-red-100" />
+            <div className="h-12 w-full rounded-xl bg-orange-100" />
+          </div>
+        </div>
+
+        {/* LOADING MESSAGE */}
+        <div className="flex items-center justify-center gap-3 py-5">
+          <div className="w-5 h-5 border-2 border-orange-200 border-t-orange-500 rounded-full animate-spin" />
+          <p className="text-sm font-medium text-gray-500">
+            กำลังโหลดรายละเอียดออเดอร์...
+          </p>
+        </div>
       </div>
     );
-  }
-
-  if (!order) {
-    return null;
   }
 
   // =====================================================
   // DATA
   // =====================================================
 
-const orderItems = Array.isArray(order.menu) ? order.menu : [];
+  const orderItems = Array.isArray(order.menu) ? order.menu : [];
 
-const defaultAddress =
-  order.customer?.addresses?.find((item) => item.isDefault === true) ||
-  order.customer?.addresses?.[0] ||
-  null;
+  const defaultAddress =
+    order.customer?.addresses?.find((item) => item.isDefault === true) ||
+    order.customer?.addresses?.[0] ||
+    null;
 
-// ==========================================
-// คำนวณค่าอาหารจากรายการอาหารจริง
-// ==========================================
-const foodPrice = orderItems.reduce((sum, item) => {
-  const price = Number(item.price || 0);
-  const count = Number(item.count || 1);
+  // ==========================================
+  // คำนวณค่าอาหารจากรายการอาหารจริง
+  // ==========================================
+  const foodPrice = orderItems.reduce((sum, item) => {
+    const price = Number(item.price || 0);
+    const count = Number(item.count || 1);
 
-  return sum + price * count;
-}, 0);
+    return sum + price * count;
+  }, 0);
 
-// ==========================================
-// ค่าจัดส่ง
-// ==========================================
-const deliveryFee = Number(order.store?.deliveryFee ?? 0);
+  // ==========================================
+  // ค่าจัดส่ง
+  // ==========================================
+  const deliveryFee = Number(order.store?.deliveryFee ?? 0);
 
-// ==========================================
-// ยอดรวม = ค่าอาหาร + ค่าจัดส่ง
-// ==========================================
-const totalPrice = foodPrice + deliveryFee;
+  // ==========================================
+  // ยอดรวม = ค่าอาหาร + ค่าจัดส่ง
+  // ==========================================
+  const totalPrice = foodPrice + deliveryFee;
 
   const deliveryStatus = order.delivery?.status || null;
 
@@ -1005,7 +1130,7 @@ const totalPrice = foodPrice + deliveryFee;
       className="
      min-h-screen
      bg-[#FFF8F0]
-     mb-20
+     mb-10
    "
     >
       {/* =====================================================
@@ -1496,24 +1621,24 @@ CHAT DELIVERY
                 </div>
               </div>
 
-              {paymentStatus &&
+              {paymentStatus === "PENDING" &&
                 !["PENDING", "CANCELLED"].includes(order.status) && (
                   <button
                     type="button"
                     onClick={handleGoPayment}
                     className="
-                  shrink-0
-                  bg-orange-500
-                  hover:bg-orange-600
-                  text-white
-                  px-4
-                  py-2
-                  rounded-xl
-                  text-sm
-                  font-bold
-                  transition
-                  shadow-sm
-                "
+        shrink-0
+        bg-orange-500
+        hover:bg-orange-600
+        text-white
+        px-4
+        py-2
+        rounded-xl
+        text-sm
+        font-bold
+        transition
+        shadow-sm
+      "
                   >
                     ชำระเงิน
                   </button>
@@ -2420,9 +2545,7 @@ ORDER REPORT
             >
               <span>ยอดรวม</span>
 
-              <span className="text-orange-500">
-                ฿{totalPrice.toFixed(2)}
-              </span>
+              <span className="text-orange-500">฿{totalPrice.toFixed(2)}</span>
             </div>
           </div>
 

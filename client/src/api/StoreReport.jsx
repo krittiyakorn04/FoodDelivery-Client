@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://localhost:5000/api";
+const API = "https://robmorfood-backend.onrender.com/api";
 
 export const getStoreReport = async (token, params = {}) => {
   return axios.get(`${API}/store/report`, {
@@ -12,7 +12,7 @@ export const getStoreReport = async (token, params = {}) => {
 };
 
 export const getStoreOrderReports = async (token) => {
-  return axios.get("http://localhost:5000/api/store/order-reports", {
+  return axios.get(`${API}/store/order-reports`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -26,7 +26,7 @@ export const updateStoreOrderReport = async (
   adminNote,
 ) => {
   return axios.patch(
-    `http://localhost:5000/api/store/order-reports/${reportId}`,
+    `${API}/store/order-reports/${reportId}`,
     {
       status,
       adminNote,

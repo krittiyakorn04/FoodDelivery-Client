@@ -204,23 +204,66 @@ const CustomerChat = () => {
 
   if (loading) {
     return (
-      <div className="flex h-[100dvh] items-center justify-center bg-[#FFF8F0]">
-        <div className="text-center">
-          <Loader2 className="mx-auto h-8 w-8 animate-spin text-orange-500" />
+      <div className="flex h-[100dvh] flex-col bg-[#FFF8F0] animate-pulse">
+        {/* HEADER */}
+        <div className="flex items-center gap-3 border-b border-orange-100 bg-white px-4 py-3">
+          <div className="h-10 w-10 rounded-full bg-gray-200" />
 
-          <p className="mt-3 text-sm text-gray-500">กำลังเปิดแชท...</p>
+          <div className="flex-1 space-y-2">
+            <div className="h-4 w-32 rounded-lg bg-gray-200" />
+            <div className="h-3 w-20 rounded-lg bg-gray-100" />
+          </div>
+
+          <div className="h-9 w-9 rounded-full bg-gray-100" />
+        </div>
+
+        {/* CHAT */}
+        <div className="flex-1 space-y-5 overflow-hidden px-4 py-5">
+          {/* ฝั่งร้าน */}
+          <div className="flex items-end gap-2">
+            <div className="h-8 w-8 shrink-0 rounded-full bg-orange-100" />
+
+            <div className="space-y-2">
+              <div className="h-10 w-48 rounded-2xl rounded-bl-md bg-white shadow-sm" />
+              <div className="h-3 w-12 rounded bg-gray-100" />
+            </div>
+          </div>
+
+          {/* ฝั่งเรา */}
+          <div className="flex justify-end">
+            <div className="space-y-2">
+              <div className="h-10 w-56 rounded-2xl rounded-br-md bg-orange-100" />
+              <div className="ml-auto h-3 w-12 rounded bg-gray-100" />
+            </div>
+          </div>
+
+          {/* ฝั่งร้าน */}
+          <div className="flex items-end gap-2">
+            <div className="h-8 w-8 shrink-0 rounded-full bg-orange-100" />
+
+            <div className="space-y-2">
+              <div className="h-14 w-64 rounded-2xl rounded-bl-md bg-white shadow-sm" />
+              <div className="h-3 w-12 rounded bg-gray-100" />
+            </div>
+          </div>
+
+          {/* ฝั่งเรา */}
+          <div className="flex justify-end">
+            <div className="h-10 w-40 rounded-2xl rounded-br-md bg-orange-100" />
+          </div>
+        </div>
+
+        {/* INPUT */}
+        <div className="border-t border-orange-100 bg-white px-4 py-3">
+          <div className="flex items-center gap-2">
+            <div className="h-11 flex-1 rounded-2xl bg-gray-100" />
+            <div className="h-11 w-11 shrink-0 rounded-full bg-orange-100" />
+          </div>
         </div>
       </div>
     );
   }
 
-  /*
-    ถ้าคีย์บอร์ดเปิด:
-      input จะอยู่เหนือ keyboard
-
-    ถ้าคีย์บอร์ดปิด:
-      input จะอยู่เหนือ UserNavbar
-  */
   const inputBottom = keyboardHeight > 0 ? keyboardHeight : NAVBAR_HEIGHT;
 
   return (

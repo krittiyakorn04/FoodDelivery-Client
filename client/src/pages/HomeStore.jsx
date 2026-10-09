@@ -89,7 +89,9 @@ export default function HomeStore() {
 
         const storeCategoryNames = [
           ...(Array.isArray(store.storeCategories)
-            ? store.storeCategories.map((item) => item.name)
+            ? store.storeCategories
+                .map((item) => item?.storeCategory?.name)
+                .filter(Boolean)
             : []),
           store.storeCategory?.name,
         ]
@@ -173,8 +175,7 @@ export default function HomeStore() {
   // =========================================================
 
   return (
-    <div className="min-h-screen bg-[#FFF8F0] pb-10">
-      {" "}
+    <div className="min-h-screen w-full bg-[#FFF8F0] pb-10">
       <link
         rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Kanit:wght@600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap"
@@ -368,7 +369,7 @@ export default function HomeStore() {
             transition
             font-['Noto_Sans_Thai']
           "
-              placeholder="ค้นหาร้านอาหาร เมนู หรือประเภทของร้าน..."
+              placeholder="ค้นหาร้านอาหาร หรือ เมนู "
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -433,13 +434,16 @@ export default function HomeStore() {
               // =============================================
               // CATEGORY ของร้าน
               // =============================================
+              // =============================================
+              // CATEGORY ของร้าน
+              // =============================================
 
               const storeCategories = [];
 
               if (Array.isArray(store.storeCategories)) {
                 store.storeCategories.forEach((category) => {
-                  if (category?.name) {
-                    storeCategories.push(category.name);
+                  if (category?.storeCategory?.name) {
+                    storeCategories.push(category.storeCategory.name);
                   }
                 });
               }
@@ -449,7 +453,6 @@ export default function HomeStore() {
               }
 
               const uniqueStoreCategories = [...new Set(storeCategories)];
-
               // =============================================
               // มีเมนูตรงคำค้นหาหรือไม่
               // =============================================
@@ -712,7 +715,7 @@ export default function HomeStore() {
 
                                 if (!isAvailable) return;
 
-                                navigate(`/user/menu/${menu.id}`);
+                                navigate(`/ClientPublic/${store.id}`);
                               }}
                               className={`
     shrink-0

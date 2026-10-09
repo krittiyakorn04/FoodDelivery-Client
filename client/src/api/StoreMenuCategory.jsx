@@ -1,42 +1,35 @@
 import axios from "axios";
 
+const API = "https://robmorfood-backend.onrender.com/api";
 
-export const createCatagory = async (token,form) =>{
-    return axios.post('http://localhost:5000/api/store/category',form,{
-        headers:{
-            Authorization:`Bearer ${token}`
-        }
-    }
-    )
-}
+export const createCatagory = async (token, form) => {
+  return axios.post(`${API}/store/category`, form, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
 
-export const listCatagory = async (token) =>{
-    return axios.get('http://localhost:5000/api/store/category',{
-        headers:{
-            Authorization:`Bearer ${token}`
-        }
-    }
-    )
-}
+export const listCatagory = async (token) => {
+  return axios.get(`${API}/store/category`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
 
-export const updateCatagory = async(token,id,data)=>{
-  return axios.put(
-    `http://localhost:5000/api/store/category/${id}`,
-    data,
-    {
-      headers:{
-        Authorization:`Bearer ${token}`
-      }
-    }
-  )
-}
+export const updateCatagory = async (token, id, data) => {
+  return axios.put(`${API}/store/category/${id}`, data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
 
-export const removeCatagory = async (token,id) =>{
-    return axios.delete('http://localhost:5000/api/store/category/'+id,{
-        headers:{
-            Authorization:`Bearer ${token}`
-        }
-    }
-    )
-}
-
+export const removeCatagory = async (token, id) => {
+  return axios.delete(`${API}/store/category/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

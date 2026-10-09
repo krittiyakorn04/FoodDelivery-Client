@@ -202,14 +202,15 @@ export default function HomeUser() {
 
         const storeCategoryNames = [
           ...(Array.isArray(store.storeCategories)
-            ? store.storeCategories.map((item) => item.name)
+            ? store.storeCategories
+                .map((item) => item?.storeCategory?.name)
+                .filter(Boolean)
             : []),
 
           store.storeCategory?.name,
         ]
           .filter(Boolean)
           .map((name) => name.toLowerCase());
-
         // =====================================================
         // FILTER CATEGORY
         // =====================================================
@@ -526,7 +527,7 @@ export default function HomeUser() {
                 focus:ring-2
                 focus:ring-orange-300
               "
-              placeholder="ค้นหาร้านอาหาร เมนู หรือประเภทของร้าน..."
+              placeholder="ค้นหาร้านอาหาร หรือ เมนู "
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -598,8 +599,8 @@ export default function HomeUser() {
 
               if (Array.isArray(store.storeCategories)) {
                 store.storeCategories.forEach((category) => {
-                  if (category?.name) {
-                    storeCategories.push(category.name);
+                  if (category?.storeCategory?.name) {
+                    storeCategories.push(category.storeCategory.name);
                   }
                 });
               }
@@ -609,7 +610,6 @@ export default function HomeUser() {
               }
 
               const uniqueStoreCategories = [...new Set(storeCategories)];
-
               // =============================================
               // MATCHING MENUS
               // =============================================
@@ -657,63 +657,78 @@ export default function HomeUser() {
                   {/* STORE TOP */}
                   {/* ================================================= */}
 
-                  <div className="flex min-h-[165px]">
+                  <div className="flex h-full min-h-[165px]">
                     {/* PROFILE IMAGE */}
-
-                    <div className="relative w-[145px] shrink-0 overflow-hidden">
+                    <div className="relative min-h-[165px] w-[145px] shrink-0 overflow-hidden">
                       {profileImage?.url ? (
                         <img
                           src={profileImage.url}
                           alt={store.storeName || "ร้านอาหาร"}
-                          className="
-                            min-h-[165px]
-                            h-full
-                            w-full
-                            object-cover
-                            transition-transform
-                            duration-500
-                            group-hover:scale-105
-                          "
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="flex h-full min-h-[165px] w-full items-center justify-center bg-orange-100">
+                        <div className="absolute inset-0 flex items-center justify-center bg-orange-100">
                           <Store className="h-10 w-10 text-orange-400" />
                         </div>
                       )}
 
-                      {/* STATUS */}
-
+                      {/* STATUS เปิด / ปิด */}
                       <span
                         className={`
-                          absolute
-                          left-3
-                          top-3
-                          flex
-                          items-center
-                          gap-1.5
-                          rounded-full
-                          px-2.5
-                          py-1
-                          font-['Noto_Sans_Thai']
-                          text-[11px]
-                          font-semibold
-                          shadow-sm
-
-                          ${
-                            store.status === "OPEN"
-                              ? "bg-green-500/90 text-white"
-                              : "bg-gray-700/85 text-white"
-                          }
-                        `}
+      absolute left-2 top-2 z-10
+      flex items-center gap-1.5
+      rounded-full px-2.5 py-1
+      font-['Noto_Sans_Thai'] text-[11px] font-semibold
+      shadow-sm
+      ${
+        store.status === "OPEN"
+          ? "bg-green-500/90 text-white"
+          : "bg-gray-700/85 text-white"
+      }
+    `}
                       >
                         <span className="h-1.5 w-1.5 rounded-full bg-white" />
-
                         {store.status === "OPEN" ? "เปิด" : "ปิด"}
                       </span>
+
+                      {/* CURRENT ROUND บนรูป */}
+                      {currentRound && (
+                        <div
+                          className={`
+        absolute bottom-2 left-2 right-2 z-10
+        rounded-lg px-2 py-1.5
+        shadow-md backdrop-blur-sm
+        ${
+          currentRound.roundStatus === "OPEN"
+            ? "bg-green-600/90 text-white"
+            : "bg-orange-500/95 text-white"
+        }
+      `}
+                        >
+                          <div className="flex items-center gap-1">
+                            {currentRound.roundStatus === "OPEN" ? (
+                              <Timer className="h-3.5 w-3.5 shrink-0" />
+                            ) : (
+                              <ChefHat className="h-3.5 w-3.5 shrink-0" />
+                            )}
+
+                            <span className="font-['Noto_Sans_Thai'] text-[10px] font-semibold">
+                              {currentRound.roundStatus === "OPEN"
+                                ? "กำลังเปิดรับออเดอร์"
+                                : "กำลังเตรียมอาหาร"}
+                            </span>
+                          </div>
+
+                          <p className="mt-0.5 truncate font-['Noto_Sans_Thai'] text-[10px] font-medium">
+                            {currentRound.roundNumber
+                              ? `รอบ ${currentRound.roundNumber} · `
+                              : ""}
+                            {currentRound.startTime} - {currentRound.endTime}
+                          </p>
+                        </div>
+                      )}
                     </div>
-
                     {/* STORE INFO */}
-
                     <div className="flex min-w-0 flex-1 flex-col p-4">
                       {/* NAME */}
 
@@ -785,81 +800,7 @@ export default function HomeUser() {
                         </span>
                       </div>
 
-                      {/* ================================================= */}
-                      {/* CURRENT ROUND */}
-                      {/* ================================================= */}
 
-                      {currentRound && (
-                        <div className="mt-3">
-                          {currentRound.roundStatus === "OPEN" ? (
-                            <div
-                              className="
-                                flex
-                                items-center
-                                gap-2
-                                rounded-xl
-                                border
-                                border-green-200
-                                bg-green-50
-                                px-3
-                                py-2
-                              "
-                            >
-                              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-green-500">
-                                <Timer className="h-4 w-4 text-white" />
-                              </div>
-
-                              <div className="min-w-0">
-                                <p className="font-['Noto_Sans_Thai'] text-[11px] font-semibold text-green-600">
-                                  รอบปัจจุบัน
-                                </p>
-
-                                <p className="truncate font-['Noto_Sans_Thai'] text-xs font-bold text-green-700">
-                                  {currentRound.roundNumber
-                                    ? `รอบ ${currentRound.roundNumber} · `
-                                    : ""}
-                                  {currentRound.startTime}
-                                  {" - "}
-                                  {currentRound.endTime}
-                                </p>
-                              </div>
-                            </div>
-                          ) : (
-                            <div
-                              className="
-                                flex
-                                items-center
-                                gap-2
-                                rounded-xl
-                                border
-                                border-orange-200
-                                bg-orange-50
-                                px-3
-                                py-2
-                              "
-                            >
-                              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-orange-500">
-                                <ChefHat className="h-4 w-4 text-white" />
-                              </div>
-
-                              <div className="min-w-0">
-                                <p className="font-['Noto_Sans_Thai'] text-[11px] font-semibold text-orange-600">
-                                  กำลังเตรียมอาหาร / จัดส่ง
-                                </p>
-
-                                <p className="truncate font-['Noto_Sans_Thai'] text-xs font-bold text-orange-700">
-                                  {currentRound.roundNumber
-                                    ? `รอบ ${currentRound.roundNumber} · `
-                                    : ""}
-                                  {currentRound.startTime}
-                                  {" - "}
-                                  {currentRound.endTime}
-                                </p>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
 
                       {/* BUTTON */}
 

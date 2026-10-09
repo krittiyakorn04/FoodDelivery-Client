@@ -1016,17 +1016,13 @@ const StoreDetailModal = ({
 
             <InfoRow
               icon={<UtensilsCrossed size={17} />}
-              label="หมวดหมู่ร้าน"
+              label="ประเภทของร้าน"
               value={
                 store.storeCategories?.length
                   ? store.storeCategories
-                      .map(
-                        (category) =>
-                          category.name ||
-                          category.categoryName ||
-                          `#${category.id}`,
-                      )
-                      .join(", ")
+                      .map((category) => category?.storeCategory?.name)
+                      .filter(Boolean)
+                      .join(", ") || "ไม่ระบุ"
                   : "ไม่ระบุ"
               }
             />

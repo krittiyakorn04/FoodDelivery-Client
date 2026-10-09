@@ -50,7 +50,6 @@ import AdminLogin from "../pages/admin/AdminLogin";
 import AdminCustomerStatus from "../pages/admin/AdminCustomerStatus";
 import StoreReviews from "../components/user/StoreReviews";
 import ReviewStore from "../components/store/ReviewsStore";
-import UserCartAll from "../components/user/UserCartAll";
 import StoreReport from "../components/store/StoreReport";
 import DeliveryRiderDetail from "../components/store/DeliveryRiderDetail";
 import DeliveryNavbar from "../components/nav/DeliveryNavbar";
@@ -63,6 +62,7 @@ import AdminOrderReports from "../pages/admin/AdminOrderReports";
 import UserOrderReports from "../pages/user/UserOrderReports";
 import AllUserCart from "../components/user/AllUserCart";
 import StoreOrderReports from "../components/store/StoreOrderReports";
+import UserCart from "../components/user/UserCart";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -162,7 +162,7 @@ const router = createBrowserRouter([
       { path: "menu/:id", element: <MenuUserDetail /> },
       { path: "storeRead/:id", element: <ReadStore /> },
       { path: "store/:id/reviews", element: <StoreReviews /> },
-      { path: "cart", element: <CartPage /> },
+      { path: "cart", element: <UserCart /> },
       { path: "cartAll", element: <AllUserCart /> },
       { path: "homeUser", element: <HomeUser /> },
       { path: "UserSetting", element: <UserSetting /> },

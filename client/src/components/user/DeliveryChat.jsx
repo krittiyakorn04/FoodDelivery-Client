@@ -227,17 +227,7 @@ const DeliveryChat = () => {
   // Loading
   // ==========================================
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#FFF8F0] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3 text-gray-500">
-          <Loader2 size={36} className="animate-spin" />
 
-          <p>กำลังโหลดแชท...</p>
-        </div>
-      </div>
-    );
-  }
 
   // ==========================================
   // UI

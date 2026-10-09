@@ -193,22 +193,18 @@ const FormProfileStore = () => {
       .map((day) => day.trim().replace(/^["']|["']$/g, ""))
       .filter((day) => day !== "") || [];
 
-  const accountBadge =
-    {
-      ACTIVE: { text: "อนุมัติแล้ว", cls: "bg-emerald-50 text-emerald-700" },
-      PENDING: { text: "รอตรวจสอบ", cls: "bg-amber-50 text-amber-700" },
-      SUSPENDED: { text: "ถูกระงับ", cls: "bg-orange-50 text-orange-700" },
-      BANNED: { text: "ถูกแบน", cls: "bg-red-50 text-red-700" },
-    }[stores?.accountStatus] || { text: "-", cls: "bg-red-50 text-red-700" };
+  const accountBadge = {
+    ACTIVE: { text: "อนุมัติแล้ว", cls: "bg-emerald-50 text-emerald-700" },
+    PENDING: { text: "รอตรวจสอบ", cls: "bg-amber-50 text-amber-700" },
+    SUSPENDED: { text: "ถูกระงับ", cls: "bg-orange-50 text-orange-700" },
+    BANNED: { text: "ถูกแบน", cls: "bg-red-50 text-red-700" },
+  }[stores?.accountStatus] || { text: "-", cls: "bg-red-50 text-red-700" };
 
   const glassBtn =
     "flex h-10 items-center justify-center gap-2 rounded-full bg-white/90 text-sm font-semibold text-[#E8491D] shadow-md backdrop-blur transition hover:bg-white active:scale-95";
 
   return (
-    <div
-      className="min-h-screen bg-gradient-to-b from-[#FFFCF7] via-[#FFF3E4] to-[#FFF8F0] px-4 pb-24 pt-5 sm:px-6"
-    >
-
+    <div className="min-h-screen bg-gradient-to-b from-[#FFFCF7] via-[#FFF3E4] to-[#FFF8F0] px-4 pb-24 pt-5 sm:px-6">
       <div className="mx-auto max-w-5xl space-y-6">
         {/* =====================================================
             HEADER
@@ -300,17 +296,18 @@ const FormProfileStore = () => {
                 <h1 className="truncate text-2xl font-bold text-[#2A1B12] sm:text-3xl">
                   {stores?.storeName || "ร้านของฉัน"}
                 </h1>
-
                 <div className="mt-2 flex flex-wrap gap-2">
                   {stores?.storeCategories?.length > 0 ? (
-                    stores.storeCategories.map((category) => (
-                      <span
-                        key={category.id}
-                        className="rounded-full bg-[#FDEBE4] px-3 py-1 text-xs font-semibold text-[#C73A12]"
-                      >
-                        {category.name}
-                      </span>
-                    ))
+                    stores.storeCategories
+                      .filter((item) => item?.storeCategory)
+                      .map((item) => (
+                        <span
+                          key={item.storeCategory.id}
+                          className="rounded-full bg-[#FDEBE4] px-3 py-1 text-xs font-semibold text-[#C73A12]"
+                        >
+                          {item.storeCategory.name}
+                        </span>
+                      ))
                   ) : (
                     <p className="text-sm text-[#8A6A54]">
                       ยังไม่ได้เลือกประเภทร้าน

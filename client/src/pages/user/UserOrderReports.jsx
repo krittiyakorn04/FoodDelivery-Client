@@ -53,6 +53,16 @@ const STATUS_CONFIG = {
   },
 };
 
+const ORDER_STATUS_LABELS = {
+  PENDING: "รอร้านยืนยัน",
+  WAITING_PAYMENT: "รอชำระเงิน",
+  CONFIRMED: "ยืนยันออเดอร์แล้ว",
+  PREPARING: "กำลังทำอาหาร",
+  READY: "ทำอาหารเสร็จแล้ว",
+  COMPLETED: "ออเดอร์สำเร็จ",
+  CANCELLED: "ยกเลิกออเดอร์",
+};
+
 const UserOrderReports = () => {
   const tokenFromStore = usefoodDelivery((state) => state.token);
 
@@ -152,8 +162,7 @@ const UserOrderReports = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FFF8F0] px-4 py-6 md:px-8">
-      {" "}
+    <div className="min-h-screen bg-[#FFF8F0] px-4 py-6 pb-32 md:px-8">
       <div className="max-w-5xl mx-auto">
         <div className="relative overflow-hidden bg-gradient-to-br from-[#FF6B35] to-[#E8491D] rounded-[2rem] p-6 md:p-8 mb-6 shadow-lg shadow-orange-100">
           <div className="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-white/10" />
@@ -502,7 +511,9 @@ const UserOrderReports = () => {
                               </p>
 
                               <p className="font-semibold text-gray-800 mt-1.5">
-                                {report.order?.status || "-"}
+                                {ORDER_STATUS_LABELS[report.order?.status] ||
+                                  report.order?.status ||
+                                  "-"}
                               </p>
                             </div>
 

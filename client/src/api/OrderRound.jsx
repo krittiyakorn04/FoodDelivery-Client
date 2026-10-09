@@ -1,16 +1,17 @@
 import axios from "axios";
 
+const API = "https://robmorfood-backend.onrender.com/api";
+
 export const getOrderRound = async (token) => {
-  return axios.get("http://localhost:5000/api/store/order-round", {
+  return axios.get(`${API}/store/order-round`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
-  console.log("API", res.data);
 };
 
 export const createOrderRound = async (token, value) => {
-  return axios.post("http://localhost:5000/api/store/order-round", value, {
+  return axios.post(`${API}/store/order-round`, value, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -19,7 +20,7 @@ export const createOrderRound = async (token, value) => {
 
 export const updateOrderRound = async (token, roundId, data) => {
   return axios.put(
-    `http://localhost:5000/api/store/order-round/${roundId}`,
+    `${API}/store/order-round/${roundId}`,
     data,
     {
       headers: {
@@ -30,7 +31,7 @@ export const updateOrderRound = async (token, roundId, data) => {
 };
 
 export const removeOrderRound = async (token, id) => {
-  return axios.delete("http://localhost:5000/api/store/order-round/" + id, {
+  return axios.delete(`${API}/store/order-round/${id}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -38,7 +39,7 @@ export const removeOrderRound = async (token, id) => {
 };
 
 export const removeAllOrderRound = async (token) => {
-  return axios.delete("http://localhost:5000/api/store/order-round", {
+  return axios.delete(`${API}/store/order-round`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

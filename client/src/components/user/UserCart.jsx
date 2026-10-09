@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ShoppingCart, Plus, Minus, X } from "lucide-react";
-import { getCart, removeCart } from "../../api/UserOrder";
+import { getCart, removeCart, updateCart } from "../../api/UserOrder";
 
 const UserCart = ({ token, storeId, cart, setCart, onClose }) => {
   const navigate = useNavigate();
@@ -20,10 +20,14 @@ const UserCart = ({ token, storeId, cart, setCart, onClose }) => {
 
   const handleIncrease = async (item) => {
     try {
-      await updateCart(token, item.id, Number(item.count) + 1);
+      await updateCart(token, item.id, {
+        count: Number(item.count) + 1,
+      });
+
       await reloadCart();
     } catch (error) {
       console.log("เพิ่มจำนวนไม่สำเร็จ =", error);
+      console.log("response =", error.response?.data);
     }
   };
 
@@ -32,12 +36,15 @@ const UserCart = ({ token, storeId, cart, setCart, onClose }) => {
       if (Number(item.count) <= 1) {
         await removeCart(token, item.id);
       } else {
-        await updateCart(token, item.id, Number(item.count) - 1);
+        await updateCart(token, item.id, {
+          count: Number(item.count) - 1,
+        });
       }
 
       await reloadCart();
     } catch (error) {
       console.log("ลดจำนวนไม่สำเร็จ =", error);
+      console.log("response =", error.response?.data);
     }
   };
 
@@ -54,7 +61,6 @@ const UserCart = ({ token, storeId, cart, setCart, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-[100]">
-      {" "}
       <div className="absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col">
         <div className="flex items-center justify-between px-5 py-4 border-b">

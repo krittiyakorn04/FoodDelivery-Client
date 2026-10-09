@@ -21,6 +21,8 @@ import axios from "axios";
 import usefoodDelivery from "../../globalState/fooddeliveryStore";
 import { getAddress } from "../../api/UserProfile";
 
+const API = "https://robmorfood-backend.onrender.com/api";
+
 const MainNav = () => {
   const [open, setOpen] = useState(false);
   const [address, setAddress] = useState(null);
@@ -55,9 +57,6 @@ const MainNav = () => {
   // ดึงที่อยู่จริง
   // =========================
 
-  // =========================
-  // ดึงที่อยู่จริง
-  // =========================
   useEffect(() => {
     if (!token) {
       setAddress(null);
@@ -71,7 +70,6 @@ const MainNav = () => {
         const addresses =
           res.data?.addresses || res.data?.address || res.data || [];
 
-        // เลือกที่อยู่หลัก
         const defaultAddress = Array.isArray(addresses)
           ? addresses.find((item) => item.isDefault) || addresses[0]
           : addresses;
@@ -103,14 +101,11 @@ const MainNav = () => {
       loading = true;
 
       try {
-        const res = await axios.get(
-          "http://localhost:5000/api/user/notification",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        const res = await axios.get(`${API}/user/notification`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
 
         if (!mounted) return;
 
@@ -137,6 +132,7 @@ const MainNav = () => {
       clearInterval(interval);
     };
   }, [token]);
+
   // =========================
   // ดึง Notification
   // =========================
@@ -149,14 +145,11 @@ const MainNav = () => {
     }
 
     try {
-      const res = await axios.get(
-        "http://localhost:5000/api/user/notification",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      const res = await axios.get(`${API}/user/notification`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      );
+      });
 
       setNotifications(res.data.notifications || []);
       setUnreadCount(res.data.unreadCount || 0);
@@ -316,7 +309,7 @@ const MainNav = () => {
     try {
       if (!notification.isRead) {
         await axios.patch(
-          `http://localhost:5000/api/user/notification/${notification.id}/read`,
+          `${API}/user/notification/${notification.id}/read`,
           {},
           {
             headers: {
@@ -370,7 +363,7 @@ const MainNav = () => {
 
     try {
       await axios.patch(
-        "http://localhost:5000/api/user/notification/read-all",
+        `${API}/user/notification/read-all`,
         {},
         {
           headers: {
@@ -519,19 +512,21 @@ const MainNav = () => {
                 {notificationOpen && (
                   <div
                     className="
-                      absolute
-                      right-0
-                      top-[52px]
-                      z-50
-                      w-[360px]
-                      overflow-hidden
-                      rounded-2xl
-                      border
-                      border-orange-100
-                      bg-white
-                      shadow-xl
-                      shadow-orange-100/40
-                    "
+      fixed
+      right-3
+      top-[68px]
+      z-[60]
+      w-[calc(100vw-24px)]
+      max-w-[360px]
+      overflow-hidden
+      rounded-2xl
+      border
+      border-orange-100
+      bg-white
+      shadow-xl
+      shadow-orange-100/40
+      sm:right-6
+    "
                   >
                     {/* Header */}
 

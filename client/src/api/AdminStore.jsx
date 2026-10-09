@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "https://robmorfood-backend.onrender.com/api";
 
 export const getAllStores = (token) => {
   return axios.get(`${API_URL}/admin/stores`, {
@@ -47,7 +47,7 @@ export const changeCustomerStatus = (token, id, status) => {
 };
 
 export const adminLogin = async (data) => {
-  return axios.post("http://localhost:5000/api/admin/login", data);
+  return axios.post(`${API_URL}/admin/login`, data);
 };
 
 export const getAllOrderReports = (token) => {

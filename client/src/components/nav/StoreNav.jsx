@@ -20,6 +20,8 @@ import axios from "axios";
 import usefoodDelivery from "../../globalState/fooddeliveryStore";
 import { getStoreProfile } from "../../api/createStore";
 
+const API = "https://robmorfood-backend.onrender.com/api";
+
 const StoreNav = () => {
   const navigate = useNavigate();
 
@@ -36,9 +38,6 @@ const StoreNav = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notificationOpen, setNotificationOpen] = useState(false);
 
-  // =========================
-  // ดึงข้อมูลร้าน
-  // =========================
   // =========================
   // ดึง Notification
   // =========================
@@ -58,14 +57,11 @@ const StoreNav = () => {
       loading = true;
 
       try {
-        const res = await axios.get(
-          "http://localhost:5000/api/store/notification",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        const res = await axios.get(`${API}/store/notification`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
 
         if (!mounted) return;
 
@@ -81,10 +77,8 @@ const StoreNav = () => {
       }
     };
 
-    // โหลดทันทีเมื่อเปิดหน้า
     loadNotifications();
 
-    // เช็กทุก 3 วินาที
     const interval = setInterval(() => {
       loadNotifications();
     }, 3000);
@@ -123,15 +117,11 @@ const StoreNav = () => {
   // =========================
   // อ่านแจ้งเตือน 1 รายการ
   // =========================
-
   const handleReadNotification = async (notification) => {
     try {
-      // =========================
-      // Mark อ่านแล้ว
-      // =========================
       if (!notification.isRead) {
         await axios.patch(
-          `http://localhost:5000/api/store/notification/${notification.id}/read`,
+          `${API}/store/notification/${notification.id}/read`,
           {},
           {
             headers: {
@@ -141,9 +131,6 @@ const StoreNav = () => {
         );
       }
 
-      // =========================
-      // อัปเดต UI ทันที
-      // =========================
       setNotifications((prev) =>
         prev.map((item) =>
           item.id === notification.id ? { ...item, isRead: true } : item,
@@ -154,7 +141,6 @@ const StoreNav = () => {
         setUnreadCount((prev) => Math.max(prev - 1, 0));
       }
 
-      // ปิด dropdown
       setNotificationOpen(false);
 
       // =========================
@@ -169,13 +155,11 @@ const StoreNav = () => {
       // แจ้งเตือนแชท
       // =========================
       if (notification.type === "CHAT_MESSAGE") {
-        // แชทจัดส่ง
         if (notification.deliveryId) {
           navigate(`/store/DeliveryChat/${notification.deliveryId}`);
           return;
         }
 
-        // แชททั่วไปกับลูกค้า
         navigate("/store/chat");
         return;
       }
@@ -214,7 +198,7 @@ const StoreNav = () => {
 
     try {
       await axios.patch(
-        "http://localhost:5000/api/store/notification/read-all",
+        `${API}/store/notification/read-all`,
         {},
         {
           headers: {
@@ -247,8 +231,7 @@ const StoreNav = () => {
       case "NEW_ORDER":
         return (
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100">
-            {" "}
-            <ShoppingBag className="h-5 w-5 text-orange-500" />{" "}
+            <ShoppingBag className="h-5 w-5 text-orange-500" />
           </div>
         );
 
@@ -283,8 +266,7 @@ const StoreNav = () => {
       case "ORDER_CANCELLED":
         return (
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100">
-            {" "}
-            <XCircle className="h-5 w-5 text-red-600" />{" "}
+            <XCircle className="h-5 w-5 text-red-600" />
           </div>
         );
 
@@ -294,6 +276,7 @@ const StoreNav = () => {
             <MessageCircle className="h-5 w-5 text-purple-500" />
           </div>
         );
+
       default:
         return (
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gray-100">
@@ -358,13 +341,11 @@ const StoreNav = () => {
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-orange-100 bg-white/95 shadow-sm backdrop-blur">
-      {" "}
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        {" "}
         <div className="flex h-16 items-center justify-between">
           {/* =========================
-          LEFT : LOGO
-      ========================= */}
+              LEFT : LOGO
+          ========================= */}
           <div
             onClick={() => navigate("/")}
             className="flex cursor-pointer items-center gap-3"
@@ -387,12 +368,12 @@ const StoreNav = () => {
           </div>
 
           {/* =========================
-          RIGHT
-      ========================= */}
+              RIGHT
+          ========================= */}
           <div className="flex items-center gap-3">
             {/* =========================
-            NOTIFICATION
-        ========================= */}
+                NOTIFICATION
+            ========================= */}
             <div className="relative">
               <button
                 type="button"
@@ -412,11 +393,10 @@ const StoreNav = () => {
               </button>
 
               {/* =========================
-              NOTIFICATION DROPDOWN
-          ========================= */}
+                  NOTIFICATION DROPDOWN
+              ========================= */}
               {notificationOpen && (
                 <>
-                  {/* พื้นที่ด้านนอก */}
                   <div
                     className="fixed inset-0 z-40"
                     onClick={() => setNotificationOpen(false)}
@@ -424,20 +404,20 @@ const StoreNav = () => {
 
                   <div
                     className="
-                  absolute
-                  right-0
-                  z-50
-                  mt-2
-                  w-[360px]
-                  max-w-[calc(100vw-2rem)]
-                  overflow-hidden
-                  rounded-2xl
-                  border
-                  border-orange-100
-                  bg-white
-                  shadow-xl
-                  shadow-gray-200/60
-                "
+                      absolute
+                      right-0
+                      z-50
+                      mt-2
+                      w-[360px]
+                      max-w-[calc(100vw-2rem)]
+                      overflow-hidden
+                      rounded-2xl
+                      border
+                      border-orange-100
+                      bg-white
+                      shadow-xl
+                      shadow-gray-200/60
+                    "
                   >
                     {/* Header */}
                     <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
@@ -486,41 +466,41 @@ const StoreNav = () => {
                           <button
                             key={notification.id}
                             type="button"
-                            onClick={() => handleReadNotification(notification)}
+                            onClick={() =>
+                              handleReadNotification(notification)
+                            }
                             className={`
-                          flex
-                          w-full
-                          gap-3
-                          border-b
-                          border-gray-100
-                          px-4
-                          py-3
-                          text-left
-                          transition
-                          hover:bg-orange-50
-                          ${
-                            !notification.isRead
-                              ? "bg-orange-50/60"
-                              : "bg-white"
-                          }
-                        `}
+                              flex
+                              w-full
+                              gap-3
+                              border-b
+                              border-gray-100
+                              px-4
+                              py-3
+                              text-left
+                              transition
+                              hover:bg-orange-50
+                              ${
+                                !notification.isRead
+                                  ? "bg-orange-50/60"
+                                  : "bg-white"
+                              }
+                            `}
                           >
-                            {/* Icon */}
                             {getNotificationIcon(notification.type)}
 
-                            {/* Content */}
                             <div className="min-w-0 flex-1">
                               <div className="flex items-start justify-between gap-2">
                                 <p
                                   className={`
-                                font-['Kanit']
-                                text-sm
-                                ${
-                                  !notification.isRead
-                                    ? "font-bold text-[#2A1B12]"
-                                    : "font-semibold text-gray-700"
-                                }
-                              `}
+                                    font-['Kanit']
+                                    text-sm
+                                    ${
+                                      !notification.isRead
+                                        ? "font-bold text-[#2A1B12]"
+                                        : "font-semibold text-gray-700"
+                                    }
+                                  `}
                                 >
                                   {notification.title}
                                 </p>
@@ -535,7 +515,9 @@ const StoreNav = () => {
                               </p>
 
                               <p className="mt-1.5 text-[10px] text-gray-400">
-                                {formatNotificationTime(notification.createdAt)}
+                                {formatNotificationTime(
+                                  notification.createdAt,
+                                )}
                               </p>
                             </div>
                           </button>
@@ -548,8 +530,8 @@ const StoreNav = () => {
             </div>
 
             {/* =========================
-            PROFILE
-        ========================= */}
+                PROFILE
+            ========================= */}
             <div className="relative">
               <button
                 type="button"
@@ -558,20 +540,20 @@ const StoreNav = () => {
                   setNotificationOpen(false);
                 }}
                 className="
-              flex
-              items-center
-              gap-2.5
-              rounded-full
-              border
-              border-orange-100
-              bg-white
-              px-2
-              py-1.5
-              shadow-sm
-              transition
-              hover:border-orange-300
-              hover:bg-orange-50
-            "
+                  flex
+                  items-center
+                  gap-2.5
+                  rounded-full
+                  border
+                  border-orange-100
+                  bg-white
+                  px-2
+                  py-1.5
+                  shadow-sm
+                  transition
+                  hover:border-orange-300
+                  hover:bg-orange-50
+                "
               >
                 {/* รูป Profile */}
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-orange-400 to-orange-600">
@@ -605,8 +587,8 @@ const StoreNav = () => {
               </button>
 
               {/* =========================
-              PROFILE DROPDOWN
-          ========================= */}
+                  PROFILE DROPDOWN
+              ========================= */}
               {open && (
                 <>
                   <div
@@ -616,29 +598,29 @@ const StoreNav = () => {
 
                   <div
                     className="
-                  absolute
-                  right-0
-                  z-50
-                  mt-2
-                  w-64
-                  overflow-hidden
-                  rounded-2xl
-                  border
-                  border-orange-100
-                  bg-white
-                  shadow-xl
-                  shadow-gray-200/60
-                "
+                      absolute
+                      right-0
+                      z-50
+                      mt-2
+                      w-64
+                      overflow-hidden
+                      rounded-2xl
+                      border
+                      border-orange-100
+                      bg-white
+                      shadow-xl
+                      shadow-gray-200/60
+                    "
                   >
                     {/* ข้อมูลร้าน */}
                     <div
                       className="
-                    bg-gradient-to-br
-                    from-orange-50
-                    to-white
-                    px-4
-                    py-4
-                  "
+                        bg-gradient-to-br
+                        from-orange-50
+                        to-white
+                        px-4
+                        py-4
+                      "
                     >
                       <div className="flex items-center gap-3">
                         <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-orange-400 to-orange-600">
@@ -671,18 +653,18 @@ const StoreNav = () => {
                         navigate("/store/profile");
                       }}
                       className="
-                    flex
-                    w-full
-                    items-center
-                    gap-3
-                    border-t
-                    border-gray-100
-                    px-4
-                    py-3
-                    text-left
-                    transition
-                    hover:bg-orange-50
-                  "
+                        flex
+                        w-full
+                        items-center
+                        gap-3
+                        border-t
+                        border-gray-100
+                        px-4
+                        py-3
+                        text-left
+                        transition
+                        hover:bg-orange-50
+                      "
                     >
                       <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-100">
                         <User className="h-4 w-4 text-orange-500" />
@@ -698,32 +680,32 @@ const StoreNav = () => {
                       type="button"
                       onClick={handleLogout}
                       className="
-                    group
-                    flex
-                    w-full
-                    items-center
-                    gap-3
-                    border-t
-                    border-gray-100
-                    px-4
-                    py-3
-                    text-left
-                    transition
-                    hover:bg-red-50
-                  "
+                        group
+                        flex
+                        w-full
+                        items-center
+                        gap-3
+                        border-t
+                        border-gray-100
+                        px-4
+                        py-3
+                        text-left
+                        transition
+                        hover:bg-red-50
+                      "
                     >
                       <div
                         className="
-                      flex
-                      h-9
-                      w-9
-                      items-center
-                      justify-center
-                      rounded-xl
-                      bg-red-50
-                      transition
-                      group-hover:bg-red-100
-                    "
+                          flex
+                          h-9
+                          w-9
+                          items-center
+                          justify-center
+                          rounded-xl
+                          bg-red-50
+                          transition
+                          group-hover:bg-red-100
+                        "
                       >
                         <LogOut className="h-4 w-4 text-red-500" />
                       </div>
