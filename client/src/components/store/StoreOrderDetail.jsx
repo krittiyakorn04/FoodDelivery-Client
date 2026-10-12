@@ -148,6 +148,7 @@ const StoreOrderDetail = () => {
   const [paymentLoading, setPaymentLoading] = useState(false);
 
   const [orderLoading, setOrderLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
 
   // =====================================================
   // LOAD ORDER
@@ -438,7 +439,7 @@ const StoreOrderDetail = () => {
     }
 
     try {
-      setOrderLoading(true);
+      setCancelLoading(true);
 
       await cancelStoreOrder(token, order.id);
 
@@ -462,7 +463,7 @@ const StoreOrderDetail = () => {
         confirmButtonColor: "#f97316",
       });
     } finally {
-      setOrderLoading(false);
+      setCancelLoading(false);
     }
   };
 
@@ -1327,8 +1328,6 @@ CHAT DELIVERY
 
       {/* ACTION BUTTON */}
 
-      {/* ACTION BUTTON */}
-
       <div className="max-w-6xl mx-auto px-4 pb-10">
         <div className="bg-white border border-orange-100 shadow-sm rounded-3xl p-4">
           {/* =====================================================
@@ -1339,7 +1338,7 @@ CHAT DELIVERY
           {order.status === "PENDING" && (
             <button
               type="button"
-              disabled={orderLoading}
+              disabled={cancelLoading}
               onClick={handleCancelOrder}
               className="
       w-full
@@ -1359,18 +1358,17 @@ CHAT DELIVERY
       disabled:cursor-not-allowed
     "
             >
-              {orderLoading ? (
+              {cancelLoading ? (
                 <span className="flex items-center justify-center gap-2">
                   <span
                     className="
-            w-5
-            h-5
-            border-2
-            border-red-300
-            border-t-red-600
-            rounded-full
-            animate-spin
-          "
+        w-5 h-5
+        border-2
+        border-red-300
+        border-t-red-600
+        rounded-full
+        animate-spin
+      "
                   />
                   กำลังยกเลิก...
                 </span>
