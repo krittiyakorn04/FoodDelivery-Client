@@ -150,6 +150,16 @@ const StoreOrderDetail = () => {
   const [orderLoading, setOrderLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
 
+  const [currentTime, setCurrentTime] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 30 * 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   // =====================================================
   // LOAD ORDER
   // =====================================================
@@ -531,6 +541,20 @@ const StoreOrderDetail = () => {
     );
   }
 
+  const orderCreatedAt = order.createdAt
+    ? new Date(order.createdAt).getTime()
+    : null;
+
+  const isUnfinishedOrder =
+    order.status !== "COMPLETED" && order.status !== "CANCELLED";
+
+  const isOrderOverOneHour =
+    orderCreatedAt !== null &&
+    Number.isFinite(orderCreatedAt) &&
+    currentTime - orderCreatedAt >= 60 * 60 * 1000;
+
+  const showOrderTimeWarning = isUnfinishedOrder && isOrderOverOneHour;
+
   // =====================================================
   // STATUS
   // =====================================================
@@ -735,6 +759,30 @@ const StoreOrderDetail = () => {
             </span>
           </div>
         </div>
+
+        {showOrderTimeWarning && (
+          <div className="mb-5 flex items-start gap-3 rounded-2xl border border-orange-300 bg-orange-50 p-4 text-orange-800 shadow-sm">
+            <Clock3 size={24} className="mt-0.5 shrink-0 text-orange-600" />
+
+            <div>
+              <p className="font-bold">
+                ออเดอร์นี้ใช้เวลานานกว่า 1 ชั่วโมงแล้ว
+              </p>
+
+              <p className="mt-1 text-sm leading-relaxed">
+                ออเดอร์นี้ยังไม่เสร็จสิ้น กรุณาตรวจสอบสถานะและดำเนินการต่อ
+              </p>
+
+              <p className="mt-1 text-xs text-orange-700">
+                สร้างออเดอร์เมื่อ{" "}
+                {new Date(order.createdAt).toLocaleString("th-TH", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* =====================================================
 CHAT DELIVERY
