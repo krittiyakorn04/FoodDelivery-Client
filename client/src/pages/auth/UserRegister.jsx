@@ -1,111 +1,198 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Swal from "sweetalert2";
 import usefoodDelivery from "../../globalState/fooddeliveryStore";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Check, Circle, Loader2 } from "lucide-react";
+
+/* ---------- Constants ---------- */
+
+const BRAND = "#f97316";
+
+const inputBase =
+  "w-full rounded-xl border bg-gray-50 px-4 py-3 text-sm transition focus:outline-none focus:ring-2";
+const inputOk =
+  "border-gray-200 focus:ring-orange-400 focus:border-orange-400";
+const inputErr =
+  "border-red-300 bg-red-50/40 focus:ring-red-300 focus:border-red-400";
+
+// กฎรหัสผ่าน: เก็บไว้ที่เดียว ใช้ทั้งแสดงผลและ validate
+const PASSWORD_RULES = [
+  { id: "len", label: "ความยาวไม่น้อยกว่า 8 ตัวอักษร", test: (p) => p.length >= 8 && p.length <= 64 },
+  { id: "lower", label: "มีตัวพิมพ์เล็ก (a-z)", test: (p) => /[a-z]/.test(p) },
+  { id: "upper", label: "มีตัวพิมพ์ใหญ่ (A-Z)", test: (p) => /[A-Z]/.test(p) },
+  { id: "digit", label: "มีตัวเลขอย่างน้อย 1 ตัว", test: (p) => /[0-9]/.test(p) },
+  { id: "special", label: "มีอักขระพิเศษ เช่น @ หรือ !", test: (p) => /[^A-Za-z0-9\s]/.test(p) },
+  { id: "space", label: "ไม่มีช่องว่าง", test: (p) => p.length > 0 && !/\s/.test(p) },
+];
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^0\d{9}$/;
+
+const validate = (form) => {
+  const errors = {};
+
+  if (!form.username.trim()) errors.username = "กรุณากรอกชื่อผู้ใช้";
+
+  if (!EMAIL_REGEX.test(form.email.trim())) errors.email = "กรุณากรอกอีเมลให้ถูกต้อง";
+
+  if (!PHONE_REGEX.test(form.phone))
+    errors.phone = "กรอกเบอร์โทร 10 หลัก และขึ้นต้นด้วย 0";
+
+  if (!PASSWORD_RULES.every((r) => r.test(form.password)))
+    errors.password = "รหัสผ่านยังไม่ตรงตามเงื่อนไขด้านล่าง";
+
+  if (!form.confirmPassword) errors.confirmPassword = "กรุณายืนยันรหัสผ่าน";
+  else if (form.password !== form.confirmPassword)
+    errors.confirmPassword = "รหัสผ่านไม่ตรงกัน";
+
+  return errors;
+};
+
+/* ---------- Small components ---------- */
+
+const Field = ({ id, label, error, children }) => (
+  <div className="mb-4">
+    <label htmlFor={id} className="text-sm font-medium text-gray-600 mb-2 block">
+      {label}
+    </label>
+    {children}
+    {error && (
+      <p id={`${id}-error`} role="alert" className="mt-1.5 text-xs text-red-500">
+        {error}
+      </p>
+    )}
+  </div>
+);
+
+const PasswordInput = ({ id, name, value, onChange, onBlur, error, autoComplete, describedBy }) => {
+  const [show, setShow] = useState(false);
+
+  return (
+    <div className="relative">
+      <input
+        id={id}
+        type={show ? "text" : "password"}
+        name={name}
+        value={value}
+        onChange={onChange}
+        onBlur={onBlur}
+        placeholder="********"
+        maxLength={64}
+        autoComplete={autoComplete}
+        aria-invalid={!!error}
+        aria-describedby={describedBy}
+        className={`${inputBase} pr-12 ${error ? inputErr : inputOk}`}
+      />
+      <button
+        type="button"
+        onClick={() => setShow((prev) => !prev)}
+        aria-label={show ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
+        className="absolute right-3 top-1/2 -translate-y-1/2 rounded text-gray-500 hover:text-orange-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400"
+      >
+        {show ? <EyeOff size={20} /> : <Eye size={20} />}
+      </button>
+    </div>
+  );
+};
+
+const PasswordChecklist = ({ password }) => {
+  const passed = PASSWORD_RULES.filter((r) => r.test(password)).length;
+  const percent = (passed / PASSWORD_RULES.length) * 100;
+  const barColor =
+    percent < 50 ? "bg-red-400" : percent < 100 ? "bg-amber-400" : "bg-green-500";
+
+  return (
+    <div id="password-rules" className="mt-3">
+      <div
+        className="h-1.5 w-full rounded-full bg-gray-100 overflow-hidden"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={PASSWORD_RULES.length}
+        aria-valuenow={passed}
+        aria-label="ความแข็งแรงของรหัสผ่าน"
+      >
+        <div
+          className={`h-full rounded-full transition-all duration-300 ${barColor}`}
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+
+      <ul className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 text-xs sm:grid-cols-2">
+        {PASSWORD_RULES.map((rule) => {
+          const ok = rule.test(password);
+          return (
+            <li
+              key={rule.id}
+              className={`flex items-center gap-1.5 ${ok ? "text-green-600" : "text-gray-500"}`}
+            >
+              {ok ? <Check size={14} /> : <Circle size={10} className="mx-0.5" />}
+              {rule.label}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+};
+
+/* ---------- Page ---------- */
 
 const UserRegister = () => {
   const navigate = useNavigate();
-
-  const actionRegisterUser = usefoodDelivery(
-    (state) => state.actionRegisterUser,
-  );
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const actionRegisterUser = usefoodDelivery((state) => state.actionRegisterUser);
 
   const [form, setForm] = useState({
+    username: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
-    phone: "",
-    username: "",
   });
+  const [touched, setTouched] = useState({});
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const errors = useMemo(() => validate(form), [form]);
+
+  // แสดง error เมื่อผู้ใช้แตะช่องนั้นแล้ว หรือกดสมัครแล้ว
+  const showError = (name) => (touched[name] || submitted ? errors[name] : undefined);
 
   const handleOnChange = (e) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value } = e.target;
+    const nextValue =
+      name === "phone" ? value.replace(/\D/g, "").slice(0, 10) : value;
+
+    // ใช้ functional update เพื่อไม่ให้ state เก่าทับกัน
+    setForm((prev) => ({ ...prev, [name]: nextValue }));
+  };
+
+  const handleBlur = (e) => {
+    const { name } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
   };
 
   const roleRedirect = (role) => {
-    if (role === "CUSTOMER") {
-      navigate("/user/homeUser");
-    } else {
-      navigate("/");
-    }
+    if (role === "CUSTOMER") navigate("/user/homeUser");
+    else navigate("/");
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
 
-    // ตรวจสอบชื่อผู้ใช้
-    if (!form.username.trim()) {
-      return Swal.fire({
-        icon: "warning",
-        title: "กรุณากรอกชื่อผู้ใช้",
-        confirmButtonColor: "#f97316",
-      });
+    setSubmitted(true);
+
+    const firstErrorField = Object.keys(errors)[0];
+    if (firstErrorField) {
+      // พาผู้ใช้ไปที่ช่องแรกที่ผิด
+      document.getElementById(firstErrorField)?.focus();
+      return;
     }
 
-    // ตรวจสอบเบอร์โทรศัพท์
-    if (!/^0\d{9}$/.test(form.phone)) {
-      return Swal.fire({
-        icon: "warning",
-        title: "เบอร์โทรศัพท์ไม่ถูกต้อง",
-        text: "กรุณากรอกเบอร์โทรศัพท์ 10 หลัก และขึ้นต้นด้วย 0",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#f97316",
-      });
-    }
-
-    // ตรวจสอบอีเมล
-    if (
-      !form.email.trim() ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())
-    ) {
-      return Swal.fire({
-        icon: "warning",
-        title: "อีเมลไม่ถูกต้อง",
-        text: "กรุณากรอกอีเมลให้ถูกต้อง",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#f97316",
-      });
-    }
-
-    // ตรวจสอบรหัสผ่าน
-    if (
-      form.password.length < 8 ||
-      form.password.length > 64 ||
-      /\s/.test(form.password) ||
-      !/[a-z]/.test(form.password) ||
-      !/[A-Z]/.test(form.password) ||
-      !/[0-9]/.test(form.password) ||
-      !/[^A-Za-z0-9\s]/.test(form.password)
-    ) {
-      return Swal.fire({
-        icon: "warning",
-        title: "รหัสผ่านไม่ตรงตามเงื่อนไข",
-        text: "ต้องมี 8-64 ตัวอักษร ประกอบด้วยตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก ตัวเลข และอักขระพิเศษ โดยไม่มีช่องว่าง",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#f97316",
-      });
-    }
-
-    // ตรวจสอบยืนยันรหัสผ่าน
-    if (form.password !== form.confirmPassword) {
-      return Swal.fire({
-        icon: "warning",
-        title: "รหัสผ่านไม่ตรงกัน",
-        text: "กรุณากรอกรหัสผ่านและยืนยันรหัสผ่านให้ตรงกัน",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#f97316",
-      });
-    }
-
+    setLoading(true);
     try {
-      // ไม่ส่ง confirmPassword และ email ไป Backend
-      const { username,email, phone, password } = form;
+      // ไม่ส่ง confirmPassword ไป Backend
+      const { username, email, phone, password } = form;
 
       const res = await actionRegisterUser({
         username: username.trim(),
@@ -118,251 +205,160 @@ const UserRegister = () => {
         icon: "success",
         title: "สมัครใช้งานสำเร็จ",
         text: "กำลังเข้าสู่หน้าหลัก",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#f97316",
+        timer: 1800,
+        timerProgressBar: true,
+        showConfirmButton: false,
       });
 
-      roleRedirect(res.data.payload.role);
+      roleRedirect(res?.data?.payload?.role);
     } catch (error) {
-      const errMsg = error.response?.data?.message || "สมัครสมาชิกไม่สำเร็จ";
-
       Swal.fire({
         icon: "error",
         title: "สมัครสมาชิกไม่สำเร็จ",
-        text: errMsg,
+        text: error.response?.data?.message || "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
         confirmButtonText: "ตกลง",
-        confirmButtonColor: "#f97316",
+        confirmButtonColor: BRAND,
       });
-
-      console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const passwordsMatch =
+    form.confirmPassword.length > 0 && form.password === form.confirmPassword;
+
   return (
-    <div className="min-h-screen bg-[#FFF8F0] flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-4xl">
+    
+    <>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Kanit:wght@600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap"
+      />
+      <div
+        className="min-h-screen bg-[#FFF8F0] flex items-center justify-center px-4 py-10"
+        style={{ fontFamily: "'Noto Sans Thai', sans-serif" }}
+      >
+      <div className="w-full max-w-2xl">
         <div className="bg-white rounded-3xl border border-orange-100 shadow-[0_20px_50px_-20px_rgba(42,27,18,0.25)] overflow-hidden">
-          <form onSubmit={handleSubmit}>
-            <div className="px-8 py-8 sm:px-10 sm:py-10 md:px-12 md:py-12">
+          <form onSubmit={handleSubmit} noValidate>
+            <div className="px-6 py-8 sm:px-10 sm:py-10 md:px-12 md:py-12">
               {/* Header */}
-              <div className="text-center mb-7">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">
+              <div className="text-center mb-8">
+                <h1
+                  className="text-2xl sm:text-3xl font-bold text-gray-800"
+                  style={{ fontFamily: "'Kanit', sans-serif" }}
+                >
                   สร้างบัญชีสมาชิก
                 </h1>
-
                 <p className="text-sm text-gray-500 mt-2">
                   สมัครสมาชิกเพื่อเริ่มสั่งอาหาร
                 </p>
               </div>
 
-              {/* Username */}
-              <div className="mb-4">
-                <label className="text-sm font-medium text-gray-600 mb-2 block">
-                  ชื่อผู้ใช้
-                </label>
+              {/* Username + Phone: 2 คอลัมน์บนจอใหญ่ */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 sm:gap-x-4">
+                <Field id="username" label="ชื่อผู้ใช้" error={showError("username")}>
+                  <input
+                    id="username"
+                    type="text"
+                    name="username"
+                    value={form.username}
+                    onChange={handleOnChange}
+                    onBlur={handleBlur}
+                    placeholder="username"
+                    autoComplete="username"
+                    aria-invalid={!!showError("username")}
+                    aria-describedby={showError("username") ? "username-error" : undefined}
+                    className={`${inputBase} ${showError("username") ? inputErr : inputOk}`}
+                  />
+                </Field>
 
-                <input
-                  type="text"
-                  name="username"
-                  value={form.username}
-                  onChange={handleOnChange}
-                  placeholder="username"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition"
-                />
+                <Field id="phone" label="โทรศัพท์" error={showError("phone")}>
+                  <input
+                    id="phone"
+                    type="tel"
+                    name="phone"
+                    value={form.phone}
+                    onChange={handleOnChange}
+                    onBlur={handleBlur}
+                    placeholder="089xxxxxxx"
+                    maxLength={10}
+                    inputMode="numeric"
+                    autoComplete="tel"
+                    aria-invalid={!!showError("phone")}
+                    aria-describedby={showError("phone") ? "phone-error" : undefined}
+                    className={`${inputBase} ${showError("phone") ? inputErr : inputOk}`}
+                  />
+                </Field>
               </div>
 
               {/* Email */}
-              <div className="mb-4">
-                <label className="text-sm font-medium text-gray-600 mb-2 block">
-                  อีเมล
-                </label>
-
+              <Field id="email" label="อีเมล" error={showError("email")}>
                 <input
+                  id="email"
                   type="email"
                   name="email"
                   value={form.email}
                   onChange={handleOnChange}
+                  onBlur={handleBlur}
                   placeholder="example@email.com"
                   autoComplete="email"
-                  required
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition"
+                  aria-invalid={!!showError("email")}
+                  aria-describedby={showError("email") ? "email-error" : undefined}
+                  className={`${inputBase} ${showError("email") ? inputErr : inputOk}`}
                 />
-              </div>
-
-              {/* Phone */}
-              <div className="mb-4">
-                <label className="text-sm font-medium text-gray-600 mb-2 block">
-                  โทรศัพท์
-                </label>
-
-                <input
-                  type="tel"
-                  name="phone"
-                  value={form.phone}
-                  onChange={(e) => {
-                    const value = e.target.value
-                      .replace(/\D/g, "")
-                      .slice(0, 10);
-
-                    setForm({
-                      ...form,
-                      phone: value,
-                    });
-                  }}
-                  placeholder="089xxxxxxx"
-                  maxLength={10}
-                  inputMode="numeric"
-                  required
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition"
-                />
-
-                {form.phone.length > 0 && form.phone.length < 10 && (
-                  <p className="mt-1 text-xs text-red-500">
-                    กรุณากรอกเบอร์โทรศัพท์ให้ครบ 10 หลัก
-                  </p>
-                )}
-              </div>
+              </Field>
 
               {/* Password */}
-              <div className="mb-4">
-                <label className="text-sm font-medium text-gray-600 mb-2 block">
-                  รหัสผ่าน
-                </label>
-
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    value={form.password}
-                    onChange={handleOnChange}
-                    placeholder="********"
-                    required
-                    maxLength={64}
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
-                    aria-label={showPassword ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500"
-                  >
-                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-                  </button>
-                </div>
-
-                <div className="mt-2 space-y-1 text-xs">
-                  <p
-                    className={
-                      form.password.length >= 8
-                        ? "text-green-600"
-                        : "text-gray-500"
-                    }
-                  >
-                    {form.password.length >= 8 ? "✓" : "○"} ความยาวอย่างน้อย 8
-                    ตัวอักษร
-                  </p>
-
-                  <p
-                    className={
-                      /[a-z]/.test(form.password)
-                        ? "text-green-600"
-                        : "text-gray-500"
-                    }
-                  >
-                    {/[a-z]/.test(form.password) ? "✓" : "○"}{" "}
-                    มีตัวอักษรภาษาอังกฤษตัวพิมพ์เล็ก (a-z)
-                  </p>
-
-                  <p
-                    className={
-                      /[A-Z]/.test(form.password)
-                        ? "text-green-600"
-                        : "text-gray-500"
-                    }
-                  >
-                    {/[A-Z]/.test(form.password) ? "✓" : "○"}{" "}
-                    มีตัวอักษรภาษาอังกฤษตัวพิมพ์ใหญ่ (A-Z)
-                  </p>
-
-                  <p
-                    className={
-                      /[0-9]/.test(form.password)
-                        ? "text-green-600"
-                        : "text-gray-500"
-                    }
-                  >
-                    {/[0-9]/.test(form.password) ? "✓" : "○"} มีตัวเลขอย่างน้อย
-                    1 ตัว
-                  </p>
-
-                  <p
-                    className={
-                      /[^A-Za-z0-9\s]/.test(form.password)
-                        ? "text-green-600"
-                        : "text-gray-500"
-                    }
-                  >
-                    {/[^A-Za-z0-9\s]/.test(form.password) ? "✓" : "○"}{" "}
-                    มีอักขระพิเศษ เช่น @ หรือ !
-                  </p>
-
-                  <p
-                    className={
-                      form.password && !/\s/.test(form.password)
-                        ? "text-green-600"
-                        : "text-gray-500"
-                    }
-                  >
-                    {form.password && !/\s/.test(form.password) ? "✓" : "○"}{" "}
-                    ไม่มีช่องว่าง
-                  </p>
-                </div>
-              </div>
+              <Field id="password" label="รหัสผ่าน" error={showError("password")}>
+                <PasswordInput
+                  id="password"
+                  name="password"
+                  value={form.password}
+                  onChange={handleOnChange}
+                  onBlur={handleBlur}
+                  error={showError("password")}
+                  autoComplete="new-password"
+                  describedBy="password-rules"
+                />
+                <PasswordChecklist password={form.password} />
+              </Field>
 
               {/* Confirm Password */}
               <div className="mb-6">
-                <label className="text-sm font-medium text-gray-600 mb-2 block">
-                  ยืนยันรหัสผ่าน
-                </label>
-
-                <div className="relative">
-                  <input
-                    type={showConfirmPassword ? "text" : "password"}
+                <Field
+                  id="confirmPassword"
+                  label="ยืนยันรหัสผ่าน"
+                  error={showError("confirmPassword")}
+                >
+                  <PasswordInput
+                    id="confirmPassword"
                     name="confirmPassword"
                     value={form.confirmPassword}
                     onChange={handleOnChange}
-                    placeholder="********"
-                    required
-                    maxLength={64}
-                    className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-orange-400 transition"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword((prev) => !prev)}
-                    aria-label={
-                      showConfirmPassword
-                        ? "ซ่อนรหัสผ่านที่ยืนยัน"
-                        : "แสดงรหัสผ่านที่ยืนยัน"
+                    onBlur={handleBlur}
+                    error={showError("confirmPassword")}
+                    autoComplete="new-password"
+                    describedBy={
+                      showError("confirmPassword") ? "confirmPassword-error" : undefined
                     }
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-500"
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff size={20} />
-                    ) : (
-                      <Eye size={20} />
-                    )}
-                  </button>
-                </div>
+                  />
+                </Field>
+                {passwordsMatch && (
+                  <p className="-mt-2 flex items-center gap-1.5 text-xs text-green-600">
+                    <Check size={14} /> รหัสผ่านตรงกัน
+                  </p>
+                )}
               </div>
 
               {/* Register */}
               <button
                 type="submit"
-                className="w-full rounded-xl bg-orange-500 py-3 text-white font-semibold hover:bg-orange-600 active:scale-[0.99] transition"
+                disabled={loading}
+                className="w-full rounded-xl bg-orange-500 py-3 text-white font-semibold transition hover:bg-orange-600 active:scale-[0.99] focus:outline-none focus-visible:ring-2 focus-visible:ring-orange-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 flex items-center justify-center gap-2"
               >
-                สมัครสมาชิก
+                {loading && <Loader2 size={18} className="animate-spin" />}
+                {loading ? "กำลังสมัครสมาชิก..." : "สมัครสมาชิก"}
               </button>
 
               {/* Login */}
@@ -371,7 +367,7 @@ const UserRegister = () => {
                 <button
                   type="button"
                   onClick={() => navigate("/UserLogin")}
-                  className="text-orange-500 font-semibold hover:text-orange-600"
+                  className="text-orange-500 font-semibold hover:text-orange-600 focus:outline-none focus-visible:underline"
                 >
                   เข้าสู่ระบบ
                 </button>
@@ -379,12 +375,11 @@ const UserRegister = () => {
             </div>
           </form>
         </div>
-        {/* Bottom text */}
-        <p className="text-center text-xs text-gray-400 mt-5">
-          © 2026 RobMorFood
-        </p>
+
+        <p className="text-center text-xs text-gray-400 mt-5">© 2026 RobMorFood</p>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

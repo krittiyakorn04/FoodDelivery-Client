@@ -21,6 +21,12 @@ const StoreSetting = () => {
       path: "/store/editProfile",
     },
     {
+      title: "เปลี่ยนรหัสผ่าน",
+      description: "เปลี่ยนรหัสผ่านร้านอาหาร",
+      icon: Store,
+      path: "/store/edit-password",
+    },
+    {
       title: "จัดการเวลาร้านอาหาร",
       description: "ตั้งค่าวันและเวลาเปิด–ปิดร้าน",
       icon: Clock3,

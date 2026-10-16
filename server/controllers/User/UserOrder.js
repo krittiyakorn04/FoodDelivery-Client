@@ -56,10 +56,10 @@ exports.getOrder = async (req, res) => {
   }
 };
 
+
 exports.getOrderDetail = async (req, res) => {
   try {
     const userId = req.user.id;
-
     const orderId = Number(req.params.id);
 
     const order = await prisma.order.findFirst({
@@ -67,14 +67,13 @@ exports.getOrderDetail = async (req, res) => {
         id: orderId,
         customerId: userId,
       },
-
       include: {
-        store: true,
+        store: {
+          include: {
+            images: true,
+          },
+        },
 
-
-        // =========================
-        // ORDER ROUND
-        // =========================
         orderRound: true,
 
         delivery: {
@@ -91,7 +90,6 @@ exports.getOrderDetail = async (req, res) => {
                 isDefault: true,
               },
             },
-
             images: true,
           },
         },
@@ -129,6 +127,8 @@ exports.getOrderDetail = async (req, res) => {
     });
   }
 };
+
+
 
 exports.createOrder = async (req, res) => {
   try {

@@ -31,7 +31,7 @@ const STATUS_TABS = [
     key: "PENDING",
     label: "รอร้านยืนยัน",
     icon: Hourglass,
-    activeClass: "bg-yellow-500 text-white",
+    activeClass: "bg-yellow-400 text-white",
   },
   {
     key: "WAITING_PAYMENT",
@@ -141,13 +141,13 @@ const getStatusMeta = (order) => {
     };
   }
 
-  if (displayStatus === "PENDING") {
-    return {
-      label: "รอร้านยืนยัน",
-      icon: Hourglass,
-      className: "bg-yellow-100 text-yellow-700 border-yellow-200",
-    };
-  }
+if (displayStatus === "PENDING") {
+  return {
+    label: "รอร้านยืนยัน",
+    icon: Hourglass,
+    className: "bg-orange-50 text-orange-700 border-orange-200",
+  };
+}
 
   if (displayStatus === "WAITING_PAYMENT") {
     return {
@@ -427,19 +427,7 @@ const OrderUser = () => {
             ))}
           </div>
 
-          {/* =====================================================
-            CURRENT STATUS
-        ===================================================== */}
-          <div className="mb-5 flex items-center justify-between gap-3 bg-white border border-orange-100 rounded-2xl px-4 py-3">
-            <div className="space-y-2">
-              <div className="h-3 w-16 rounded bg-gray-100" />
-              <div className="h-4 w-28 rounded bg-gray-200" />
-            </div>
 
-            <div className="rounded-xl bg-orange-100 px-5 py-2">
-              <div className="h-5 w-8 rounded bg-orange-200" />
-            </div>
-          </div>
 
           {/* =====================================================
             ORDER CARDS
@@ -675,44 +663,8 @@ const OrderUser = () => {
           </div>
         )}
 
-        {/* ===================================================
-            CURRENT STATUS
-        ==================================================== */}
 
-        {orders.length > 0 && (
-          <div
-            className="
-              mb-5
-              flex
-              items-center
-              justify-between
-              gap-3
-              bg-white
-              border
-              border-orange-100
-              rounded-2xl
-              px-4
-              py-3
-              shadow-sm
-            "
-          >
-            <div>
-              <p className="text-xs text-gray-400">กำลังแสดง</p>
 
-              <p className="text-sm font-bold text-[#2A1B12] mt-0.5">
-                {STATUS_TABS.find((item) => item.key === activeStatus)?.label}
-              </p>
-            </div>
-
-            <div className="rounded-xl bg-orange-50 px-4 py-2">
-              <span className="text-lg font-bold text-orange-500">
-                {filteredOrders.length}
-              </span>
-
-              <span className="ml-1 text-xs text-gray-500">ออเดอร์</span>
-            </div>
-          </div>
-        )}
 
         {/* ===================================================
             NO ORDER AT ALL

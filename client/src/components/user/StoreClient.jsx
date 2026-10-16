@@ -470,7 +470,7 @@ const StoreClient = () => {
   // =========================================================
 
   return (
-    <div className="min-h-screen bg-[#FFF8F0]">
+    <div className="min-h-screen bg-[#FFF8F0] font-kanit">
       <div className="max-w-6xl mx-auto px-3 py-6 mb-14">
         {/* ================================================= */}
         {/* Banner ร้าน */}

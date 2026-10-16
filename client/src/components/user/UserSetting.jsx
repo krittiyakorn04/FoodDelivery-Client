@@ -19,6 +19,12 @@ const UserSetting = () => {
       path: "/user/editUser",
     },
     {
+      title: "เปลี่ยนรหัสผ่าน",
+      description: "เปลี่ยนรหัสผ่านผู้ใช้",
+      icon: Store,
+      path: "/user/passwordForm",
+    },
+    {
       title: "จัดการที่อยู่",
       description: "วันเวลาเปิดร้าน",
       icon: Clock3,

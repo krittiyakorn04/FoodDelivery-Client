@@ -11,6 +11,7 @@ import {
   Clock,
   ShoppingBag,
   ArrowLeft,
+  CreditCard,
 } from "lucide-react";
 
 import Swal from "sweetalert2";
@@ -451,32 +452,86 @@ const UserPayment = () => {
   // LOADING
   // =========================
 
-  if (loading) {
-    return (
-      <div
-        className="
-          min-h-screen
-          bg-[#FFF8F0]
-          flex
-          items-center
-          justify-center
-        "
-      >
-        <div
-          className="
-            flex
-            items-center
-            gap-2
-            text-gray-500
-          "
-        >
-          <Loader2 size={22} className="animate-spin" />
-          กำลังโหลดข้อมูลการชำระเงิน...
+if (loading) {
+  return (
+    <div className="min-h-screen animate-pulse bg-[#FFF8F0]">
+      {/* Navbar */}
+      <div className="border-b border-[#F1E5D9] bg-white px-4 py-4 sm:px-8">
+        <div className="mx-auto flex max-w-6xl items-center justify-between">
+          <div className="h-7 w-32 rounded-lg bg-[#EADFD4]" />
+          <div className="h-9 w-24 rounded-xl bg-[#F0E6DC]" />
         </div>
       </div>
-    );
-  }
 
+      {/* Main content */}
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-8">
+        {/* Page title */}
+        <div className="mb-8 rounded-2xl border border-[#F1E5D9] bg-[#FFFCF8] p-6">
+          <div className="mb-3 h-8 w-36 rounded-lg bg-[#EADFD4]" />
+          <div className="h-4 w-64 max-w-full rounded-md bg-[#F0E6DC]" />
+        </div>
+
+        <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-5">
+          {/* Payment details */}
+          <div className="space-y-5 lg:col-span-3">
+            {/* Order summary */}
+            <div className="rounded-2xl border border-[#F1E5D9] bg-white p-5 sm:p-6">
+              <div className="mb-5 h-6 w-40 rounded-md bg-[#EADFD4]" />
+
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="flex items-center gap-4 border-b border-[#F5EDE5] py-4 last:border-0"
+                >
+                  <div className="h-16 w-16 shrink-0 rounded-xl bg-[#F0E6DC]" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 w-2/3 rounded-md bg-[#EADFD4]" />
+                    <div className="h-3 w-1/3 rounded-md bg-[#F0E6DC]" />
+                  </div>
+                  <div className="h-4 w-14 rounded-md bg-[#EADFD4]" />
+                </div>
+              ))}
+
+              <div className="mt-5 space-y-3">
+                <div className="flex justify-between">
+                  <div className="h-4 w-24 rounded-md bg-[#F0E6DC]" />
+                  <div className="h-4 w-20 rounded-md bg-[#F0E6DC]" />
+                </div>
+                <div className="flex justify-between">
+                  <div className="h-4 w-20 rounded-md bg-[#F0E6DC]" />
+                  <div className="h-4 w-16 rounded-md bg-[#F0E6DC]" />
+                </div>
+                <div className="flex justify-between border-t border-[#F1E5D9] pt-4">
+                  <div className="h-5 w-24 rounded-md bg-[#EADFD4]" />
+                  <div className="h-6 w-28 rounded-md bg-[#F5D2B8]" />
+                </div>
+              </div>
+            </div>
+
+            {/* Payment method */}
+            <div className="rounded-2xl border border-[#F1E5D9] bg-white p-5 sm:p-6">
+              <div className="mb-5 h-6 w-36 rounded-md bg-[#EADFD4]" />
+              <div className="mb-4 h-14 rounded-xl bg-[#F5EDE5]" />
+              <div className="h-14 rounded-xl bg-[#F5EDE5]" />
+            </div>
+          </div>
+
+          {/* Payment sidebar */}
+          <div className="lg:col-span-2">
+            <div className="rounded-2xl border border-[#F1E5D9] bg-white p-5 sm:p-6">
+              <div className="mb-5 h-6 w-32 rounded-md bg-[#EADFD4]" />
+              <div className="mx-auto mb-5 aspect-square w-full max-w-[220px] rounded-2xl bg-[#F0E6DC]" />
+              <div className="mx-auto mb-3 h-4 w-40 rounded-md bg-[#EADFD4]" />
+              <div className="mx-auto mb-6 h-4 w-28 rounded-md bg-[#F0E6DC]" />
+              <div className="h-12 rounded-xl bg-[#F5D2B8]" />
+              <div className="mx-auto mt-4 h-3 w-36 rounded-md bg-[#F0E6DC]" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
   // =========================
   // RENDER
   // =========================
@@ -496,25 +551,17 @@ const UserPayment = () => {
             HEADER
         ========================= */}
 
-        <h1
-          className="
-            text-3xl
-            font-bold
-            text-[#2A1B12]
-            mb-2
-          "
-        >
-          ชำระเงิน
-        </h1>
+        <div className="mb-6 rounded-2xl border border-[#F1E5D9] bg-[#FFFCF8] px-6 py-5">
+          <h1 className="mb-1.5 text-3xl font-extrabold tracking-tight text-[#2A1B12]">
+            ชำระเงิน
+          </h1>
 
-        <p
-          className="
-            text-gray-500
-            mb-4
-          "
-        >
-          กรุณาตรวจสอบรายการและชำระเงิน
-        </p>
+          <p className="text-sm font-medium text-[#8B8179]">
+            กรุณาตรวจสอบรายการและชำระเงินให้เรียบร้อย
+          </p>
+
+          <div className="mt-4 h-1 w-10 rounded-full bg-[#FF6B35]" />
+        </div>
 
         {/* =========================
             PAYMENT STATUS
@@ -571,62 +618,27 @@ const UserPayment = () => {
             STORE
         ========================= */}
 
-        <div
-          className="
-            bg-white
-            rounded-2xl
-            shadow-sm
-            border
-            border-orange-100
-            p-5
-            mb-5
-          "
-        >
-          <div className="flex items-center gap-3">
-            <div
-              className="
-                w-11
-                h-11
-                rounded-xl
-                bg-orange-100
-                text-orange-500
-                flex
-                items-center
-                justify-center
-              "
-            >
-              <Store size={22} />
+        <div className="mb-5 overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
+          <div className="flex items-center gap-4 p-5">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-[#F07836]">
+              <Store size={26} strokeWidth={1.8} />
             </div>
 
-            <div>
-              <p className="text-sm text-gray-400">ร้านอาหาร</p>
-
-              <h2
-                className="
-                  text-xl
-                  font-bold
-                  text-[#2A1B12]
-                "
-              >
-                {store?.storeName || "ไม่พบชื่อร้าน"}
+            <div className="min-w-0 flex-1">
+              <p className="mb-1 text-xs font-medium text-gray-400"></p>
+              <h2 className="truncate text-lg font-bold text-[#2A1B12]">
+                {order.store?.storeName || "ไม่พบชื่อร้าน"}
               </h2>
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
+                <span className="h-2 w-2 rounded-full bg-[#F07836]" />
+                ร้านค้าที่คุณสั่งอาหาร
+              </div>
             </div>
-          </div>
 
-          <div
-            className="
-              mt-4
-              pt-4
-              border-t
-              text-sm
-              text-gray-500
-            "
-          >
-            Order ID{" "}
-            <span className="font-semibold text-gray-700">
-              #ORD
-              {order?.id ? String(order.id).padStart(4, "0") : "----"}
-            </span>
+            <div className="shrink-0 rounded-full bg-orange-50 px-3 py-1.5 text-xs font-semibold text-[#E8491D]">
+              <Store size={13} className="mr-1 inline" />
+              ร้านอาหาร
+            </div>
           </div>
         </div>
 

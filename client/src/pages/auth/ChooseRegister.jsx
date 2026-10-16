@@ -49,6 +49,23 @@ const ChooseRegister = () => {
           padding: 8px 16px 8px 12px; text-decoration: none; cursor: pointer;
           transition: transform .2s ease, opacity .2s ease;
         }
+          @media (max-width: 720px) {
+  .fd-reg-back {
+    top: 35px;
+    left: 12px;
+    padding: 7px 12px 7px 10px;
+    font-size: 12px;
+  }
+
+  .fd-reg-wrap {
+    margin-top: 55px;
+  }
+
+  .fd-reg-eyebrow {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
+}
         .fd-reg-back:hover { transform: translateX(-2px); opacity: .85; }
         .fd-reg-back svg { width: 15px; height: 15px; }
 
@@ -143,7 +160,7 @@ const ChooseRegister = () => {
               <User size={34} strokeWidth={2.2} />
             </div>
             <h2>สมัครสมาชิก</h2>
-            <p>สำหรับลูกค้าที่ต้องการสั่งอาหารจากร้านค้ารอบมหาวิทยาลัย</p>
+            <p>สำหรับลูกค้าที่ต้องการสั่งอาหาร</p>
             <div className="fd-reg-cta">
               เริ่มสมัคร <ArrowRight />
             </div>
@@ -159,7 +176,7 @@ const ChooseRegister = () => {
               <Store size={34} strokeWidth={2.2} />
             </div>
             <h2>สมัครร้านอาหาร</h2>
-            <p>สำหรับร้านค้าที่ต้องการเปิดร้านและขายอาหารบนแพลตฟอร์ม</p>
+            <p>สำหรับร้านค้าที่ต้องการเปิดร้าน</p>
             <div className="fd-reg-cta">
               เริ่มสมัคร <ArrowRight />
             </div>

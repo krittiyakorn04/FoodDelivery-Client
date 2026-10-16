@@ -1,598 +1,918 @@
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  MapPin,
+  Home,
+  Navigation,
+  Check,
+  LocateFixed,
+  Pencil,
+  Trash2,
+  X,
+  Save,
+  Plus,
+  RefreshCw,
+  Map,
+  ArrowLeft,
+} from "lucide-react";
+import { toast } from "react-toastify";
 
 import {
-  Upload,
-  X,
-  ShieldCheck,
-  ImagePlus,
-  AlertCircle,
-  Loader2,
-  CheckCircle2,
-} from "lucide-react";
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMapEvents,
+  useMap,
+} from "react-leaflet";
 
-import Resizer from "react-image-file-resizer";
-import Swal from "sweetalert2";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 
 import usefoodDelivery from "../../globalState/fooddeliveryStore";
-
 import {
-  uploadFilesVerify,
-  removeFilesVerify,
-} from "../../api/createStore";
+  createAddress,
+  getAddress,
+  updateAddress,
+  removeAddress,
+} from "../../api/UserProfile";
 
-const FormVerifyStore = () => {
-  const token = usefoodDelivery((state) => state.token);
-  const stores = usefoodDelivery((state) => state.stores);
-  const getStore = usefoodDelivery((state) => state.getStore);
+// =====================================================
+// Leaflet marker icon
+// =====================================================
 
-  const inputRef = useRef(null);
+delete L.Icon.Default.prototype._getIconUrl;
 
-  const [images, setImages] = useState([]);
-  const [loading, setLoading] = useState(false);
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+  iconUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+  shadowUrl:
+    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+});
 
-  // ==========================================
-  // โหลดข้อมูลร้าน
-  // ==========================================
+const DEFAULT_POSITION = [16.2465, 103.2505];
+
+const EMPTY_FORM = {
+  label: "",
+  address: "",
+  lat: String(DEFAULT_POSITION[0]),
+  lng: String(DEFAULT_POSITION[1]),
+  isDefault: false,
+};
+
+// =====================================================
+// Map click handler
+// =====================================================
+
+function MapClickHandler({ onSelect }) {
+  useMapEvents({
+    click(e) {
+      onSelect(e.latlng.lat, e.latlng.lng);
+    },
+  });
+
+  return null;
+}
+
+function MapCenterUpdater({ position }) {
+  const map = useMap();
+
   useEffect(() => {
-    if (token) {
-      getStore(token);
+    if (position) {
+      map.flyTo(position, map.getZoom());
     }
-  }, [token, getStore]);
+  }, [position, map]);
 
-  // ==========================================
-  // รูป Verify ที่อัปโหลดแล้ว
-  // ==========================================
-  const verifyImages =
-    stores?.images?.filter((image) =>
-      image.public_id?.startsWith("Verify2026"),
-    ) || [];
+  return null;
+}
 
-  // ==========================================
-  // เลือกรูป
-  // ==========================================
-  const handleSelectImages = (event) => {
-    const files = Array.from(event.target.files || []);
+// =====================================================
+// Map in saved address
+// =====================================================
 
-    if (files.length === 0) return;
+function AddressMap({ lat, lng }) {
+  const latitude = Number(lat);
+  const longitude = Number(lng);
 
-    const invalidFile = files.find(
-      (file) => !file.type.startsWith("image/"),
+  const valid =
+    lat != null &&
+    lng != null &&
+    String(lat).trim() !== "" &&
+    String(lng).trim() !== "" &&
+    Number.isFinite(latitude) &&
+    Number.isFinite(longitude) &&
+    Math.abs(latitude) <= 90 &&
+    Math.abs(longitude) <= 180;
+
+  if (!valid) {
+    return (
+      <div className="mt-3 flex items-center gap-2 rounded-xl bg-gray-50 p-3 text-sm text-gray-500">
+        <Map size={18} />
+        ที่อยู่นี้ยังไม่มีพิกัดแผนที่
+      </div>
     );
+  }
 
-    if (invalidFile) {
-      Swal.fire({
-        icon: "warning",
-        title: "ไฟล์ไม่ถูกต้อง",
-        text: "กรุณาเลือกรูปภาพเท่านั้น",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#FF6B35",
-      });
-
-      event.target.value = "";
-      return;
-    }
-
-    const largeFile = files.find(
-      (file) => file.size > 10 * 1024 * 1024,
-    );
-
-    if (largeFile) {
-      Swal.fire({
-        icon: "warning",
-        title: "ไฟล์มีขนาดใหญ่เกินไป",
-        text: "รูปภาพต้องมีขนาดไม่เกิน 10 MB",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#FF6B35",
-      });
-
-      event.target.value = "";
-      return;
-    }
-
-    const newImages = files.map((file) => ({
-      id: `${Date.now()}-${Math.random()}`,
-      file,
-      preview: URL.createObjectURL(file),
-    }));
-
-    setImages((prev) => [...prev, ...newImages]);
-
-    event.target.value = "";
-  };
-
-  // ==========================================
-  // ลบรูปที่ยังไม่ได้อัปโหลด
-  // ==========================================
-  const handleRemoveSelectedImage = (id) => {
-    if (loading) return;
-
-    setImages((prev) => {
-      const image = prev.find((item) => item.id === id);
-
-      if (image?.preview) {
-        URL.revokeObjectURL(image.preview);
-      }
-
-      return prev.filter((item) => item.id !== id);
-    });
-  };
-
-  // ==========================================
-  // Resize Image
-  // ==========================================
-  const resizeImage = (file) => {
-    return new Promise((resolve, reject) => {
-      try {
-        Resizer.default.imageFileResizer(
-          file,
-          1000,
-          1000,
-          "JPEG",
-          100,
-          0,
-          (data) => resolve(data),
-          "base64",
-        );
-      } catch (error) {
-        reject(error);
-      }
-    });
-  };
-
-  // ==========================================
-  // Upload รูป Verify
-  // ==========================================
-  const handleUpload = async () => {
-    if (!token) {
-      await Swal.fire({
-        icon: "warning",
-        title: "ไม่พบข้อมูลการเข้าสู่ระบบ",
-        text: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#FF6B35",
-      });
-
-      return;
-    }
-
-    if (images.length === 0) {
-      await Swal.fire({
-        icon: "warning",
-        title: "ยังไม่ได้เลือกรูป",
-        text: "กรุณาเลือกรูปยืนยันตัวตนก่อนอัปโหลด",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#FF6B35",
-      });
-
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      for (let index = 0; index < images.length; index++) {
-        const image = images[index];
-
-        const data = await resizeImage(image.file);
-
-        console.log(
-          `กำลังอัปโหลดรูปยืนยันตัวตน ${index + 1}/${images.length}`,
-        );
-
-        await uploadFilesVerify(token, data);
-      }
-
-      await getStore(token);
-
-      images.forEach((image) => {
-        if (image.preview) {
-          URL.revokeObjectURL(image.preview);
-        }
-      });
-
-      setImages([]);
-
-      await Swal.fire({
-        icon: "success",
-        title: "อัปโหลดสำเร็จ",
-        text: "อัปโหลดรูปยืนยันตัวตนสำเร็จ",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#FF6B35",
-        timer: 1800,
-        timerProgressBar: true,
-      });
-    } catch (error) {
-      console.error("Upload Verify Error:", error);
-
-      await Swal.fire({
-        icon: "error",
-        title: "อัปโหลดไม่สำเร็จ",
-        text:
-          error.response?.data?.message ||
-          "อัปโหลดรูปยืนยันตัวตนไม่สำเร็จ",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#FF6B35",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ==========================================
-  // ลบรูป Verify ที่อัปโหลดแล้ว
-  // ==========================================
-  const handleRemoveVerifyImage = async (image) => {
-    if (!token) {
-      await Swal.fire({
-        icon: "warning",
-        title: "ไม่พบข้อมูลการเข้าสู่ระบบ",
-        text: "กรุณาเข้าสู่ระบบใหม่อีกครั้ง",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#FF6B35",
-      });
-
-      return;
-    }
-
-    if (!image?.public_id) {
-      await Swal.fire({
-        icon: "error",
-        title: "ไม่พบข้อมูลรูปภาพ",
-        text: "ไม่สามารถลบรูปภาพนี้ได้",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#FF6B35",
-      });
-
-      return;
-    }
-
-    const result = await Swal.fire({
-      icon: "warning",
-      title: "ยืนยันการลบรูปภาพ",
-      text: "คุณต้องการลบรูปยืนยันตัวตนนี้ใช่หรือไม่?",
-      showCancelButton: true,
-      confirmButtonText: "ลบรูปภาพ",
-      cancelButtonText: "ยกเลิก",
-      confirmButtonColor: "#E8491D",
-      cancelButtonColor: "#9CA3AF",
-      reverseButtons: true,
-    });
-
-    if (!result.isConfirmed) return;
-
-    try {
-      setLoading(true);
-
-      await removeFilesVerify(token, image.public_id);
-
-      await getStore(token);
-
-      await Swal.fire({
-        icon: "success",
-        title: "ลบสำเร็จ",
-        text: "ลบรูปยืนยันตัวตนสำเร็จ",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#FF6B35",
-        timer: 1800,
-        timerProgressBar: true,
-      });
-    } catch (error) {
-      console.error("Remove Verify Error:", error);
-
-      await Swal.fire({
-        icon: "error",
-        title: "ลบรูปไม่สำเร็จ",
-        text:
-          error.response?.data?.message ||
-          "ลบรูปไม่สำเร็จ",
-        confirmButtonText: "ตกลง",
-        confirmButtonColor: "#FF6B35",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ==========================================
-  // Cleanup Preview
-  // ==========================================
-  useEffect(() => {
-    return () => {
-      images.forEach((image) => {
-        if (image.preview) {
-          URL.revokeObjectURL(image.preview);
-        }
-      });
-    };
-  }, []);
+  const position = [latitude, longitude];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-5 pb-20">
-      <div className="mx-auto max-w-xl space-y-6">
-        {/* HEADER */}
-        <div className="rounded-3xl bg-white p-6 shadow-sm">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-100">
-              <ShieldCheck size={30} className="text-orange-500" />
-            </div>
+    <div className="mt-4 overflow-hidden rounded-2xl border border-[#F0E5DA]">
+      <MapContainer
+        center={position}
+        zoom={16}
+        scrollWheelZoom={false}
+        dragging={false}
+        touchZoom={false}
+        doubleClickZoom={false}
+        zoomControl={false}
+        attributionControl={false}
+        style={{
+          height: "170px",
+          width: "100%",
+          zIndex: 0,
+        }}
+      >
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        />
 
-            <div>
-              <h1 className="text-2xl font-bold text-[#2A1B12]">
-                ยืนยันตัวตนร้าน
-              </h1>
+        <Marker position={position} />
+      </MapContainer>
 
-              <p className="mt-1 text-sm text-gray-500">
-                เพิ่มรูปสำหรับให้ผู้ดูแลระบบตรวจสอบ
-              </p>
-            </div>
-          </div>
-        </div>
+      <a
+        href={`https://www.google.com/maps?q=${latitude},${longitude}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center justify-center gap-2 bg-[#FFF7F0] px-3 py-3 text-sm font-semibold text-[#D96B2B] transition hover:bg-[#FFEDDF]"
+      >
+        <Navigation size={17} />
+        เปิดตำแหน่งใน Google Maps
+      </a>
+    </div>
+  );
+}
 
-        {/* STATUS */}
-        <div className="rounded-3xl border border-yellow-200 bg-yellow-50 p-5">
-          <div className="flex items-start gap-3">
-            <AlertCircle
-              size={22}
-              className="mt-0.5 text-yellow-600"
-            />
+// =====================================================
+// Normalize API response
+// =====================================================
 
-            <div>
-              <p className="font-bold text-yellow-700">
-                รอการตรวจสอบ
-              </p>
+function getAddressList(response) {
+  const data = response?.data;
 
-              <p className="mt-1 text-sm text-yellow-700/80">
-                กรุณาเพิ่มรูปยืนยันตัวตนให้ครบถ้วน
-                เพื่อให้ผู้ดูแลระบบตรวจสอบร้านของคุณ
-              </p>
-            </div>
-          </div>
-        </div>
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.addresses)) return data.addresses;
+  if (Array.isArray(data?.address)) return data.address;
+  if (Array.isArray(data?.results)) return data.results;
 
-        {/* GUIDE */}
-        <div className="rounded-3xl bg-white p-6 shadow-sm">
-          <h2 className="mb-4 text-lg font-bold">
-            รูปที่ต้องเตรียม
-          </h2>
+  return [];
+}
 
-          <div className="space-y-3 text-sm text-gray-600">
-            <div className="flex gap-3">
-              <span className="font-bold text-orange-500">1.</span>
-              <p>รูปบัตรหรือเอกสารที่ใช้สำหรับยืนยันตัวตน</p>
-            </div>
+// =====================================================
+// Main component
+// =====================================================
 
-            <div className="flex gap-3">
-              <span className="font-bold text-orange-500">2.</span>
-              <p>รูปต้องเห็นข้อมูลชัดเจน ไม่เบลอ</p>
-            </div>
+export default function FormAddAddress() {
+  const navigate = useNavigate();
+  const token = usefoodDelivery((state) => state.token);
 
-            <div className="flex gap-3">
-              <span className="font-bold text-orange-500">3.</span>
-              <p>สามารถเพิ่มได้มากกว่า 1 รูป</p>
-            </div>
+  const [form, setForm] = useState({ ...EMPTY_FORM });
+  const [addresses, setAddresses] = useState([]);
+  const [editingId, setEditingId] = useState(null);
 
-            <div className="flex gap-3">
-              <span className="font-bold text-orange-500">4.</span>
-              <p>
-                รูปที่อัปโหลดในหน้านี้ใช้สำหรับยืนยันตัวตนร้านเท่านั้น
-              </p>
-            </div>
-          </div>
-        </div>
+  const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
+  const [locating, setLocating] = useState(false);
+  const [deletingId, setDeletingId] = useState(null);
 
-        {/* UPLOAD */}
-        <div className="rounded-3xl bg-white p-6 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-bold">รูปยืนยันตัวตน</h2>
+  const position =
+    form.lat !== "" &&
+    form.lng !== "" &&
+    Number.isFinite(Number(form.lat)) &&
+    Number.isFinite(Number(form.lng)) &&
+    Math.abs(Number(form.lat)) <= 90 &&
+    Math.abs(Number(form.lng)) <= 180
+      ? [Number(form.lat), Number(form.lng)]
+      : DEFAULT_POSITION;
 
-              <p className="mt-1 text-sm text-gray-400">
-                เลือกรูปภาพที่ต้องการส่งตรวจสอบ
-              </p>
-            </div>
+  // ===================================================
+  // Load addresses
+  // ===================================================
 
-            <ImagePlus size={28} className="text-orange-500" />
-          </div>
+  const loadAddresses = useCallback(async () => {
+    if (!token) {
+      setAddresses([]);
+      return;
+    }
 
-          {/* IMPORTANT NOTICE */}
-          <div className="mb-5 rounded-2xl border border-orange-200 bg-orange-50 p-4">
-            <div className="flex items-start gap-3">
-              <ShieldCheck
-                size={21}
-                className="mt-0.5 shrink-0 text-orange-500"
+    try {
+      setLoadingAddresses(true);
+
+      const response = await getAddress(token);
+      setAddresses(getAddressList(response));
+    } catch (error) {
+      console.error("โหลดที่อยู่ไม่สำเร็จ:", error);
+
+      toast.error(
+        error.response?.data?.message || "โหลดรายการที่อยู่ไม่สำเร็จ"
+      );
+    } finally {
+      setLoadingAddresses(false);
+    }
+  }, [token]);
+
+  useEffect(() => {
+    loadAddresses();
+  }, [loadAddresses]);
+
+  // ===================================================
+  // Form handlers
+  // ===================================================
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const selectPosition = (lat, lng) => {
+    setForm((prev) => ({
+      ...prev,
+      lat: lat.toFixed(7),
+      lng: lng.toFixed(7),
+    }));
+  };
+
+  // ===================================================
+  // Open add form
+  // ===================================================
+
+  const handleAddAddress = () => {
+    setForm({ ...EMPTY_FORM });
+    setEditingId(null);
+    setShowForm(true);
+
+    setTimeout(() => {
+      document
+        .getElementById("address-form")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  };
+
+  // ===================================================
+  // Current GPS location
+  // ===================================================
+
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง");
+      return;
+    }
+
+    setLocating(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (result) => {
+        selectPosition(result.coords.latitude, result.coords.longitude);
+
+        setLocating(false);
+        toast.success("ค้นหาพิกัดปัจจุบันสำเร็จ");
+      },
+      (error) => {
+        console.error("GPS error:", error);
+        setLocating(false);
+
+        if (error.code === 1) {
+          toast.error("กรุณาอนุญาตให้เว็บไซต์เข้าถึงตำแหน่ง");
+        } else if (error.code === 2) {
+          toast.error(
+            "ไม่พบตำแหน่ง กรุณาตรวจสอบ GPS หรือการตั้งค่าตำแหน่ง"
+          );
+        } else {
+          toast.error("ค้นหาพิกัดไม่สำเร็จ กรุณาลองอีกครั้ง");
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0,
+      }
+    );
+  };
+
+  const resetForm = () => {
+    setForm({ ...EMPTY_FORM });
+    setEditingId(null);
+    setShowForm(false);
+  };
+
+  // ===================================================
+  // Edit address
+  // ===================================================
+
+  const handleEdit = (item) => {
+    setEditingId(item.id);
+    setShowForm(true);
+
+    setForm({
+      label: item.label || "",
+      address: item.address || "",
+      lat:
+        item.lat != null ? String(item.lat) : String(DEFAULT_POSITION[0]),
+      lng:
+        item.lng != null ? String(item.lng) : String(DEFAULT_POSITION[1]),
+      isDefault: Boolean(item.isDefault),
+    });
+
+    setTimeout(() => {
+      document
+        .getElementById("address-form")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  };
+
+  // ===================================================
+  // Create / Update address
+  // ===================================================
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!token) {
+      toast.error("กรุณาเข้าสู่ระบบก่อนจัดการที่อยู่");
+      return;
+    }
+
+    if (!form.label.trim()) {
+      toast.error("กรุณาระบุชื่อที่อยู่");
+      return;
+    }
+
+    if (!form.address.trim()) {
+      toast.error("กรุณากรอกรายละเอียดที่อยู่");
+      return;
+    }
+
+    const lat = Number(form.lat);
+    const lng = Number(form.lng);
+
+    if (
+      form.lat === "" ||
+      form.lng === "" ||
+      !Number.isFinite(lat) ||
+      !Number.isFinite(lng) ||
+      Math.abs(lat) > 90 ||
+      Math.abs(lng) > 180
+    ) {
+      toast.error("กรุณาเลือกพิกัดบนแผนที่ให้ถูกต้อง");
+      return;
+    }
+
+    const data = {
+      label: form.label.trim(),
+      address: form.address.trim(),
+      lat,
+      lng,
+      isDefault: form.isDefault,
+    };
+
+    try {
+      setLoading(true);
+
+      if (editingId !== null) {
+        await updateAddress(token, editingId, data);
+        toast.success("แก้ไขที่อยู่สำเร็จ");
+      } else {
+        await createAddress(token, data);
+        toast.success("เพิ่มที่อยู่สำเร็จ");
+      }
+
+      resetForm();
+      await loadAddresses();
+    } catch (error) {
+      console.error("บันทึกที่อยู่ไม่สำเร็จ:", error);
+      console.error("API error:", error.response?.data);
+
+      toast.error(
+        error.response?.data?.message || "บันทึกที่อยู่ไม่สำเร็จ"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ===================================================
+  // Delete address
+  // ===================================================
+
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm("คุณต้องการลบที่อยู่นี้ใช่หรือไม่?");
+
+    if (!confirmed) return;
+
+    try {
+      setDeletingId(id);
+
+      await removeAddress(token, id);
+
+      if (editingId === id) {
+        resetForm();
+      }
+
+      toast.success("ลบที่อยู่สำเร็จ");
+      await loadAddresses();
+    } catch (error) {
+      console.error("ลบที่อยู่ไม่สำเร็จ:", error);
+
+      toast.error(
+        error.response?.data?.message || "ลบที่อยู่ไม่สำเร็จ"
+      );
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  // ===================================================
+  // UI
+  // ===================================================
+
+  return (
+    <div className="min-h-screen bg-[#FFF8F0] px-4 py-6 pb-12 sm:px-6">
+      <div className="mx-auto max-w-5xl">
+        {/* Page header */}
+        <header className="mb-6">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              aria-label="กลับ"
+              className="group flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-[#F0E5DA] bg-white text-[#6B5143] transition hover:border-orange-200 hover:bg-orange-50 hover:text-[#D96B2B] active:scale-95"
+            >
+              <ArrowLeft
+                size={20}
+                strokeWidth={1.8}
+                className="transition-transform group-hover:-translate-x-0.5"
               />
+            </button>
 
-              <div>
-                <p className="font-bold text-orange-700">
-                  ใช้สำหรับยืนยันตัวตนเท่านั้น
-                </p>
-
-                <p className="mt-1 text-sm leading-6 text-orange-700/80">
-                  รูปภาพที่อัปโหลดในส่วนนี้จะใช้สำหรับตรวจสอบและยืนยันตัวตนของร้านค้าเท่านั้น
-                  กรุณาอย่าอัปโหลดรูปเมนู รูปอาหาร รูปหน้าร้าน
-                  หรือรูปอื่นที่ไม่เกี่ยวข้องกับการยืนยันตัวตน
-                </p>
-              </div>
+            <div>
+              <h1 className="text-xl font-bold tracking-tight text-[#38251B] sm:text-2xl">
+                จัดการที่อยู่
+              </h1>
+              <p className="mt-1 text-sm text-[#947D6F]">
+                จัดการที่อยู่สำหรับจัดส่งอาหารของคุณ
+              </p>
             </div>
           </div>
 
-          {/* SELECT IMAGE BUTTON */}
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => inputRef.current?.click()}
-            className="flex w-full cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-orange-200 bg-orange-50 p-8 transition hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-orange-500 text-white">
-              <ImagePlus size={28} />
-            </div>
+          <div className="mt-5 h-px bg-[#F0E5DA]" />
+        </header>
 
-            <p className="font-bold text-gray-700">
-              เพิ่มรูปยืนยันตัวตน
-            </p>
+        {/* =================================================
+            Saved addresses - show first
+        ================================================= */}
 
-            <p className="mt-1 text-sm text-gray-400">
-              คลิกเพื่อเลือกรูปจากเครื่อง
-            </p>
-
-            <p className="mt-2 text-xs text-orange-500">
-              รองรับเฉพาะรูปภาพสำหรับการยืนยันตัวตน
-            </p>
-          </button>
-
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={handleSelectImages}
-          />
-
-          {/* รูปที่เลือก แต่ยังไม่ Upload */}
-          {images.length > 0 && (
-            <div className="mt-6">
-              <div className="mb-3 flex items-center justify-between">
-                <p className="font-semibold text-gray-700">
-                  รูปที่เลือก
-                </p>
-
-                <span className="text-sm text-orange-500">
-                  {images.length} รูป
-                </span>
+        <section className="overflow-hidden rounded-3xl border border-[#F0E5DA] bg-white shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#F3EAE2] px-5 py-5 sm:px-6">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FFF3E8] text-[#E87532]">
+                <MapPin size={21} strokeWidth={1.8} />
               </div>
 
-              <div className="mb-4 rounded-2xl border border-yellow-200 bg-yellow-50 p-3">
-                <p className="text-sm leading-6 text-yellow-700">
-                  กรุณาตรวจสอบรูปก่อนส่ง
-                  รูปเหล่านี้ต้องเป็นเอกสารหรือรูปที่เกี่ยวข้องกับการยืนยันตัวตนร้านเท่านั้น
+              <div className="min-w-0">
+                <h2 className="text-lg font-bold text-[#38251B]">
+                  ที่อยู่ของฉัน
+                </h2>
+                <p className="mt-1 text-sm text-[#947D6F]">
+                  {addresses.length} รายการ
                 </p>
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                {images.map((image, index) => (
-                  <div
-                    key={image.id}
-                    className="relative overflow-hidden rounded-2xl border bg-gray-100"
-                  >
-                    <img
-                      src={image.preview}
-                      alt={`Preview ${index + 1}`}
-                      className="h-48 w-full object-cover"
-                    />
-
-                    <button
-                      type="button"
-                      disabled={loading}
-                      onClick={() =>
-                        handleRemoveSelectedImage(image.id)
-                      }
-                      className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-red-500 disabled:opacity-50"
-                    >
-                      <X size={18} />
-                    </button>
-
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-3 py-2 text-xs text-white">
-                      รูปที่เลือก {index + 1}
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
-          )}
 
-          {/* รูป Verify ที่ Upload แล้ว */}
-          {verifyImages.length > 0 && (
-            <div className="mt-6">
-              <div className="mb-3 flex items-center justify-between">
-                <p className="font-semibold text-gray-700">
-                  รูปยืนยันตัวตนที่ส่งแล้ว
-                </p>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={loadAddresses}
+                disabled={loadingAddresses}
+                aria-label="รีเฟรชรายการที่อยู่"
+                title="รีเฟรชรายการที่อยู่"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-gray-400 transition hover:bg-orange-50 hover:text-[#D96B2B] disabled:opacity-50"
+              >
+                <RefreshCw
+                  size={18}
+                  className={loadingAddresses ? "animate-spin" : ""}
+                />
+              </button>
 
-                <span className="flex items-center gap-1 text-sm text-green-600">
-                  <CheckCircle2 size={16} />
-                  {verifyImages.length} รูป
-                </span>
-              </div>
+              <button
+                type="button"
+                onClick={handleAddAddress}
+                className="flex items-center justify-center gap-2 rounded-xl bg-[#E87532] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#D96525] active:scale-[0.98]"
+              >
+                <Plus size={18} />
+                <span>เพิ่มที่อยู่</span>
+              </button>
+            </div>
+          </div>
 
-              <div className="mb-4 rounded-2xl border border-green-200 bg-green-50 p-3">
-                <p className="text-sm leading-6 text-green-700">
-                  รูปเหล่านี้ถูกส่งให้ผู้ดูแลระบบเพื่อตรวจสอบและยืนยันตัวตนร้านแล้ว
+          <div className="space-y-4 p-4 sm:p-5">
+            {loadingAddresses && addresses.length === 0 ? (
+              <div className="py-12 text-center">
+                <RefreshCw
+                  size={28}
+                  className="mx-auto animate-spin text-[#E87532]"
+                />
+                <p className="mt-3 text-sm text-gray-500">
+                  กำลังโหลดที่อยู่...
                 </p>
               </div>
+            ) : addresses.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-[#EEDBCB] bg-[#FFFCF8] px-5 py-12 text-center">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-[#FFF3E8] text-[#E87532]">
+                  <MapPin size={28} strokeWidth={1.7} />
+                </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                {verifyImages.map((image, index) => (
-                  <div
-                    key={image.id || image.public_id || index}
-                    className="relative overflow-hidden rounded-2xl border bg-gray-100"
-                  >
-                    <img
-                      src={image.secure_url || image.url}
-                      alt={`รูปยืนยันตัวตน ${index + 1}`}
-                      className="h-48 w-full object-cover"
-                    />
+                <h3 className="mt-4 font-bold text-gray-800">
+                  ยังไม่มีที่อยู่
+                </h3>
 
-                    <button
-                      type="button"
-                      disabled={loading}
-                      onClick={() => handleRemoveVerifyImage(image)}
-                      className="absolute right-2 top-2 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-red-500 disabled:opacity-50"
-                    >
-                      <X size={18} />
-                    </button>
+                <p className="mt-2 text-sm leading-6 text-gray-500">
+                  เพิ่มที่อยู่ของคุณเพื่อให้การสั่งอาหารสะดวกยิ่งขึ้น
+                </p>
 
-                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-3 py-2 text-xs text-white">
-                      รูปยืนยันตัวตน {index + 1}
-                    </div>
-                  </div>
-                ))}
+                <button
+                  type="button"
+                  onClick={handleAddAddress}
+                  className="mx-auto mt-5 inline-flex items-center gap-2 rounded-xl bg-[#E87532] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#D96525]"
+                >
+                  <Plus size={18} />
+                  เพิ่มที่อยู่แรกของคุณ
+                </button>
               </div>
-            </div>
-          )}
-
-          {/* EMPTY UPLOADED IMAGE */}
-          {verifyImages.length === 0 && images.length === 0 && (
-            <div className="mt-5 rounded-2xl bg-gray-50 p-4 text-center">
-              <p className="text-sm text-gray-400">
-                ยังไม่มีรูปยืนยันตัวตนที่ส่งแล้ว
-              </p>
-            </div>
-          )}
-
-          {/* UPLOAD BUTTON */}
-          <button
-            type="button"
-            disabled={loading || images.length === 0}
-            onClick={handleUpload}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-2xl bg-orange-500 py-4 font-bold text-white shadow-lg transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-gray-300"
-          >
-            {loading ? (
-              <>
-                <Loader2 size={20} className="animate-spin" />
-                กำลังอัปโหลด...
-              </>
             ) : (
-              <>
-                <Upload size={20} />
-                ส่งรูปเพื่อยืนยันตัวตน
-              </>
-            )}
-          </button>
-        </div>
+              addresses.map((item) => (
+                <article
+                  key={item.id}
+                  className="overflow-hidden rounded-2xl border border-[#F0E9E2] transition hover:border-[#EED0B7] hover:shadow-sm"
+                >
+                  <div className="p-4 sm:p-5">
+                    <div className="flex items-start gap-3">
+                      <div
+                        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${
+                          item.isDefault
+                            ? "bg-[#E87532] text-white"
+                            : "bg-[#FFF3E8] text-[#E87532]"
+                        }`}
+                      >
+                        {item.label === "บ้าน" ? (
+                          <Home size={21} strokeWidth={1.8} />
+                        ) : (
+                          <MapPin size={21} strokeWidth={1.8} />
+                        )}
+                      </div>
 
-        {/* NOTE */}
-        <div className="rounded-2xl bg-gray-100 p-4">
-          <p className="text-sm text-gray-500">
-            <span className="font-semibold text-gray-700">
-              หมายเหตุ:
-            </span>{" "}
-            ข้อมูลและรูปภาพจะถูกใช้สำหรับตรวจสอบและยืนยันตัวตนร้านค้าเท่านั้น
-          </p>
-        </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="break-words font-bold text-[#38251B]">
+                            {item.label || "ที่อยู่"}
+                          </h3>
+
+                          {item.isDefault && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[#FFF0E3] px-2.5 py-1 text-[11px] font-semibold text-[#C45D25]">
+                              <Check size={12} />
+                              ค่าเริ่มต้น
+                            </span>
+                          )}
+                        </div>
+
+                        <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-6 text-gray-600">
+                          {item.address}
+                        </p>
+
+                        {item.lat != null && item.lng != null && (
+                          <p className="mt-2 break-all text-[11px] text-gray-400">
+                            {item.lat}, {item.lng}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <AddressMap lat={item.lat} lng={item.lng} />
+
+                    <div className="mt-4 grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleEdit(item)}
+                        className="flex items-center justify-center gap-2 rounded-xl border border-[#F0D5C0] px-3 py-2.5 text-sm font-semibold text-[#D96B2B] transition hover:bg-[#FFF6EE]"
+                      >
+                        <Pencil size={16} />
+                        แก้ไข
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(item.id)}
+                        disabled={deletingId === item.id}
+                        className="flex items-center justify-center gap-2 rounded-xl border border-red-100 px-3 py-2.5 text-sm font-semibold text-red-500 transition hover:border-red-200 hover:bg-red-50 disabled:opacity-50"
+                      >
+                        {deletingId === item.id ? (
+                          <RefreshCw size={16} className="animate-spin" />
+                        ) : (
+                          <Trash2 size={16} />
+                        )}
+
+                        {deletingId === item.id ? "กำลังลบ..." : "ลบ"}
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              ))
+            )}
+          </div>
+        </section>
+
+        {/* =================================================
+            Add / edit form - hidden until button is clicked
+        ================================================= */}
+
+        {showForm && (
+          <section
+            id="address-form"
+            className="mt-6 scroll-mt-6 overflow-hidden rounded-3xl border border-[#F0E5DA] bg-white shadow-sm"
+          >
+            <div className="flex items-center gap-3 border-b border-[#F3EAE2] px-5 py-5 sm:px-6">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[#FFF3E8] text-[#E87532]">
+                {editingId !== null ? (
+                  <Pencil size={21} strokeWidth={1.8} />
+                ) : (
+                  <Plus size={23} strokeWidth={1.8} />
+                )}
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <h2 className="text-lg font-bold text-[#38251B]">
+                  {editingId !== null ? "แก้ไขที่อยู่" : "เพิ่มที่อยู่ใหม่"}
+                </h2>
+
+                <p className="mt-1 text-sm text-[#947D6F]">
+                  {editingId !== null
+                    ? "แก้ไขข้อมูลและตำแหน่งจัดส่ง"
+                    : "กรอกที่อยู่และเลือกตำแหน่งจัดส่ง"}
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={resetForm}
+                aria-label="ปิดแบบฟอร์ม"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
+              >
+                <X size={19} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6 p-5 sm:p-6">
+              {/* Label */}
+              <div>
+                <label className="mb-3 block text-sm font-bold text-gray-800">
+                  ชื่อเรียกที่อยู่
+                </label>
+
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { name: "บ้าน", icon: Home },
+                    { name: "หอพัก", icon: MapPin },
+                    { name: "ที่ทำงาน", icon: Navigation },
+                  ].map(({ name, icon: Icon }) => (
+                    <button
+                      type="button"
+                      key={name}
+                      onClick={() =>
+                        setForm((prev) => ({
+                          ...prev,
+                          label: name,
+                        }))
+                      }
+                      className={`flex flex-col items-center justify-center gap-2 rounded-2xl border px-2 py-3 text-sm font-semibold transition ${
+                        form.label === name
+                          ? "border-[#E87532] bg-[#FFF5EC] text-[#D96B2B] ring-2 ring-[#FBE7D6]"
+                          : "border-gray-100 bg-gray-50 text-gray-500 hover:border-orange-200 hover:bg-orange-50/50"
+                      }`}
+                    >
+                      <Icon size={21} strokeWidth={1.8} />
+                      {name}
+                    </button>
+                  ))}
+                </div>
+
+                <input
+                  type="text"
+                  name="label"
+                  value={form.label}
+                  onChange={handleChange}
+                  placeholder="หรือพิมพ์ชื่อ เช่น หอพัก A"
+                  className="mt-3 w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100"
+                />
+              </div>
+
+              {/* Address details */}
+              <div>
+                <label className="mb-2 flex items-center gap-2 text-sm font-bold text-gray-800">
+                  <MapPin size={17} className="text-[#E87532]" />
+                  รายละเอียดที่อยู่
+                </label>
+
+                <textarea
+                  name="address"
+                  value={form.address}
+                  onChange={handleChange}
+                  placeholder="บ้านเลขที่ อาคาร ห้อง ถนน ตำบล อำเภอ จังหวัด หรือ รายละเอียดที่อยู่อื่น ๆ"
+                  rows={3}
+                  className="w-full resize-y rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm leading-6 text-gray-800 outline-none transition placeholder:text-gray-400 focus:border-orange-400 focus:bg-white focus:ring-4 focus:ring-orange-100"
+                />
+              </div>
+
+              {/* Map */}
+              <div>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <label className="flex items-center gap-2 text-sm font-bold text-gray-800">
+                    <Navigation size={18} className="text-[#E87532]" />
+                    ตำแหน่งจัดส่ง
+                  </label>
+
+                  <span className="rounded-full bg-[#FFF3E8] px-2.5 py-1 text-xs font-medium text-[#D96B2B]">
+                    GPS / แผนที่
+                  </span>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleGetCurrentLocation}
+                  disabled={locating}
+                  className="mb-3 flex w-full items-center justify-center gap-2 rounded-2xl border border-[#F2D9C5] bg-[#FFF8F2] px-4 py-3 text-sm font-semibold text-[#D96B2B] transition hover:bg-[#FFEDDF] disabled:opacity-50"
+                >
+                  {locating ? (
+                    <RefreshCw size={18} className="animate-spin" />
+                  ) : (
+                    <LocateFixed size={19} />
+                  )}
+
+                  {locating
+                    ? "กำลังค้นหาตำแหน่ง..."
+                    : "ใช้ตำแหน่งปัจจุบันของฉัน"}
+                </button>
+
+                <div className="mb-3 rounded-xl bg-gray-50 px-3 py-2.5 text-xs leading-5 text-gray-500">
+                  แตะตำแหน่งบนแผนที่หรือเลื่อนหมุดสีแดงไปยังจุดส่งอาหาร
+                </div>
+
+                <div className="overflow-hidden rounded-2xl border border-gray-200 bg-gray-100">
+                  <MapContainer
+                    key={editingId ?? "new-address"}
+                    center={position}
+                    zoom={16}
+                    scrollWheelZoom
+                    style={{
+                      height: "300px",
+                      width: "100%",
+                      zIndex: 0,
+                    }}
+                  >
+                    <TileLayer
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+
+                    <MapClickHandler onSelect={selectPosition} />
+                    <MapCenterUpdater position={position} />
+
+                    <Marker
+                      position={position}
+                      draggable
+                      eventHandlers={{
+                        dragend: (e) => {
+                          const point = e.target.getLatLng();
+                          selectPosition(point.lat, point.lng);
+                        },
+                      }}
+                    />
+                  </MapContainer>
+                </div>
+
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-gray-500">
+                      Latitude
+                    </label>
+
+                    <input
+                      type="number"
+                      step="any"
+                      name="lat"
+                      value={form.lat}
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold text-gray-500">
+                      Longitude
+                    </label>
+
+                    <input
+                      type="number"
+                      step="any"
+                      name="lng"
+                      value={form.lng}
+                      onChange={handleChange}
+                      className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                    />
+                  </div>
+                </div>
+
+                <p className="mt-2 break-all text-xs text-gray-400">
+                  พิกัดที่เลือก: {position[0].toFixed(7)},{" "}
+                  {position[1].toFixed(7)}
+                </p>
+              </div>
+
+              {/* Default address */}
+              <button
+                type="button"
+                onClick={() =>
+                  setForm((prev) => ({
+                    ...prev,
+                    isDefault: !prev.isDefault,
+                  }))
+                }
+                className={`flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition ${
+                  form.isDefault
+                    ? "border-[#F0C9A9] bg-[#FFF8F2]"
+                    : "border-gray-200 bg-white hover:bg-gray-50"
+                }`}
+              >
+                <div
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                    form.isDefault
+                      ? "bg-[#E87532] text-white"
+                      : "bg-gray-100 text-gray-400"
+                  }`}
+                >
+                  <Check size={21} />
+                </div>
+
+                <div className="flex-1">
+                  <p className="text-sm font-bold text-gray-800">
+                    ตั้งเป็นที่อยู่เริ่มต้น
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-gray-500">
+                    เลือกใช้ที่อยู่นี้เป็นค่าเริ่มต้นในการสั่งอาหาร
+                  </p>
+                </div>
+
+                <div
+                  className={`h-6 w-11 shrink-0 rounded-full p-1 transition ${
+                    form.isDefault ? "bg-[#E87532]" : "bg-gray-300"
+                  }`}
+                >
+                  <div
+                    className={`h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
+                      form.isDefault ? "translate-x-5" : ""
+                    }`}
+                  />
+                </div>
+              </button>
+
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#E87532] px-4 py-3.5 text-sm font-bold text-white transition hover:bg-[#D96525] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {loading ? (
+                  <RefreshCw size={19} className="animate-spin" />
+                ) : editingId !== null ? (
+                  <Save size={19} />
+                ) : (
+                  <Plus size={20} />
+                )}
+
+                {loading
+                  ? "กำลังบันทึก..."
+                  : editingId !== null
+                    ? "บันทึกการแก้ไข"
+                    : "บันทึกที่อยู่"}
+              </button>
+            </form>
+          </section>
+        )}
       </div>
     </div>
   );
-};
-
-export default FormVerifyStore;
+}

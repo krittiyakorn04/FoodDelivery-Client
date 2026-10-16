@@ -7,7 +7,6 @@ import Order from "../pages/store/Order";
 import Delivery from "../pages/store/Delivery";
 import HomeUser from "../pages/user/HomeUser";
 import Store from "../pages/store/Store";
-import CartPage from "../pages/user/Cart";
 import MyOrders from "../pages/user/UserD";
 import CheckoutPage from "../pages/user/OrderUser";
 import ProfileUser from "../pages/user/UserProfile";
@@ -63,6 +62,9 @@ import UserOrderReports from "../pages/user/UserOrderReports";
 import AllUserCart from "../components/user/AllUserCart";
 import StoreOrderReports from "../components/store/StoreOrderReports";
 import UserCart from "../components/user/UserCart";
+import FormChangePassword from "../components/user/FormChangePassword";
+import FormEditPassword from "../components/store/FormEditPassword";
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -92,7 +94,8 @@ const router = createBrowserRouter([
       { path: "storeEdit", element: <StoreEdit /> },
       { path: "UploadQr", element: <FormUploadQr /> },
       { path: "StoreSetting", element: <StoreSetting /> },
-      { path: "editProfile", element: <ProfileEdit /> },
+      { path: "editProfile", element: <ProfileEdit /> }, 
+      { path: "edit-password", element: <FormEditPassword /> }, 
       { path: "Verify", element: <FormVerifyStore /> },
       { path: "FormOpen", element: <FormOpen /> },
       { path: "MenuCategory", element: <MenuCategory /> },
@@ -166,6 +169,7 @@ const router = createBrowserRouter([
       { path: "cartAll", element: <AllUserCart /> },
       { path: "homeUser", element: <HomeUser /> },
       { path: "UserSetting", element: <UserSetting /> },
+      { path: "passwordForm", element: <FormChangePassword /> },
       { path: "AddressSetting", element: <FormAddress /> },
       { path: "editUser", element: <FormEditUserProfile /> },
       { path: "orderUser", element: <CheckoutPage /> },

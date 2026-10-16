@@ -177,7 +177,7 @@ exports.register = async (req, res) => {
       payload,
       process.env.SECRET,
       {
-        expiresIn: "1d",
+        expiresIn: "365d",
       },
       (err, token) => {
         if (err) {
@@ -238,7 +238,7 @@ exports.login = async (req, res) => {
       payload,
       process.env.SECRET,
       {
-        expiresIn: "1d",
+        expiresIn: "365d",
       },
       (err, token) => {
         if (err) {

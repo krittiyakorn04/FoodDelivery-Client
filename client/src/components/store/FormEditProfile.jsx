@@ -12,6 +12,7 @@ import {
   LockKeyhole,
   Eye,
   EyeOff,
+  Megaphone,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
@@ -1048,8 +1049,8 @@ const FormEditProfile = () => {
             <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-orange-100 sm:p-6">
               <div className="mb-4">
                 <div className="flex items-center gap-2">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-yellow-50 text-lg">
-                    📢
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-yellow-50 text-yellow-600">
+                    <Megaphone size={20} />
                   </span>
 
                   <div>
@@ -1123,108 +1124,7 @@ const FormEditProfile = () => {
               </div>
             </section>
 
-            <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-orange-100 sm:p-6">
-              <div className="mb-5 flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-50 text-orange-500">
-                  <LockKeyhole size={19} />
-                </div>
 
-                <div>
-                  <h2 className="font-bold text-gray-800">เปลี่ยนรหัสผ่าน</h2>
-                  <p className="text-xs text-gray-400">
-                    เปลี่ยนรหัสผ่านสำหรับเข้าสู่ระบบร้านค้า
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                {[
-                  {
-                    name: "oldPassword",
-                    label: "รหัสผ่านปัจจุบัน",
-                    placeholder: "กรอกรหัสผ่านปัจจุบัน",
-                  },
-                  {
-                    name: "newPassword",
-                    label: "รหัสผ่านใหม่",
-                    placeholder: "อย่างน้อย 8 ตัวอักษร",
-                  },
-                  {
-                    name: "confirmPassword",
-                    label: "ยืนยันรหัสผ่านใหม่",
-                    placeholder: "กรอกรหัสผ่านใหม่อีกครั้ง",
-                  },
-                ].map((field) => (
-                  <div key={field.name}>
-                    <label className="mb-2 block text-sm font-medium text-gray-600">
-                      {field.label}
-                    </label>
-
-                    <div className="relative">
-                      <input
-                        type={showPasswords[field.name] ? "text" : "password"}
-                        name={field.name}
-                        value={passwordForm[field.name]}
-                        onChange={handlePasswordChange}
-                        placeholder={field.placeholder}
-                        autoComplete="new-password"
-                        disabled={passwordLoading}
-                        className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 pr-12 text-sm text-gray-700 outline-none transition focus:border-orange-300 focus:bg-white focus:ring-2 focus:ring-orange-100 disabled:opacity-60"
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setShowPasswords((prev) => ({
-                            ...prev,
-                            [field.name]: !prev[field.name],
-                          }))
-                        }
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-500"
-                        aria-label={
-                          showPasswords[field.name]
-                            ? "ซ่อนรหัสผ่าน"
-                            : "แสดงรหัสผ่าน"
-                        }
-                      >
-                        {showPasswords[field.name] ? (
-                          <EyeOff size={18} />
-                        ) : (
-                          <Eye size={18} />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-
-                <div className="rounded-2xl bg-[#FFF8F0] border border-orange-100 p-4 mb-6">
-                  <p className="text-sm font-semibold text-[#5F4638] mb-2">
-                    เงื่อนไขรหัสผ่าน
-                  </p>
-                  <ul className="text-sm text-[#9A8170] space-y-1 list-disc pl-5">
-                    <li>ความยาว 8–64 ตัวอักษร</li>
-                    <li>มีตัวพิมพ์เล็กและตัวพิมพ์ใหญ่ภาษาอังกฤษ</li>
-                    <li>มีตัวเลขอย่างน้อย 1 ตัว</li>
-                    <li>มีอักขระพิเศษอย่างน้อย 1 ตัว</li>
-                    <li>ไม่มีช่องว่าง</li>
-                  </ul>
-                </div>
-
-                <div className="flex justify-end pt-2">
-                  <button
-                    type="button"
-                    onClick={handleChangePassword}
-                    disabled={passwordLoading}
-                    className="flex items-center justify-center gap-2 rounded-2xl bg-orange-500 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <LockKeyhole size={17} />
-                    {passwordLoading
-                      ? "กำลังเปลี่ยนรหัสผ่าน..."
-                      : "เปลี่ยนรหัสผ่าน"}
-                  </button>
-                </div>
-              </div>
-            </section>
 
             {/* =====================================================
                 STORE INFORMATION

@@ -155,11 +155,7 @@ export default function FoodDeliveryHero() {
         {/* copy */}
         <div>
           <div className="fd-eyebrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-              <circle cx="5.5" cy="17.5" r="2.5" /><circle cx="18.5" cy="17.5" r="2.5" />
-              <path d="M2 17.5h1l2-9h11l3 6.5h-2.5" /><path d="M5 8.5h9" />
-            </svg>
-            RobMorFood มมส
+            🍽 Food Delivery มมส
           </div>
 
           <h1>

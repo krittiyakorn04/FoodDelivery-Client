@@ -16,6 +16,8 @@ import {
   Minus,
   Plus,
   X,
+  ArrowLeft,
+  ShoppingBag,
 } from "lucide-react";
 
 import Swal from "sweetalert2";
@@ -88,8 +90,6 @@ const CheckoutPage = () => {
 
         setCart(res.data);
       } catch (error) {
-
-
         setCart(null);
       } finally {
         setLoading(false);
@@ -929,79 +929,156 @@ const CheckoutPage = () => {
     }
   };
 
-  // =========================
-  // LOADING
-  // =========================
+// =========================
+// LOADING CHECKOUT
+// =========================
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#FFF8F0] animate-pulse">
-        <div className="mx-auto max-w-6xl px-4 py-8">
-          {/* หัวข้อ */}
-          <div className="h-8 w-40 rounded-lg bg-orange-100" />
+if (loading) {
+  return (
+    <div className="min-h-screen mb-10 bg-[#FFF8F0] animate-pulse">
+      <div className="mx-auto max-w-6xl p-4 sm:p-6 pb-32">
+        {/* Header */}
+        <div className="mb-7 flex items-center gap-4">
+          <div className="h-11 w-11 shrink-0 rounded-2xl bg-orange-100" />
 
-          {/* แถบสถานะ */}
-          <div className="mt-6 flex gap-2 overflow-hidden">
-            {[1, 2, 3, 4, 5].map((item) => (
-              <div
-                key={item}
-                className="h-10 w-28 shrink-0 rounded-full bg-orange-100"
-              />
-            ))}
+          <div className="space-y-2">
+            <div className="h-7 w-48 rounded-lg bg-orange-100" />
+            <div className="h-4 w-56 max-w-full rounded bg-gray-200" />
+          </div>
+        </div>
+
+        {/* Store + Order Round */}
+        <div className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+          {/* Store Information */}
+          <div className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
+            <div className="flex items-center gap-3 border-b border-gray-100 p-5">
+              <div className="h-11 w-11 shrink-0 rounded-2xl bg-orange-100" />
+
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="h-3 w-24 rounded bg-gray-200" />
+                <div className="h-5 w-40 max-w-full rounded bg-gray-200" />
+              </div>
+
+              <div className="h-7 w-24 rounded-full bg-emerald-100" />
+            </div>
+
+            <div className="flex items-center justify-between gap-4 p-5">
+              <div className="space-y-2">
+                <div className="h-3 w-28 rounded bg-gray-200" />
+                <div className="h-4 w-40 max-w-full rounded bg-gray-100" />
+              </div>
+
+              <div className="h-12 w-28 rounded-2xl bg-orange-50" />
+            </div>
           </div>
 
-          {/* Order Card */}
-          <div className="mt-6 space-y-5">
-            {[1, 2, 3].map((order) => (
-              <div key={order} className="rounded-3xl bg-white p-5 shadow-sm">
-                {/* ร้าน + สถานะ */}
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-2xl bg-orange-100" />
+          {/* Order Round */}
+          <div className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
+            <div className="flex items-center gap-3 border-b border-gray-100 p-5">
+              <div className="h-11 w-11 shrink-0 rounded-2xl bg-orange-100" />
 
-                    <div className="space-y-2">
-                      <div className="h-5 w-40 rounded-lg bg-gray-200" />
-                      <div className="h-4 w-24 rounded-lg bg-gray-100" />
-                    </div>
-                  </div>
+              <div className="space-y-2">
+                <div className="h-3 w-28 rounded bg-gray-200" />
+                <div className="h-5 w-24 rounded bg-gray-200" />
+              </div>
 
-                  <div className="h-8 w-24 rounded-full bg-orange-100" />
+              <div className="ml-auto h-7 w-24 rounded-full bg-emerald-100" />
+            </div>
+
+            <div className="space-y-3 p-5">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="h-36 rounded-2xl bg-orange-50" />
+                <div className="h-36 rounded-2xl bg-gray-100" />
+              </div>
+
+              <div className="h-16 rounded-2xl bg-emerald-50" />
+            </div>
+          </div>
+        </div>
+
+        {/* Address */}
+        <div className="mb-5 rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="space-y-2">
+              <div className="h-5 w-28 rounded bg-gray-200" />
+              <div className="h-4 w-48 max-w-full rounded bg-gray-100" />
+            </div>
+
+            <div className="h-4 w-20 rounded bg-orange-100" />
+          </div>
+
+          <div className="rounded-xl border border-orange-100 bg-orange-50/50 p-4">
+            <div className="flex items-start gap-3">
+              <div className="mt-1 h-5 w-5 shrink-0 rounded-full bg-orange-200" />
+
+              <div className="flex-1 space-y-3">
+                <div className="h-4 w-28 rounded bg-gray-200" />
+                <div className="h-4 w-full rounded bg-gray-100" />
+                <div className="h-3 w-36 rounded bg-gray-100" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Food Items */}
+        <div className="mb-5 rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="h-5 w-28 rounded bg-gray-200" />
+            <div className="h-4 w-16 rounded bg-gray-100" />
+          </div>
+
+          <div className="space-y-4">
+            {[1, 2, 3].map((item) => (
+              <div
+                key={item}
+                className="flex gap-3 border-b border-gray-100 py-4 last:border-0"
+              >
+                <div className="h-20 w-20 shrink-0 rounded-xl bg-gray-100" />
+
+                <div className="min-w-0 flex-1 space-y-3">
+                  <div className="h-4 w-40 max-w-full rounded bg-gray-200" />
+                  <div className="h-3 w-28 rounded bg-gray-100" />
+                  <div className="h-3 w-16 rounded bg-orange-100" />
                 </div>
 
-                {/* รายการอาหาร */}
-                <div className="mt-5 space-y-4">
-                  {[1, 2].map((menu) => (
-                    <div
-                      key={menu}
-                      className="flex items-center gap-4 border-b border-gray-100 pb-4"
-                    >
-                      <div className="h-20 w-20 shrink-0 rounded-2xl bg-gray-100" />
-
-                      <div className="flex-1 space-y-2">
-                        <div className="h-5 w-48 rounded-lg bg-gray-200" />
-                        <div className="h-4 w-32 rounded-lg bg-gray-100" />
-                      </div>
-
-                      <div className="space-y-2 text-right">
-                        <div className="h-4 w-12 rounded bg-gray-100" />
-                        <div className="h-5 w-20 rounded bg-gray-200" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* ยอดรวม */}
-                <div className="mt-5 flex items-center justify-between">
-                  <div className="h-4 w-24 rounded bg-gray-100" />
-                  <div className="h-6 w-28 rounded bg-orange-100" />
-                </div>
+                <div className="h-5 w-20 shrink-0 rounded bg-orange-100" />
               </div>
             ))}
           </div>
+
+          {/* Total */}
+          <div className="mt-5 space-y-4">
+            <div className="flex justify-between">
+              <div className="h-4 w-20 rounded bg-gray-100" />
+              <div className="h-4 w-24 rounded bg-gray-100" />
+            </div>
+
+            <div className="flex justify-between">
+              <div className="h-4 w-20 rounded bg-gray-100" />
+              <div className="h-4 w-16 rounded bg-gray-100" />
+            </div>
+
+            <div className="flex justify-between border-t border-gray-100 pt-4">
+              <div className="h-6 w-24 rounded bg-gray-200" />
+              <div className="h-6 w-28 rounded bg-orange-100" />
+            </div>
+          </div>
+
+          <div className="mt-5 h-12 rounded-2xl bg-orange-50" />
         </div>
+
+        {/* Note */}
+        <div className="mb-6 rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+          <div className="mb-3 h-5 w-28 rounded bg-gray-200" />
+          <div className="h-24 rounded-xl bg-gray-100" />
+        </div>
+
+        {/* Confirm Order */}
+        <div className="h-14 w-full rounded-xl bg-green-100" />
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   // =========================
   // NO CART
@@ -1056,115 +1133,100 @@ const CheckoutPage = () => {
 HEADER
 ========================= */}
 
-        <h1
-          className="
-        text-3xl
-        font-bold
-        mb-6
-        text-[#2A1B12]
-      "
-        >
-          ยืนยันการสั่งซื้อ
-        </h1>
+        <div className="flex items-center gap-4 mb-7">
+          <button
+            type="button"
+            onClick={() => navigate(`/user/storeRead/${storeId}`)}
+            className="group w-11 h-11 flex items-center justify-center rounded-2xl
+               bg-white border border-orange-100 shadow-sm
+               text-[#2A1B12] hover:bg-orange-50 hover:border-orange-200
+               hover:-translate-x-0.5 transition-all duration-200 shrink-0"
+            aria-label="กลับไปหน้าที่แล้ว"
+          >
+            <ArrowLeft
+              size={20}
+              strokeWidth={2}
+              className="transition-transform duration-200 group-hover:-translate-x-0.5"
+            />
+          </button>
+
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-[#2A1B12]">
+              ยืนยันการสั่งซื้อ
+            </h1>
+            <p className="text-sm text-gray-400 mt-1">
+              ตรวจสอบรายการอาหารก่อนสั่งซื้อ
+            </p>
+          </div>
+        </div>
 
         {/* =========================
         STORE
     ========================= */}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
-          <div className="bg-white rounded-3xl border border-orange-100 shadow-sm overflow-hidden">
-            <div className="bg-[#fdd9b6] px-5 py-5 border-b border-orange-100">
-              <div className="flex items-center gap-4">
-                <div
-                  className="
-                w-12 h-12
-                rounded-2xl
-                bg-white
-                border border-orange-200
-                flex items-center justify-center
-                shrink-0
-                shadow-sm
-              "
-                >
+          {/* STORE INFORMATION */}
+          <div className="bg-white rounded-3xl border border-orange-100/80 shadow-sm overflow-hidden">
+            <div className="px-5 py-5 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-orange-50 flex items-center justify-center shrink-0">
                   <Store
-                    size={24}
-                    className="text-orange-500"
-                    strokeWidth={2}
+                    size={21}
+                    className="text-[#F07836]"
+                    strokeWidth={1.8}
                   />
                 </div>
 
-                <div className="min-w-0">
-                  <p className="text-xs text-orange-400 mb-0.5">ร้านอาหาร</p>
-
-                  <h2 className="text-xl font-bold text-[#2A1B12] truncate">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-gray-400 mb-1">ข้อมูลร้านอาหาร</p>
+                  <h2 className="text-lg font-semibold text-[#2A1B12] truncate">
                     {cart.store?.storeName || "ไม่พบชื่อร้าน"}
                   </h2>
                 </div>
+
+                <span
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium shrink-0 ${
+                    isStoreClosed
+                      ? "bg-red-50 text-red-600"
+                      : "bg-emerald-50 text-emerald-700"
+                  }`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      isStoreClosed ? "bg-red-500" : "bg-emerald-500"
+                    }`}
+                  />
+                  {isStoreClosed ? "ปิดให้บริการ" : "เปิดให้บริการ"}
+                </span>
               </div>
             </div>
 
             <div className="p-5">
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-xs text-gray-400 mb-3">สถานะร้าน</p>
-                  <div
-                    className={`
-    inline-flex items-center gap-2
-    px-3 py-1.5
-    rounded-full
-    text-xs font-semibold
-    ${
-      isStoreClosed
-        ? "bg-red-50 border border-red-100 text-red-600"
-        : "bg-emerald-50 border border-emerald-100 text-emerald-600"
-    }
-  `}
-                  >
-                    <span
-                      className={`
-      w-2 h-2 rounded-full
-      ${isStoreClosed ? "bg-red-500" : "bg-emerald-500"}
-    `}
-                    />
-
-                    {isStoreClosed ? "ปิดให้บริการ" : "เปิดให้บริการ"}
-                  </div>
+                  <p className="text-xs text-gray-400 mb-1.5">
+                    สถานะการให้บริการ
+                  </p>
+                  <p className="text-sm font-medium text-[#2A1B12]">
+                    {isStoreClosed
+                      ? "ขณะนี้ร้านยังไม่รับออเดอร์"
+                      : "ขณะนี้ร้านพร้อมรับออเดอร์"}
+                  </p>
                 </div>
 
                 {cart.store?.phone && (
                   <a
                     href={`tel:${cart.store.phone}`}
-                    className="
-                  mt-4
-                  flex items-center gap-3
-                  p-3.5
-                  rounded-2xl
-                  bg-orange-50
-                  border border-orange-100
-                  text-orange-600
-                  hover:bg-orange-100
-                  transition
-                "
+                    className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-2xl bg-[#FFF8F0] hover:bg-orange-50 transition-colors shrink-0"
                   >
-                    <div
-                      className="
-                    w-10 h-10
-                    rounded-xl
-                    bg-white
-                    flex items-center justify-center
-                    shadow-sm
-                    shrink-0
-                  "
-                    >
-                      <Phone size={18} />
-                    </div>
-
+                    <Phone
+                      size={17}
+                      className="text-[#F07836]"
+                      strokeWidth={1.8}
+                    />
                     <div>
-                      <p className="text-[11px] text-orange-400">
-                        เบอร์โทรร้าน
-                      </p>
-
-                      <p className="text-sm font-bold text-orange-700">
+                      <p className="text-[10px] text-gray-400">โทรหาร้าน</p>
+                      <p className="text-sm font-semibold text-[#2A1B12]">
                         {cart.store.phone}
                       </p>
                     </div>
@@ -1174,124 +1236,89 @@ HEADER
             </div>
           </div>
 
-          {/* =========================
-          ORDER ROUND
-      ========================= */}
-
+          {/* ORDER ROUND */}
           {orderRound ? (
-            <div className="bg-white rounded-3xl border border-orange-100 shadow-sm overflow-hidden">
-              <div className="bg-[#fdd9b6] px-5 py-5 border-b border-orange-100">
+            <div className="bg-white rounded-3xl border border-orange-100/80 shadow-sm overflow-hidden">
+              <div className="px-5 py-5 border-b border-gray-100">
                 <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-4">
-                    <div
-                      className="
-                    w-12 h-12
-                    rounded-2xl
-                    bg-white
-                    border border-orange-100
-                    flex items-center justify-center
-                    shrink-0
-                    shadow-sm
-                  "
-                    >
-                      <Clock3 size={24} className="text-orange-500" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-2xl bg-orange-50 flex items-center justify-center shrink-0">
+                      <Clock3
+                        size={21}
+                        className="text-[#F07836]"
+                        strokeWidth={1.8}
+                      />
                     </div>
 
                     <div>
-                      <p className="text-xs text-orange-400">รอบออเดอร์</p>
-
-                      <h2 className="text-xl font-bold text-[#2A1B12]">
-                        รอบ {orderRound.roundNumber}
+                      <p className="text-xs text-gray-400 mb-1">
+                        รอบการสั่งอาหาร
+                      </p>
+                      <h2 className="text-lg font-semibold text-[#2A1B12]">
+                        รอบที่ {orderRound.roundNumber}
                       </h2>
                     </div>
                   </div>
 
-                  <div
-                    className={`
-                  flex items-center gap-1.5
-                  px-3 py-1.5
-                  rounded-full
-                  text-xs font-bold
-                  ${
-                    isRoundFull
-                      ? "bg-red-50 text-red-600 border border-red-100"
-                      : isRoundOpen
-                        ? "bg-emerald-50 text-emerald-600 border border-emerald-100"
-                        : "bg-amber-50 text-amber-600 border border-amber-100"
-                  }
-                `}
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium shrink-0 ${
+                      isRoundFull
+                        ? "bg-red-50 text-red-600"
+                        : isRoundOpen
+                          ? "bg-emerald-50 text-emerald-700"
+                          : "bg-amber-50 text-amber-700"
+                    }`}
                   >
                     {isRoundFull ? (
-                      <AlertCircle size={14} />
+                      <AlertCircle size={13} />
                     ) : isRoundOpen ? (
-                      <CheckCircle2 size={14} />
+                      <CheckCircle2 size={13} />
                     ) : (
-                      <Clock3 size={14} />
+                      <Clock3 size={13} />
                     )}
 
                     {isRoundFull
                       ? "เต็มแล้ว"
                       : isRoundOpen
-                        ? "กำลังเปิดรับ"
+                        ? "เปิดรับออเดอร์"
                         : "ยังไม่เปิด"}
-                  </div>
+                  </span>
                 </div>
               </div>
 
               <div className="p-5">
                 <div className="grid grid-cols-2 gap-3">
-                  <div
-                    className="
-                  rounded-2xl
-                  bg-[#FFF8F0]
-                  border border-orange-100
-                  p-4
-                "
-                  >
+                  <div className="rounded-2xl bg-[#FFF9F4] p-4">
                     <div className="flex items-center gap-2 mb-3">
-                      <Clock3 size={16} className="text-orange-500" />
-
-                      <p className="text-xs font-semibold text-orange-600">
-                        เวลารอบ
-                      </p>
+                      <Clock3 size={15} className="text-[#F07836]" />
+                      <p className="text-xs text-gray-500">เวลาของรอบ</p>
                     </div>
 
-                    <p className="text-xl font-bold text-[#2A1B12]">
+                    <p className="text-lg font-semibold text-[#2A1B12]">
                       {orderRound.startTime}
                     </p>
-
                     <p className="text-xs text-gray-400 my-1">ถึง</p>
-
-                    <p className="text-xl font-bold text-[#2A1B12]">
+                    <p className="text-lg font-semibold text-[#2A1B12]">
                       {orderRound.endTime}
                     </p>
                   </div>
 
-                  <div
-                    className="
-                  rounded-2xl
-                  bg-gray-50
-                  border border-gray-100
-                  p-4
-                "
-                  >
+                  <div className="rounded-2xl bg-gray-50/80 p-4">
                     <div className="flex items-center gap-2 mb-3">
-                      <CheckCircle2 size={16} className="text-gray-500" />
-
-                      <p className="text-xs font-semibold text-gray-500">
-                        จำนวนออเดอร์
-                      </p>
+                      <ShoppingBag size={15} className="text-gray-500" />
+                      <p className="text-xs text-gray-500">จำนวนออเดอร์</p>
                     </div>
 
-                    <p className="text-xl font-bold text-[#2A1B12]">
+                    <p className="text-lg font-semibold text-[#2A1B12]">
                       {orderRound.currentOrders || 0}
-
-                      {orderRound.hasOrderLimit
-                        ? ` / ${orderRound.maxOrders}`
-                        : " ออเดอร์"}
+                      <span className="text-sm font-normal text-gray-400">
+                        {orderRound.hasOrderLimit
+                          ? ` / ${orderRound.maxOrders}`
+                          : " ออเดอร์"}
+                      </span>
                     </p>
 
-                    <p className="text-xs text-gray-400 mt-1">
+                    <p className="text-xs text-gray-400 mt-1.5">
                       {orderRound.hasOrderLimit
                         ? "จำนวนสูงสุดของรอบ"
                         : "ไม่จำกัดจำนวน"}
@@ -1299,145 +1326,66 @@ HEADER
                   </div>
                 </div>
 
-                <div
-                  className="
-                mt-3
-                flex items-center justify-between gap-3
-                px-4 py-3.5
-                rounded-2xl
-                bg-emerald-50
-                border border-emerald-100
-              "
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="
-                    w-10 h-10
-                    rounded-xl
-                    bg-white
-                    flex items-center justify-center
-                    shadow-sm
-                    shrink-0
-                  "
-                    >
-                      <Truck size={19} className="text-emerald-600" />
-                    </div>
-
-                    <div>
-                      <p className="text-xs text-gray-400">เวลาส่งโดยประมาณ</p>
-
-                      <p className="text-sm font-bold text-[#2A1B12] mt-0.5">
-                        ภายใน {addMinutesToTime(orderRound.endTime, 20)} น.
-                      </p>
-                    </div>
+                <div className="mt-3 flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 px-4 py-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center shrink-0">
+                    <Truck
+                      size={19}
+                      className="text-emerald-600"
+                      strokeWidth={1.8}
+                    />
                   </div>
 
-                  <span className="text-xs font-semibold text-emerald-600">
-                    \+ 20 นาที
+                  <div className="min-w-0 flex-1">
+                    <p className="text-xs text-gray-500">เวลาส่งโดยประมาณ</p>
+                    <p className="text-sm font-semibold text-[#2A1B12] mt-0.5">
+                      ภายใน {addMinutesToTime(orderRound.endTime, 20)} น.
+                    </p>
+                  </div>
+
+                  <span className="text-xs font-medium text-emerald-700 shrink-0">
+                    +20 นาที
                   </span>
                 </div>
 
                 {isRoundFull && (
-                  <div
-                    className="
-                  mt-4
-                  rounded-2xl
-                  bg-red-50
-                  border border-red-100
-                  p-4
-                "
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="
-                      w-10 h-10
-                      rounded-xl
-                      bg-white
-                      border border-red-100
-                      flex items-center justify-center
-                      shrink-0
-                    "
-                      >
-                        <AlertCircle size={20} className="text-red-500" />
-                      </div>
-
-                      <div>
-                        <p className="font-bold text-red-600">รอบนี้เต็มแล้ว</p>
-
-                        <p className="text-sm text-red-500 mt-0.5">
-                          กรุณารอรอบถัดไป
-                        </p>
-                      </div>
+                  <div className="mt-3 flex items-center gap-3 rounded-2xl bg-red-50/80 px-4 py-3">
+                    <AlertCircle size={19} className="text-red-500 shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-red-600">
+                        รอบนี้เต็มแล้ว
+                      </p>
+                      <p className="text-xs text-red-500 mt-0.5">
+                        กรุณารอรอบถัดไป
+                      </p>
                     </div>
                   </div>
                 )}
 
                 {!isRoundFull && !isRoundOpen && (
-                  <div
-                    className="
-                    mt-4
-                    rounded-2xl
-                    bg-amber-50
-                    border border-amber-100
-                    p-4
-                  "
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="
-                        w-10 h-10
-                        rounded-xl
-                        bg-white
-                        border border-amber-100
-                        flex items-center justify-center
-                        shrink-0
-                      "
-                      >
-                        <Clock3 size={20} className="text-amber-500" />
-                      </div>
-
-                      <div>
-                        <p className="font-bold text-amber-700">
-                          รอบนี้ยังไม่เปิด
-                        </p>
-
-                        <p className="text-sm text-amber-600 mt-0.5">
-                          กรุณารอรอบถัดไป
-                        </p>
-                      </div>
+                  <div className="mt-3 flex items-center gap-3 rounded-2xl bg-amber-50/80 px-4 py-3">
+                    <Clock3 size={19} className="text-amber-600 shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-amber-700">
+                        รอบนี้ยังไม่เปิด
+                      </p>
+                      <p className="text-xs text-amber-600 mt-0.5">
+                        กรุณารอจนถึงเวลาเปิดรับออเดอร์
+                      </p>
                     </div>
                   </div>
                 )}
               </div>
             </div>
           ) : (
-            <div
-              className="
-            bg-white
-            rounded-3xl
-            border border-orange-100
-            shadow-sm
-            p-6
-            flex items-center justify-center
-          "
-            >
-              <div className="text-center">
-                <div
-                  className="
-                w-14 h-14
-                mx-auto
-                rounded-2xl
-                bg-[#FFF3E8]
-                border border-orange-100
-                flex items-center justify-center
-                mb-3
-              "
-                >
-                  <Store size={24} className="text-orange-500" />
-                </div>
+            <div className="bg-white rounded-3xl border border-orange-100/80 shadow-sm p-6 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center shrink-0">
+                <Store size={22} className="text-[#F07836]" strokeWidth={1.8} />
+              </div>
 
-                <p className="font-bold text-[#2A1B12]">รับออเดอร์ตลอดเวลา</p>
-
+              <div>
+                <p className="font-semibold text-[#2A1B12]">
+                  รับออเดอร์ตลอดเวลา
+                </p>
                 <p className="text-sm text-gray-400 mt-1">
                   ร้านไม่มีการกำหนดรอบออเดอร์
                 </p>
@@ -1863,6 +1811,18 @@ HEADER
               <span className="text-orange-500">฿{total.toFixed(2)}</span>
             </div>
           </div>
+          <button
+            type="button"
+            onClick={() => navigate(`/user/storeRead/${storeId}`)}
+            className="mt-5 w-full flex items-center justify-center gap-2
+             py-3.5 rounded-2xl border border-orange-200
+             bg-[#FFF8F0] text-[#C65D24] font-semibold text-sm
+             hover:bg-orange-50 hover:border-orange-300
+             active:scale-[0.99] transition-all duration-200"
+          >
+            <Plus size={18} strokeWidth={2} />
+            สั่งอาหารเพิ่ม
+          </button>
         </div>
 
         {/* =========================

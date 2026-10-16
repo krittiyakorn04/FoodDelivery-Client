@@ -211,8 +211,7 @@ const FormEditStore = () => {
       console.error("บันทึกรูปแบบตัวเลือกไม่สำเร็จ =", error);
 
       alert(
-        error.response?.data?.message ||
-          "ไม่สามารถบันทึกรูปแบบตัวเลือกได้",
+        error.response?.data?.message || "ไม่สามารถบันทึกรูปแบบตัวเลือกได้",
       );
     }
   };
@@ -256,9 +255,7 @@ const FormEditStore = () => {
     try {
       await deleteOptionFormat(token, format.id);
 
-      setOptionFormats((prev) =>
-        prev.filter((item) => item.id !== format.id),
-      );
+      setOptionFormats((prev) => prev.filter((item) => item.id !== format.id));
 
       if (editingFormatId === format.id) {
         setEditingFormatId(null);
@@ -266,10 +263,7 @@ const FormEditStore = () => {
     } catch (error) {
       console.error("ลบรูปแบบตัวเลือกไม่สำเร็จ =", error);
 
-      alert(
-        error.response?.data?.message ||
-          "ไม่สามารถลบรูปแบบตัวเลือกได้",
-      );
+      alert(error.response?.data?.message || "ไม่สามารถลบรูปแบบตัวเลือกได้");
     }
   };
 
@@ -286,9 +280,7 @@ const FormEditStore = () => {
       return matchSearch;
     }
 
-    const category = categories.find(
-      (cat) => cat.nameCate === activeCategory,
-    );
+    const category = categories.find((cat) => cat.nameCate === activeCategory);
 
     return matchSearch && menu.categoryId === category?.id;
   });
@@ -307,12 +299,12 @@ const FormEditStore = () => {
         <div className="mb-7">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-100 text-orange-600">
-              <Settings2 size={24} />
+              <Utensils size={24} />
             </div>
 
             <div>
               <h1 className="text-2xl font-bold text-gray-800 md:text-3xl">
-                จัดการร้านอาหาร
+                จัดการเมนูอาหาร
               </h1>
 
               <p className="mt-1 text-sm text-gray-500">
@@ -321,8 +313,91 @@ const FormEditStore = () => {
             </div>
           </div>
         </div>
+        {/* =========================
+            SEARCH
+        ========================= */}
+
+        <section className="mb-5">
+          <div className="relative">
+            <Search
+              size={20}
+              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+            />
+
+            <input
+              className="w-full rounded-2xl border border-gray-200 bg-white py-3.5 pl-11 pr-4 outline-none shadow-sm transition placeholder:text-gray-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
+              placeholder="ค้นหาเมนูอาหาร..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              >
+                <X size={17} />
+              </button>
+            )}
+          </div>
+        </section>
+        
+
 
         {/* =========================
+            MENU MANAGEMENT
+        ========================= */}
+
+        <section className="mb-7 grid grid-cols-1 gap-4 md:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => navigate("/store/MenuCategory")}
+            className="group flex h-28 items-center gap-4 rounded-2xl border border-gray-200 bg-white px-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md"
+          >
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-500 transition group-hover:bg-orange-100">
+              <FolderOpen size={27} />
+            </div>
+
+            <div className="flex-1">
+              <p className="font-bold text-gray-800">จัดการหมวดหมู่อาหาร</p>
+
+              <p className="mt-1 text-sm text-gray-500">
+                เพิ่ม แก้ไข และจัดหมวดหมู่เมนู
+              </p>
+            </div>
+
+            <ChevronRight
+              size={20}
+              className="text-gray-300 transition group-hover:translate-x-1 group-hover:text-orange-500"
+            />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => navigate("/store/menu")}
+            className="group flex h-28 items-center gap-4 rounded-2xl border border-gray-200 bg-white px-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md"
+          >
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-500 transition group-hover:bg-orange-100">
+              <Utensils size={27} />
+            </div>
+
+            <div className="flex-1">
+              <p className="font-bold text-gray-800">จัดการเมนูอาหาร</p>
+
+              <p className="mt-1 text-sm text-gray-500">
+                เพิ่ม แก้ไข ราคา รูปภาพ และรายละเอียดเมนู
+              </p>
+            </div>
+
+            <ChevronRight
+              size={20}
+              className="text-gray-300 transition group-hover:translate-x-1 group-hover:text-orange-500"
+            />
+          </button>
+        </section>
+
+                {/* =========================
             OPTION FORMAT
         ========================= */}
 
@@ -393,11 +468,7 @@ const FormEditStore = () => {
             <div className="mb-6 rounded-2xl border border-orange-200 bg-[#FFF8F0] p-5">
               <div className="mb-5 flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-500 text-white">
-                  {editingFormatId ? (
-                    <Pencil size={17} />
-                  ) : (
-                    <Plus size={18} />
-                  )}
+                  {editingFormatId ? <Pencil size={17} /> : <Plus size={18} />}
                 </div>
 
                 <div>
@@ -560,9 +631,7 @@ const FormEditStore = () => {
                             {newFormat.choices.length > 1 && (
                               <button
                                 type="button"
-                                onClick={() =>
-                                  removeFormatChoice(index)
-                                }
+                                onClick={() => removeFormatChoice(index)}
                                 aria-label="ลบตัวเลือก"
                                 className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-500 transition hover:bg-red-100"
                               >
@@ -585,9 +654,7 @@ const FormEditStore = () => {
                 >
                   <Check size={18} />
 
-                  {editingFormatId
-                    ? "บันทึกการแก้ไข"
-                    : "บันทึกรูปแบบตัวเลือก"}
+                  {editingFormatId ? "บันทึกการแก้ไข" : "บันทึกรูปแบบตัวเลือก"}
                 </button>
               </div>
             </div>
@@ -685,92 +752,6 @@ const FormEditStore = () => {
         </section>
 
         {/* =========================
-            SEARCH
-        ========================= */}
-
-        <section className="mb-5">
-          <div className="relative">
-            <Search
-              size={20}
-              className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
-            />
-
-            <input
-              className="w-full rounded-2xl border border-gray-200 bg-white py-3.5 pl-11 pr-4 outline-none shadow-sm transition placeholder:text-gray-400 focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
-              placeholder="ค้นหาเมนูอาหาร..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-              >
-                <X size={17} />
-              </button>
-            )}
-          </div>
-        </section>
-
-        {/* =========================
-            MENU MANAGEMENT
-        ========================= */}
-
-        <section className="mb-7 grid grid-cols-1 gap-4 md:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => navigate("/store/MenuCategory")}
-            className="group flex h-28 items-center gap-4 rounded-2xl border border-gray-200 bg-white px-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md"
-          >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-500 transition group-hover:bg-orange-100">
-              <FolderOpen size={27} />
-            </div>
-
-            <div className="flex-1">
-              <p className="font-bold text-gray-800">
-                จัดการหมวดหมู่อาหาร
-              </p>
-
-              <p className="mt-1 text-sm text-gray-500">
-                เพิ่ม แก้ไข และจัดหมวดหมู่เมนู
-              </p>
-            </div>
-
-            <ChevronRight
-              size={20}
-              className="text-gray-300 transition group-hover:translate-x-1 group-hover:text-orange-500"
-            />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => navigate("/store/menu")}
-            className="group flex h-28 items-center gap-4 rounded-2xl border border-gray-200 bg-white px-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-orange-200 hover:shadow-md"
-          >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-500 transition group-hover:bg-orange-100">
-              <Utensils size={27} />
-            </div>
-
-            <div className="flex-1">
-              <p className="font-bold text-gray-800">
-                จัดการเมนูอาหาร
-              </p>
-
-              <p className="mt-1 text-sm text-gray-500">
-                เพิ่ม แก้ไข ราคา รูปภาพ และรายละเอียดเมนู
-              </p>
-            </div>
-
-            <ChevronRight
-              size={20}
-              className="text-gray-300 transition group-hover:translate-x-1 group-hover:text-orange-500"
-            />
-          </button>
-        </section>
-
-        {/* =========================
             CATEGORY
         ========================= */}
 
@@ -823,16 +804,13 @@ const FormEditStore = () => {
               กรุณาเพิ่มหมวดหมู่อาหารก่อนจัดการเมนู
             </p>
           </div>
-        ) : activeCategory === "ทั้งหมด" &&
-          filteredMenus.length === 0 ? (
+        ) : activeCategory === "ทั้งหมด" && filteredMenus.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-gray-200 bg-white p-12 text-center shadow-sm">
             <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100 text-gray-400">
               <Search size={26} />
             </div>
 
-            <p className="font-semibold text-gray-600">
-              ไม่พบเมนูอาหาร
-            </p>
+            <p className="font-semibold text-gray-600">ไม่พบเมนูอาหาร</p>
 
             <p className="mt-1 text-sm text-gray-400">
               ลองเปลี่ยนคำค้นหาแล้วค้นหาใหม่อีกครั้ง
@@ -842,8 +820,7 @@ const FormEditStore = () => {
           categories
             .filter(
               (cat) =>
-                activeCategory === "ทั้งหมด" ||
-                activeCategory === cat.nameCate,
+                activeCategory === "ทั้งหมด" || activeCategory === cat.nameCate,
             )
             .map((cat) => {
               const list = filteredMenus.filter(
@@ -851,10 +828,7 @@ const FormEditStore = () => {
               );
 
               return (
-                <section
-                  key={cat.id}
-                  className="mb-8"
-                >
+                <section key={cat.id} className="mb-8">
                   <div className="mb-4 flex items-center gap-3">
                     <div className="h-7 w-1.5 rounded-full bg-[#FF6B35]" />
 
@@ -896,8 +870,7 @@ const FormEditStore = () => {
                             </h3>
 
                             <p className="mt-1.5 line-clamp-2 min-h-[40px] text-sm text-gray-500">
-                              {menu.description ||
-                                "ไม่มีรายละเอียดเมนู"}
+                              {menu.description || "ไม่มีรายละเอียดเมนู"}
                             </p>
 
                             <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-3">

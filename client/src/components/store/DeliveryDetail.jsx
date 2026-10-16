@@ -224,6 +224,8 @@ const DeliveryDetail = () => {
 
   const [proofUploading, setProofUploading] = useState(false);
 
+  
+
   // ====================================================
   // LOAD DELIVERY
   // ====================================================
@@ -1178,6 +1180,8 @@ const handleProofChange = async (proofType, event) => {
                     )}
                   </div>
 
+                  
+
                   {/* ADDRESS */}
 
                   <div className="flex items-start gap-3">
@@ -1200,7 +1204,10 @@ const handleProofChange = async (proofType, event) => {
                     </div>
                   </div>
 
+                  
+
                   {/* MAP */}
+                  
 
                   {hasCoordinates ? (
                     <div className="mt-5">

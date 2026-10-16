@@ -10,6 +10,7 @@ import {
   ChefHat,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { enablePushNotification } from "../../utils/pushNotification";
 
 import usefoodDelivery from "../../globalState/fooddeliveryStore";
 import { getCategoryStore } from "../../api/createStore";
@@ -36,6 +37,91 @@ export default function HomeUser() {
   const [categories, setCategories] = useState([]);
 
   const token = usefoodDelivery((state) => state.token);
+
+  useEffect(() => {
+    if (!token) return;
+
+    // แสดงครั้งเดียวต่อแท็บ ไม่แสดงซ้ำเมื่อรีเฟรช
+    const promptKey = `robmorfood_notification_prompted_${token}`;
+
+    if (sessionStorage.getItem(promptKey)) return;
+    sessionStorage.setItem(promptKey, "true");
+
+    const showNotificationGuide = async () => {
+      const isSupported = "Notification" in window;
+
+      // เบราว์เซอร์ไม่รองรับการแจ้งเตือน
+      if (!isSupported) {
+        await Swal.fire({
+          icon: "info",
+          title: "วิธีเปิดการแจ้งเตือน",
+          html: `
+          <div style="
+            width: 100%;
+            box-sizing: border-box;
+            text-align: left;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+            font-size: 14px;
+          ">
+            <p style="margin: 0;">
+              หากต้องการรับการแจ้งเตือนสถานะออเดอร์
+              กรุณาใช้เบราว์เซอร์และอุปกรณ์ที่รองรับการแจ้งเตือน
+            </p>
+          </div>
+        `,
+          confirmButtonText: "เข้าใจแล้ว",
+          confirmButtonColor: "#f97316",
+          width: "min(90vw, 420px)",
+          padding: "1.25em",
+        });
+        return;
+      }
+
+      // อนุญาตแล้ว ไม่ต้องแสดงข้อความ
+      if (Notification.permission === "granted") return;
+
+      // ยังไม่อนุญาตหรือเคยปฏิเสธ
+      await Swal.fire({
+        icon: "warning",
+        title: "กรุณาเปิดการแจ้งเตือน",
+        html: `
+        <div style="
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
+          text-align: left;
+          line-height: 1.8;
+          overflow-wrap: anywhere;
+          font-size: 14px;
+        ">
+          <p style="margin: 0 0 12px;">
+            เพื่อไม่ให้พลาดการแจ้งเตือนสถานะออเดอร์
+            กรุณาไปที่การตั้งค่าเบราว์เซอร์
+            และอนุญาตให้เว็บไซต์ RobMorFood ส่งการแจ้งเตือน
+          </p>
+
+          <p style="
+            margin: 0;
+            color: #c2410c;
+          ">
+            เมื่ออนุญาตแล้ว คุณจะได้รับการแจ้งเตือนเกี่ยวกับออเดอร์
+            ได้สะดวกยิ่งขึ้น
+          </p>
+        </div>
+      `,
+        confirmButtonText: "เข้าใจแล้ว",
+        confirmButtonColor: "#f97316",
+        width: "min(90vw, 420px)",
+        padding: "1.25em",
+        buttonsStyling: true,
+      });
+    };
+
+    showNotificationGuide().catch((error) => {
+      console.error("ตรวจสอบสิทธิ์แจ้งเตือนไม่สำเร็จ:", error);
+    });
+  }, [token]);
 
   const [cartCount, setCartCount] = useState(0);
 
@@ -799,8 +885,6 @@ export default function HomeUser() {
                           {store.timeClose || "--:--"}
                         </span>
                       </div>
-
-
 
                       {/* BUTTON */}
 

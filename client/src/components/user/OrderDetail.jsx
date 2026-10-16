@@ -16,7 +16,12 @@ import {
   CreditCard,
   Star,
   MessageCircle,
+  Home,
+  Navigation,
 } from "lucide-react";
+
+import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
 
 import Swal from "sweetalert2";
 
@@ -70,6 +75,21 @@ const OrderDetail = () => {
   const [reviewLoading, setReviewLoading] = useState(false);
   const [reviewSubmitting, setReviewSubmitting] = useState(false);
   const [editingReview, setEditingReview] = useState(false);
+
+  const [now, setNow] = useState(Date.now());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(Date.now());
+    }, 30 * 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const isOrderOverOneHour =
+    order?.createdAt &&
+    now - new Date(order.createdAt).getTime() >= 60 * 60 * 1000 &&
+    !["COMPLETED", "CANCELLED"].includes(order?.status);
 
   // =====================================================
   // LOAD ORDER
@@ -801,153 +821,291 @@ const OrderDetail = () => {
   // =====================================================
   // LOADING SKELETON
   // =====================================================
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-[#FFFCF7] via-[#FFF3E4] to-[#FFF8F0] pb-10 animate-pulse">
+      <div className="min-h-screen animate-pulse bg-[#FFF8F0]">
         {/* HEADER */}
-        <div className="sticky top-0 z-30 bg-white/95 border-b border-orange-100">
-          <div className="max-w-6xl mx-auto px-4 py-4 flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full bg-orange-100" />
+        <div className="sticky top-0 z-20 border-b border-orange-100 bg-white">
+          <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-4">
+            <div className="h-10 w-10 shrink-0 rounded-xl bg-[#F0E6DC]" />
+
             <div className="flex-1 space-y-2">
-              <div className="h-5 w-40 rounded-lg bg-gray-200" />
-              <div className="h-3 w-24 rounded bg-gray-100" />
+              <div className="h-5 w-36 rounded-md bg-[#EADFD4]" />
+              <div className="h-3 w-20 rounded bg-[#F0E6DC]" />
             </div>
           </div>
         </div>
 
-        <div className="max-w-6xl mx-auto px-4 py-5 space-y-4">
+        <div className="mx-auto max-w-6xl space-y-5 px-4 py-5 pb-10 sm:p-6">
           {/* ORDER STATUS */}
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-50">
-            <div className="flex justify-between items-center gap-4">
-              <div className="space-y-3">
-                <div className="h-3 w-24 rounded bg-gray-200" />
-                <div className="h-5 w-48 max-w-full rounded bg-gray-200" />
+          <section className="rounded-xl border border-orange-100 bg-white p-4 shadow-sm">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="h-10 w-10 shrink-0 rounded-xl bg-orange-100" />
+
+              <div className="flex-1 space-y-2">
+                <div className="h-4 w-32 rounded bg-[#EADFD4]" />
+                <div className="h-3 w-48 max-w-full rounded bg-[#F0E6DC]" />
               </div>
-              <div className="h-9 w-28 rounded-full bg-orange-100" />
+
+              <div className="h-7 w-20 rounded-full bg-orange-100" />
             </div>
-          </div>
+
+            {/* PROCESS STEPS */}
+            <div className="flex items-start">
+              {[1, 2, 3, 4, 5, 6].map((step) => (
+                <div key={step} className="relative flex-1">
+                  {step !== 6 && (
+                    <div className="absolute left-1/2 top-3.5 h-0.5 w-full bg-[#F0E6DC]" />
+                  )}
+
+                  <div className="relative z-10 mx-auto h-7 w-7 rounded-full bg-[#F0E6DC]" />
+                  <div className="mx-auto mt-2 h-2 w-10 max-w-full rounded bg-[#F0E6DC]" />
+                  <div className="mx-auto mt-1 h-2 w-7 max-w-full rounded bg-[#F5EDE5]" />
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* ORDER ROUND */}
+          <section className="rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="h-11 w-11 shrink-0 rounded-xl bg-orange-100" />
+
+              <div className="space-y-2">
+                <div className="h-3 w-20 rounded bg-[#F0E6DC]" />
+                <div className="h-5 w-28 rounded bg-[#EADFD4]" />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {[1, 2].map((item) => (
+                <div key={item} className="rounded-xl bg-[#FFF5EA] p-3">
+                  <div className="mb-2 h-3 w-20 rounded bg-[#EADFD4]" />
+                  <div className="h-5 w-16 rounded bg-orange-100" />
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-3 rounded-xl bg-blue-50 p-3">
+              <div className="mb-2 h-3 w-24 rounded bg-blue-100" />
+              <div className="h-5 w-20 rounded bg-blue-100" />
+            </div>
+          </section>
 
           {/* CHAT */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-orange-100">
+          <section className="rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-orange-100 shrink-0" />
+              <div className="h-11 w-11 shrink-0 rounded-xl bg-orange-100" />
+
               <div className="flex-1 space-y-2">
-                <div className="h-3 w-24 rounded bg-gray-200" />
-                <div className="h-5 w-44 rounded bg-gray-200" />
-                <div className="h-3 w-52 max-w-full rounded bg-gray-100" />
+                <div className="h-3 w-24 rounded bg-[#F0E6DC]" />
+                <div className="h-5 w-40 max-w-full rounded bg-[#EADFD4]" />
+                <div className="h-3 w-52 max-w-full rounded bg-[#F0E6DC]" />
               </div>
             </div>
-            <div className="h-12 w-full mt-4 rounded-xl bg-orange-100" />
-          </div>
 
-          {/* CUSTOMER INFORMATION */}
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-50 space-y-5">
-            <div className="h-6 w-48 rounded bg-gray-200 mb-5" />
+            <div className="mt-4 h-12 rounded-xl bg-orange-100" />
+          </section>
 
-            {[1, 2, 3, 4].map((item) => (
-              <div key={item} className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-orange-100 shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-3 w-24 rounded bg-gray-100" />
-                  <div className="h-4 w-40 max-w-full rounded bg-gray-200" />
-                </div>
+          {/* PAYMENT STATUS */}
+          <section className="rounded-2xl border border-orange-100 bg-white p-4">
+            <div className="flex items-center gap-3">
+              <div className="h-11 w-11 shrink-0 rounded-xl bg-yellow-100" />
+
+              <div className="flex-1 space-y-2">
+                <div className="h-3 w-28 rounded bg-[#F0E6DC]" />
+                <div className="h-5 w-32 rounded bg-[#EADFD4]" />
+                <div className="h-3 w-44 max-w-full rounded bg-[#F0E6DC]" />
               </div>
-            ))}
-          </div>
+
+              <div className="h-10 w-20 shrink-0 rounded-xl bg-orange-100" />
+            </div>
+          </section>
+
+          {/* STORE */}
+          <section className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
+            <div className="flex items-center gap-4 p-5">
+              <div className="h-14 w-14 shrink-0 rounded-2xl bg-orange-100" />
+
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="h-5 w-40 max-w-full rounded bg-[#EADFD4]" />
+                <div className="h-3 w-32 rounded bg-[#F0E6DC]" />
+              </div>
+
+              <div className="h-7 w-20 shrink-0 rounded-full bg-orange-100" />
+            </div>
+          </section>
+
+          {/* DELIVERY ADDRESS */}
+          <section className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
+            <div className="flex items-start gap-3 p-5">
+              <div className="h-12 w-12 shrink-0 rounded-2xl bg-orange-100" />
+
+              <div className="min-w-0 flex-1 space-y-2">
+                <div className="h-3 w-24 rounded bg-[#F0E6DC]" />
+                <div className="h-5 w-32 rounded bg-[#EADFD4]" />
+                <div className="h-3 w-full rounded bg-[#F0E6DC]" />
+                <div className="h-3 w-3/4 rounded bg-[#F0E6DC]" />
+              </div>
+            </div>
+
+            <div className="px-5 pb-5">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="h-4 w-28 rounded bg-[#EADFD4]" />
+                <div className="h-3 w-20 rounded bg-orange-100" />
+              </div>
+
+              {/* MAP */}
+              <div className="h-52 rounded-2xl bg-[#EAE8E2]" />
+
+              <div className="mt-3 flex items-center gap-3 rounded-2xl bg-[#FFF8F0] p-4">
+                <div className="h-10 w-10 shrink-0 rounded-xl bg-[#F0E6DC]" />
+
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-28 rounded bg-[#F0E6DC]" />
+                  <div className="h-4 w-36 max-w-full rounded bg-[#EADFD4]" />
+                </div>
+
+                <div className="h-5 w-5 shrink-0 rounded-full bg-orange-100" />
+              </div>
+            </div>
+          </section>
 
           {/* FOOD ITEMS */}
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-50">
-            <div className="h-6 w-32 rounded bg-gray-200 mb-5" />
+          <section className="rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="h-11 w-11 shrink-0 rounded-xl bg-orange-100" />
+
+              <div className="space-y-2">
+                <div className="h-5 w-28 rounded bg-[#EADFD4]" />
+                <div className="h-3 w-32 rounded bg-[#F0E6DC]" />
+              </div>
+            </div>
 
             {[1, 2, 3].map((item) => (
               <div
                 key={item}
-                className="flex gap-3 py-4 border-b border-dashed border-orange-100 last:border-0"
+                className="flex gap-3 border-b border-gray-100 py-4 last:border-0"
               >
-                <div className="w-20 h-20 rounded-xl bg-orange-100 shrink-0" />
-                <div className="flex-1 space-y-3 pt-1">
-                  <div className="h-4 w-40 max-w-full rounded bg-gray-200" />
-                  <div className="h-3 w-24 rounded bg-gray-100" />
-                  <div className="h-3 w-32 max-w-full rounded bg-gray-100" />
+                <div className="h-20 w-20 shrink-0 rounded-xl bg-[#F0E6DC]" />
+
+                <div className="min-w-0 flex-1 space-y-3 pt-1">
+                  <div className="h-4 w-40 max-w-full rounded bg-[#EADFD4]" />
+                  <div className="h-3 w-24 rounded bg-[#F0E6DC]" />
+                  <div className="h-3 w-32 max-w-full rounded bg-[#F0E6DC]" />
                 </div>
-                <div className="h-4 w-16 rounded bg-gray-200 shrink-0" />
+
+                <div className="h-4 w-14 shrink-0 rounded bg-[#EADFD4]" />
               </div>
             ))}
-          </div>
+          </section>
 
-          {/* NOTE */}
-          <div className="bg-white rounded-2xl p-4 border border-orange-50">
-            <div className="h-4 w-36 rounded bg-gray-200 mb-3" />
-            <div className="h-3 w-full rounded bg-gray-100 mb-2" />
-            <div className="h-3 w-2/3 rounded bg-gray-100" />
-          </div>
+          {/* PAYMENT SLIP */}
+          <section className="rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="h-11 w-11 shrink-0 rounded-xl bg-green-100" />
 
-          {/* DELIVERY ADDRESS */}
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-50">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-11 h-11 rounded-xl bg-red-100 shrink-0" />
               <div className="space-y-2">
-                <div className="h-5 w-32 rounded bg-gray-200" />
-                <div className="h-3 w-48 max-w-full rounded bg-gray-100" />
+                <div className="h-3 w-28 rounded bg-[#F0E6DC]" />
+                <div className="h-5 w-36 rounded bg-[#EADFD4]" />
               </div>
             </div>
-            <div className="h-56 w-full rounded-2xl bg-gray-100" />
-          </div>
 
-          {/* TOTAL */}
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-50">
-            <div className="flex justify-between items-center gap-4">
+            <div className="mx-auto h-64 w-full max-w-md rounded-2xl bg-[#F0E6DC]" />
+          </section>
+
+          {/* DELIVERY PROOF */}
+          <section className="rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="h-11 w-11 shrink-0 rounded-xl bg-green-100" />
+
               <div className="space-y-2">
-                <div className="h-4 w-28 rounded bg-gray-200" />
-                <div className="h-3 w-40 rounded bg-gray-100" />
+                <div className="h-3 w-28 rounded bg-[#F0E6DC]" />
+                <div className="h-5 w-40 rounded bg-[#EADFD4]" />
               </div>
-              <div className="h-7 w-28 rounded bg-orange-100" />
             </div>
 
-            <div className="mt-5 pt-4 border-t border-gray-100 space-y-4">
-              {[1, 2, 3].map((item) => (
-                <div key={item} className="flex justify-between gap-4">
-                  <div className="h-4 w-24 rounded bg-gray-100" />
-                  <div className="h-4 w-20 rounded bg-gray-200" />
-                </div>
+            <div className="mx-auto h-64 w-full max-w-md rounded-2xl bg-[#F0E6DC]" />
+          </section>
+
+          {/* ORDER NOTE */}
+          <section className="rounded-2xl border border-orange-100 bg-white p-5">
+            <div className="mb-4 h-5 w-24 rounded bg-[#EADFD4]" />
+            <div className="mb-2 h-3 w-full rounded bg-[#F0E6DC]" />
+            <div className="h-3 w-2/3 rounded bg-[#F0E6DC]" />
+          </section>
+
+          {/* REVIEW */}
+          <section className="rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="h-11 w-11 shrink-0 rounded-xl bg-orange-100" />
+
+              <div className="space-y-2">
+                <div className="h-3 w-24 rounded bg-[#F0E6DC]" />
+                <div className="h-5 w-36 rounded bg-[#EADFD4]" />
+              </div>
+            </div>
+
+            <div className="mb-5 flex gap-2">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <div key={star} className="h-8 w-8 rounded-lg bg-orange-100" />
               ))}
             </div>
-          </div>
 
-          {/* PAYMENT */}
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-orange-50">
-            <div className="flex justify-between items-center gap-3 mb-5">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-orange-100" />
-                <div className="space-y-2">
-                  <div className="h-5 w-32 rounded bg-gray-200" />
-                  <div className="h-3 w-44 max-w-full rounded bg-gray-100" />
-                </div>
+            <div className="h-24 rounded-xl bg-[#F0E6DC]" />
+            <div className="mt-4 h-11 rounded-xl bg-orange-100" />
+          </section>
+
+          {/* ORDER REPORT */}
+          <section className="rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+            <div className="mb-5 flex items-center gap-3">
+              <div className="h-11 w-11 shrink-0 rounded-xl bg-red-100" />
+
+              <div className="space-y-2">
+                <div className="h-3 w-24 rounded bg-[#F0E6DC]" />
+                <div className="h-5 w-40 rounded bg-[#EADFD4]" />
               </div>
-              <div className="h-7 w-24 rounded-full bg-blue-100" />
             </div>
-            <div className="h-32 w-48 max-w-full mx-auto rounded-2xl bg-gray-100" />
-          </div>
 
-          {/* ACTION BUTTONS */}
-          <div className="bg-white rounded-3xl p-4 border border-orange-100 space-y-3">
-            <div className="h-12 w-full rounded-xl bg-red-100" />
-            <div className="h-12 w-full rounded-xl bg-orange-100" />
-          </div>
-        </div>
+            <div className="mb-4 h-7 w-28 rounded-full bg-yellow-100" />
+            <div className="mb-3 h-16 rounded-xl bg-red-50" />
+            <div className="h-20 rounded-xl bg-[#F0E6DC]" />
+          </section>
 
-        {/* LOADING MESSAGE */}
-        <div className="flex items-center justify-center gap-3 py-5">
-          <div className="w-5 h-5 border-2 border-orange-200 border-t-orange-500 rounded-full animate-spin" />
-          <p className="text-sm font-medium text-gray-500">
-            กำลังโหลดรายละเอียดออเดอร์...
-          </p>
+          {/* ORDER SUMMARY */}
+          <section className="rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+            <div className="mb-5 h-6 w-36 rounded bg-[#EADFD4]" />
+
+            {[1, 2].map((item) => (
+              <div key={item} className="mb-4 flex justify-between gap-4">
+                <div className="h-4 w-24 rounded bg-[#F0E6DC]" />
+                <div className="h-4 w-20 rounded bg-[#EADFD4]" />
+              </div>
+            ))}
+
+            <div className="flex justify-between border-t border-gray-100 pt-4">
+              <div className="h-5 w-20 rounded bg-[#EADFD4]" />
+              <div className="h-6 w-28 rounded bg-orange-100" />
+            </div>
+
+            <div className="mt-5 border-t border-gray-100 pt-4">
+              <div className="h-3 w-48 max-w-full rounded bg-[#F0E6DC]" />
+            </div>
+
+            <div className="mt-4 h-12 rounded-2xl bg-red-100" />
+          </section>
+
+          {/* LOADING MESSAGE */}
+          <div className="flex items-center justify-center gap-3 py-3">
+            <div className="h-4 w-4 rounded-full border-2 border-orange-200 border-t-orange-500" />
+            <p className="text-sm font-medium text-[#8B8179]">
+              กำลังโหลดรายละเอียดออเดอร์...
+            </p>
+          </div>
         </div>
       </div>
     );
   }
-
   // =====================================================
   // DATA
   // =====================================================
@@ -1125,6 +1283,20 @@ const OrderDetail = () => {
     }
   };
 
+  const hasAddressCoords =
+    defaultAddress?.lat != null &&
+    defaultAddress?.lng != null &&
+    Number.isFinite(Number(defaultAddress.lat)) &&
+    Number.isFinite(Number(defaultAddress.lng));
+
+  const addressPosition = hasAddressCoords
+    ? [Number(defaultAddress.lat), Number(defaultAddress.lng)]
+    : null;
+
+  const navigationUrl = addressPosition
+    ? `https://www.google.com/maps/dir/?api=1&destination=${addressPosition[0]},${addressPosition[1]}`
+    : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(defaultAddress?.address || "")}`;
+
   return (
     <div
       className="
@@ -1160,7 +1332,7 @@ HEADER
         >
           <button
             type="button"
-            onClick={() => navigate("/user/orderUser")}
+            onClick={() => navigate("/user/userDelivery")}
             className="
           w-10
           h-10
@@ -1214,7 +1386,6 @@ HEADER
         {/* =====================================================
         CURRENT STATUS
     ===================================================== */}
-
         <div
           className={`
         ${currentStatus.bg}
@@ -1368,12 +1539,28 @@ HEADER
               </div>
             </div>
           )}
+          {!order.orderRoundId &&
+            order.status !== "CANCELLED" &&
+            order.createdAt && (
+              <p className="mt-3 border-t border-gray-200 pt-3 text-center text-xs text-gray-500">
+                คาดว่าจะได้รับอาหารภายใน{" "}
+                <span className="font-semibold text-[#C4511A]">
+                  {new Date(
+                    new Date(order.createdAt).getTime() + 60 * 60 * 1000,
+                  ).toLocaleTimeString("th-TH", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    timeZone: "Asia/Bangkok",
+                  })}{" "}
+                  น.
+                </span>
+              </p>
+            )}
         </div>
 
         {/* =====================================================
         ORDER ROUND
     ===================================================== */}
-
         {orderRound && (
           <div
             className="
@@ -1472,7 +1659,6 @@ HEADER
         {/* =====================================================
 CHAT DELIVERY
 ===================================================== */}
-
         {order.delivery?.id && (
           <div
             className="
@@ -1563,7 +1749,6 @@ CHAT DELIVERY
         {/* =====================================================
         PAYMENT STATUS
     ===================================================== */}
-
         {paymentStatus && !["PENDING", "CANCELLED"].includes(order.status) && (
           <div
             className={`
@@ -1647,10 +1832,53 @@ CHAT DELIVERY
           </div>
         )}
 
+        {!order.orderRoundId && isOrderOverOneHour && (
+          <div className="mb-5 rounded-2xl border border-orange-200 bg-orange-50 p-4">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-[#F07836]">
+                <Clock size={21} />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <h3 className="font-bold text-[#C4511A]">
+                  {order.status === "PENDING"
+                    ? "ร้านยังไม่ยืนยันออเดอร์"
+                    : order.status === "WAITING_PAYMENT" &&
+                        paymentStatus === "PENDING"
+                      ? "กรุณาชำระเงิน"
+                      : "ออเดอร์ใช้เวลามากกว่า 1 ชั่วโมง"}
+                </h3>
+
+                <p className="mt-1 text-sm leading-6 text-orange-800">
+                  {order.status === "PENDING"
+                    ? "ออเดอร์นี้ผ่านมามากกว่า 1 ชั่วโมงแล้ว หากไม่ต้องการรอต่อ คุณสามารถยกเลิกออเดอร์ได้จากปุ่มยกเลิกด้านล่าง"
+                    : order.status === "WAITING_PAYMENT" &&
+                        paymentStatus === "PENDING"
+                      ? "ร้านยืนยันออเดอร์มากกว่า 1 ชั่วโมงแล้ว แต่คุณยังไม่ได้ชำระเงิน โปรดชำระเงินเพื่อดำเนินการสั่งซื้อต่อ"
+                      : "ออเดอร์นี้ถูกสั่งมาแล้วมากกว่า 1 ชั่วโมง กรุณาตรวจสอบสถานะออเดอร์ หากต้องการสอบถามเพิ่มเติม สามารถติดต่อร้านอาหาร หรือหากพบปัญหา สามารถแจ้งปัญหาออเดอร์ได้"}
+                </p>
+
+                {order.status !== "PENDING" &&
+                  !(
+                    order.status === "WAITING_PAYMENT" &&
+                    paymentStatus === "PENDING"
+                  ) && (
+                    <button
+                      type="button"
+                      onClick={handleReportOrder}
+                      className="mt-3 rounded-xl bg-[#F07836] px-4 py-2.5 text-sm font-bold text-white transition hover:bg-[#E8491D]"
+                    >
+                      แจ้งปัญหาออเดอร์
+                    </button>
+                  )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* =====================================================
         CANCEL
     ===================================================== */}
-
         {order.status === "PENDING" && (
           <div className="mb-5">
             <button
@@ -1697,256 +1925,339 @@ CHAT DELIVERY
           </div>
         )}
 
-        {/* =====================================================
-        ADDRESS
-    ===================================================== */}
+        {/* ===================== STORE ===================== */}
+        <div className="mb-5 overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
+          <div className="flex items-center gap-4 p-5">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-[#F07836]">
+              <Store size={26} strokeWidth={1.8} />
+            </div>
 
-        {defaultAddress && (
-          <div
-            className="
-          bg-white
-          rounded-2xl
-          shadow-sm
-          border
-          border-orange-100
-          p-5
-          mb-5
-        "
-          >
-            <div
-              className="
-            flex
-            items-center
-            gap-3
-            mb-4
-          "
-            >
-              <div
-                className="
-              w-11
-              h-11
-              rounded-xl
-              bg-orange-100
-              text-orange-500
-              flex
-              items-center
-              justify-center
-            "
+            <div className="min-w-0 flex-1">
+              <p className="mb-1 text-xs font-medium text-gray-400"></p>
+              <button
+                type="button"
+                onClick={() => navigate(`/user/storeRead/${order.storeId}`)}
+                className="truncate text-left text-lg font-bold text-[#2A1B12] transition hover:text-[#F07836]"
               >
-                <MapPin size={21} />
-              </div>
-
-              <div>
-                <p className="text-xs text-gray-400">ที่อยู่จัดส่ง</p>
-
-                <h2 className="font-bold text-lg">
-                  {defaultAddress.label || "ที่อยู่"}
-                </h2>
+                {order.store?.storeName || "ไม่พบชื่อร้าน"}
+              </button>
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
+                <span className="h-2 w-2 rounded-full bg-[#F07836]" />
+                ร้านค้าที่คุณสั่งอาหาร
               </div>
             </div>
 
-            <p className="text-gray-600 text-sm leading-6">
-              {defaultAddress.address || "-"}
-            </p>
+            <div className="shrink-0 rounded-full bg-orange-50 px-3 py-1.5 text-xs font-semibold text-[#E8491D]">
+              <Store size={13} className="mr-1 inline" />
+              ร้านอาหาร
+            </div>
+          </div>
+        </div>
+
+        {/* ===================== ADDRESS ===================== */}
+        {defaultAddress && (
+          <div className="mb-5 overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
+            {/* หัวข้อที่อยู่ */}
+            <div className="p-5 pb-4">
+              <div className="flex items-start gap-3">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-[#F07836]">
+                  <MapPin size={24} strokeWidth={1.8} />
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="mb-1 text-xs font-medium text-gray-400">
+                    ที่อยู่ของคุณ
+                  </p>
+                  <h2 className="text-lg font-bold text-[#2A1B12]">
+                    {defaultAddress.label || "ที่อยู่จัดส่ง"}
+                  </h2>
+                  <p className="mt-2 break-words text-sm leading-6 text-gray-600">
+                    {defaultAddress.address || "ไม่มีรายละเอียดที่อยู่"}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* แผนที่ */}
+            <div className="px-5 pb-5">
+              <div className="mb-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <MapPin size={17} className="text-[#F07836]" />
+                  <span className="text-sm font-semibold text-[#2A1B12]">
+                    ตำแหน่งจัดส่ง
+                  </span>
+                </div>
+                {hasAddressCoords && (
+                  <a
+                    href={navigationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs font-medium text-[#E8491D] hover:underline"
+                  >
+                    เปิดแผนที่ <span aria-hidden="true">↗</span>
+                  </a>
+                )}
+              </div>
+
+              {/* แถบข้อมูลด้านล่าง */}
+              <div className="mt-3 flex items-center gap-3 rounded-2xl bg-[#FFF8F0] p-4">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-[#F07836]">
+                  <Home size={20} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs text-gray-500">ที่อยู่สำหรับจัดส่ง</p>
+                  <p className="mt-0.5 break-words text-sm font-semibold text-[#2A1B12]">
+                    {defaultAddress.label || "ที่อยู่ของฉัน"}
+                  </p>
+                </div>
+                <MapPin size={18} className="shrink-0 text-[#F07836]" />
+              </div>
+            </div>
           </div>
         )}
 
         {/* =====================================================
-        STORE
+        FOOD ITEMS
     ===================================================== */}
-
         <div
           className="
-        bg-white
-        rounded-2xl
-        shadow-sm
-        border
-        border-orange-100
-        p-5
-        mb-5
-      "
+            bg-white
+            rounded-2xl
+            shadow-sm
+            border
+            border-orange-100
+            p-5
+            mb-6
+          "
         >
           <div
             className="
-          flex
-          items-center
-          gap-3
-        "
+              flex
+              items-center
+              gap-3
+              mb-5
+            "
           >
             <div
               className="
-            w-11
-            h-11
-            rounded-xl
-            bg-orange-100
-            text-orange-500
-            flex
-            items-center
-            justify-center
-          "
+                w-11
+                h-11
+                rounded-xl
+                bg-orange-100
+                text-orange-500
+                flex
+                items-center
+                justify-center
+              "
             >
-              <Store size={21} />
+              <ShoppingBag size={22} />
             </div>
 
             <div>
-              <p className="text-xs text-gray-400">ร้านอาหาร</p>
-
-              <h2 className="font-bold text-lg">
-                {order.store?.storeName || "ไม่พบชื่อร้าน"}
+              <h2
+                className="
+                  font-bold
+                  text-lg
+                  text-[#2A1B12]
+                "
+              >
+                รายการอาหาร
               </h2>
+
+              <p className="text-sm text-gray-400">รายการที่สั่งซื้อ</p>
             </div>
           </div>
-        </div>
 
-        {/* =====================================================
-        FOOD ITEMS
-    ===================================================== */}
-
-        <div
-          className="
-        bg-white
-        rounded-2xl
-        shadow-sm
-        border
-        border-orange-100
-        p-5
-        mb-5
-      "
-        >
-          <div
-            className="
-          flex
-          items-center
-          gap-2
-          mb-5
-        "
-          >
-            <ShoppingBag size={20} className="text-orange-500" />
-
-            <h2 className="font-bold text-lg">รายการอาหาร</h2>
-          </div>
+          {/* ITEMS */}
 
           <div className="space-y-4">
-            {orderItems.map((item, index) => {
-              const menu = item.menu || {};
+            {orderItems.length > 0 ? (
+              orderItems.map((item, index) => {
+                const menu = item.menu || {};
 
-              const options = parseOptions(item.options);
+                const count = Number(item.count || 1);
 
-              const price = Number(item.price || 0);
+                const price = Number(item.price ?? menu.price ?? 0);
 
-              const count = Number(item.count || 1);
+                const itemTotal = price * count;
 
-              return (
-                <div
-                  key={item.id || index}
-                  className="
-                  flex
-                  gap-4
-                  pb-4
-                  border-b
-                  last:border-b-0
-                  last:pb-0
-                "
-                >
+                let options = [];
+
+                try {
+                  if (item.options) {
+                    options =
+                      typeof item.options === "string"
+                        ? JSON.parse(item.options)
+                        : item.options;
+                  }
+                } catch (error) {
+                  options = [];
+                }
+
+                return (
                   <div
+                    key={item.id || index}
                     className="
-                    w-20
-                    h-20
-                    rounded-xl
-                    overflow-hidden
-                    bg-gray-100
-                    shrink-0
-                  "
-                  >
-                    {menu.images?.[0]?.url ? (
-                      <img
-                        src={menu.images[0].url}
-                        alt={menu.menuItem}
-                        className="
-                        w-full
-                        h-full
-                        object-cover
-                      "
-                      />
-                    ) : (
-                      <div
-                        className="
-                        w-full
-                        h-full
                         flex
-                        items-center
-                        justify-center
-                        text-gray-300
+                        gap-3
+                        pb-4
+                        border-b
+                        border-gray-100
+                        last:border-0
+                        last:pb-0
                       "
-                      >
-                        <ImageIcon size={25} />
-                      </div>
-                    )}
-                  </div>
+                  >
+                    {/* IMAGE */}
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between gap-3">
-                      <h3 className="font-semibold">
-                        {menu.menuItem || "ไม่พบชื่อเมนู"}
-                      </h3>
-
-                      <p className="font-bold whitespace-nowrap">
-                        ฿{(price * count).toFixed(2)}
-                      </p>
+                    <div
+                      className="
+                          w-20
+                          h-20
+                          rounded-xl
+                          overflow-hidden
+                          bg-gray-100
+                          shrink-0
+                        "
+                    >
+                      {menu.images?.[0]?.url ? (
+                        <img
+                          src={menu.images[0].secure_url || menu.images[0].url}
+                          alt={menu.menuItem || "อาหาร"}
+                          className="
+                              w-full
+                              h-full
+                              object-cover
+                            "
+                        />
+                      ) : (
+                        <div
+                          className="
+                              w-full
+                              h-full
+                              flex
+                              items-center
+                              justify-center
+                              text-gray-300
+                            "
+                        >
+                          <ImageIcon size={25} />
+                        </div>
+                      )}
                     </div>
 
-                    <p className="text-sm text-gray-400 mt-1">จำนวน {count}</p>
+                    {/* INFO */}
 
-                    {options.length > 0 && (
-                      <div className="mt-2 space-y-1">
-                        {options.map((option, optionIndex) => {
-                          const optionName =
-                            typeof option === "object"
-                              ? option.optionLabel
-                              : option;
-
-                          const choiceName =
-                            typeof option === "object"
-                              ? option.choiceName
-                              : null;
-
-                          const extraPrice =
-                            typeof option === "object"
-                              ? Number(option.extraPrice || 0)
-                              : 0;
-
-                          return (
-                            <p
-                              key={optionIndex}
-                              className="
-                                text-xs
-                                text-gray-500
+                    <div
+                      className="
+                          flex-1
+                          min-w-0
+                        "
+                    >
+                      <div
+                        className="
+                            flex
+                            justify-between
+                            gap-3
+                          "
+                      >
+                        <div>
+                          <h3
+                            className="
+                                font-semibold
+                                text-[#2A1B12]
                               "
-                            >
-                              • {optionName}
-                              {choiceName && <>: {choiceName}</>}
-                              {extraPrice > 0 && (
-                                <span className="text-orange-500 ml-1">
-                                  (+฿
-                                  {extraPrice.toFixed(2)})
-                                </span>
-                              )}
-                            </p>
-                          );
-                        })}
+                          >
+                            {menu.menuItem || "ไม่พบชื่ออาหาร"}
+                          </h3>
+
+                          <p
+                            className="
+                                text-sm
+                                text-gray-400
+                                mt-1
+                              "
+                          >
+                            ฿{price.toFixed(2)} × {count}
+                          </p>
+                        </div>
+
+                        <p
+                          className="
+                              font-bold
+                              text-[#2A1B12]
+                              whitespace-nowrap
+                            "
+                        >
+                          ฿{itemTotal.toFixed(2)}
+                        </p>
                       </div>
-                    )}
+
+                      {/* OPTIONS */}
+
+                      {Array.isArray(options) && options.length > 0 && (
+                        <div
+                          className="
+                                mt-2
+                                space-y-1
+                              "
+                        >
+                          {options.map((option, optionIndex) => {
+                            const optionLabel =
+                              typeof option === "object"
+                                ? option.optionLabel
+                                : option;
+
+                            const choiceName =
+                              typeof option === "object"
+                                ? option.choiceName
+                                : null;
+
+                            const extraPrice =
+                              typeof option === "object"
+                                ? Number(option.extraPrice || 0)
+                                : 0;
+
+                            return (
+                              <p
+                                key={optionIndex}
+                                className="
+                                        text-xs
+                                        text-gray-500
+                                      "
+                              >
+                                • {optionLabel}
+                                {choiceName && <>: {choiceName}</>}
+                                {extraPrice > 0 && (
+                                  <span className="text-orange-500 ml-1">
+                                    (+฿
+                                    {extraPrice.toFixed(2)})
+                                  </span>
+                                )}
+                              </p>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            ) : (
+              <div
+                className="
+                  py-8
+                  text-center
+                  text-gray-400
+                "
+              >
+                ไม่พบรายการอาหาร
+              </div>
+            )}
           </div>
         </div>
-
         {/* =====================================================
         PAYMENT SLIP
     ===================================================== */}
-
         {slipUrl && (
           <div
             className="
@@ -2002,11 +2313,9 @@ CHAT DELIVERY
             />
           </div>
         )}
-
         {/* =====================================================
 DELIVERY PROOF
 ===================================================== */}
-
         {order.delivery?.images?.length > 0 && (
           <div
             className="
@@ -2116,11 +2425,9 @@ DELIVERY PROOF
             </div>
           </div>
         )}
-
         {/* =====================================================
         ORDER NOTE
     ===================================================== */}
-
         {order.note && (
           <div
             className="
@@ -2146,12 +2453,10 @@ DELIVERY PROOF
             <p className="text-gray-600 text-sm">{order.note}</p>
           </div>
         )}
-
         {/* =====================================================
         REVIEW
         แสดงเฉพาะ COMPLETED
     ===================================================== */}
-
         {canReview && (
           <div
             className="
@@ -2403,11 +2708,9 @@ DELIVERY PROOF
             )}
           </div>
         )}
-
         {/* =====================================================
 ORDER REPORT
 ===================================================== */}
-
         {reportLoading ? (
           <div className="bg-white rounded-2xl shadow-sm border border-orange-100 p-5 mb-5">
             <p className="text-sm text-gray-400 text-center">
@@ -2495,11 +2798,9 @@ ORDER REPORT
               )}
           </div>
         ) : null}
-
         {/* =====================================================
         ORDER SUMMARY
     ===================================================== */}
-
         <div
           className="
         bg-white

@@ -49,6 +49,21 @@ const ChooseLogin = () => {
           padding: 8px 16px 8px 12px; text-decoration: none; cursor: pointer;
           transition: transform .2s ease, opacity .2s ease;
         }
+          @media (max-width: 720px) {
+  .fd-login-back {
+    top: 30px;
+    left: 12px;
+    padding: 7px 12px 7px 10px;
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  .fd-login-back svg {
+    width: 13px;
+    height: 13px;
+  }
+}
+          
         .fd-login-back:hover { transform: translateX(-2px); opacity: .85; }
         .fd-login-back svg { width: 15px; height: 15px; }
 
@@ -60,6 +75,16 @@ const ChooseLogin = () => {
           border: 1px solid #FFD9A8; border-radius: 999px;
           padding: 7px 16px; font-size: 13px; font-weight: 600; color: var(--coral);
         }
+          @media (max-width: 720px) {
+  .fd-login {
+    padding: 80px 16px 32px;
+    align-items: flex-start;
+  }
+
+  .fd-login-wrap {
+    margin-top: 12px;
+  }
+}
 
         .fd-login h1 {
           font-family: 'Kanit', sans-serif; font-weight: 800;
@@ -149,7 +174,7 @@ const ChooseLogin = () => {
               <User size={34} strokeWidth={2.2} />
             </div>
             <h2>สมาชิก</h2>
-            <p>เข้าสู่ระบบเพื่อสั่งอาหารจากร้านค้ารอบมหาวิทยาลัย</p>
+            <p>เข้าสู่ระบบเพื่อสั่งอาหาร</p>
             <div className="fd-login-cta">
               เข้าสู่ระบบ <ArrowRight />
             </div>

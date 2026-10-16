@@ -62,18 +62,22 @@ export const enablePushNotification = async (token) => {
     // ขอ Permission
     // =====================================================
 
+
     let permission = Notification.permission;
 
-    if (permission !== "granted") {
+    if (permission === "denied") {
+      console.log("ผู้ใช้ต้องเปิดสิทธิ์จากการตั้งค่าเบราว์เซอร์");
+      return false;
+    }
+
+    if (permission === "default") {
       permission = await Notification.requestPermission();
     }
 
     if (permission !== "granted") {
-      console.log(
-        "ผู้ใช้ไม่อนุญาต Notification",
-      );
       return false;
     }
+
 
     // =====================================================
     // Register Service Worker

@@ -175,10 +175,10 @@ const UserCartAll = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#FFF8F0] flex items-center justify-center px-4">
-        {" "}
+        
         <p className="text-gray-500 font-['Noto_Sans_Thai']">
-          กำลังโหลดตะกร้า...{" "}
-        </p>{" "}
+          กำลังโหลดตะกร้า...
+        </p>
       </div>
     );
   }

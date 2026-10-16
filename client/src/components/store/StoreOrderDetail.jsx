@@ -19,6 +19,7 @@ import {
   Image as ImageIcon,
   Phone,
   MessageCircle,
+  Store,
 } from "lucide-react";
 
 import Swal from "sweetalert2";
@@ -770,11 +771,16 @@ const StoreOrderDetail = () => {
               </p>
 
               <p className="mt-1 text-sm leading-relaxed">
-                ออเดอร์นี้ยังไม่เสร็จสิ้น กรุณาตรวจสอบสถานะและดำเนินการต่อ
+                {order.status === "PENDING"
+                  ? "กรุณารีบยืนยันออเดอร์ เพื่อให้ลูกค้าสามารถชำระเงินต่อได้"
+                  : order.status === "WAITING_PAYMENT" &&
+                      (!order.payment || order.payment.status === "PENDING")
+                    ? "ลูกค้ายังไม่ได้ชำระเงิน กรุณาติดต่อสอบถามลูกค้าเกี่ยวกับการชำระเงิน"
+                    : "ออเดอร์นี้ยังไม่เสร็จสิ้น กรุณาตรวจสอบคำสั่งซื้อและดำเนินการต่อ"}
               </p>
 
               <p className="mt-1 text-xs text-orange-700">
-                สร้างออเดอร์เมื่อ{" "}
+                สร้างออเดอร์เมื่อ
                 {new Date(order.createdAt).toLocaleString("th-TH", {
                   dateStyle: "medium",
                   timeStyle: "short",
@@ -936,17 +942,30 @@ CHAT DELIVERY
               )}
             </div>
 
-            {/* DELIVERY TYPE */}
-
+            {/* STORE */}
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center">
-                <DeliveryIcon size={19} />
+              <div className="w-11 h-11 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
+                <Store size={19} />
               </div>
 
-              <div>
-                <p className="text-xs text-gray-400">รูปแบบการรับอาหาร</p>
-
-                <p className="font-semibold">{deliveryMeta.label}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-gray-400">ร้านอาหาร</p>
+                <p className="font-semibold text-red-600">
+                  ต้องส่งภายใน{" "}
+                  {order.orderRound
+                    ? addMinutesToTime(order.orderRound.endTime, 20)
+                    : new Date(
+                        new Date(order.createdAt).getTime() + 60 * 60 * 1000,
+                      ).toLocaleTimeString("th-TH", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        timeZone: "Asia/Bangkok",
+                      })}
+                  {" น."}
+                </p>
               </div>
             </div>
 
@@ -1386,7 +1405,7 @@ CHAT DELIVERY
           {order.status === "PENDING" && (
             <button
               type="button"
-              disabled={cancelLoading}
+              disabled={cancelLoading || orderLoading}
               onClick={handleCancelOrder}
               className="
       w-full
@@ -1484,7 +1503,8 @@ CHAT DELIVERY
               disabled={
                 action.cls === "disabled" ||
                 action.cls === "waiting" ||
-                orderLoading
+                orderLoading ||
+                cancelLoading
               }
               onClick={handleChangeStatus}
               className={`

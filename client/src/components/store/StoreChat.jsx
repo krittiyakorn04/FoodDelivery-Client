@@ -437,7 +437,7 @@ const StoreChat = () => {
                 {/* Messages */}
                 {/* ================================================= */}
                 <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-[#FFF8F0]/40 px-3 py-4 sm:px-5 sm:py-5">
-                  {" "}
+                  
                   {loadingMessages ? (
                     <div className="flex h-full items-center justify-center">
                       <Loader2 className="h-7 w-7 animate-spin text-orange-500" />

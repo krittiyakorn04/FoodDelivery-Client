@@ -5,7 +5,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 
-
 exports.register = async (req, res) => {
   try {
     const {
@@ -53,13 +52,9 @@ exports.register = async (req, res) => {
       });
     }
 
-
-    const cleanPhone =
-      typeof phone === "string" ? phone.trim() : "";
-
-    if (!/^0[689]\d{8}$/.test(cleanPhone)) {
+    if (typeof phone !== "string" || !/^0\d{9}$/.test(phone)) {
       return res.status(400).json({
-        message: "กรุณากรอกเบอร์โทรศัพท์มือถือให้ถูกต้อง 10 หลัก",
+        message: "กรุณากรอกเบอร์โทรศัพท์ 10 หลัก โดยขึ้นต้นด้วย 0",
       });
     }
 

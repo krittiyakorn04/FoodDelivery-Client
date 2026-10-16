@@ -190,7 +190,7 @@ const FormEditUserProfile = () => {
         <div className="flex items-center gap-3 mb-5 sm:mb-7">
           <button
             type="button"
-            onClick={() => navigate("/user/userProfile")}
+            onClick={() => navigate("/user/UserSetting")}
             className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white border border-orange-100 shadow-sm flex items-center justify-center text-[#6F5140] hover:bg-orange-50 hover:text-orange-500 transition flex-shrink-0"
           >
             <ArrowLeft size={20} />
@@ -342,113 +342,7 @@ const FormEditUserProfile = () => {
             </button>
           </div>
         </form>
-        {/* CHANGE PASSWORD */}
-        <form
-          onSubmit={handleChangePassword}
-          className="mt-5 bg-white rounded-3xl border border-orange-100 shadow-sm p-5 sm:p-7 md:p-8"
-        >
-          <div className="mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-orange-50 flex items-center justify-center text-[#FF6B35]">
-                <KeyRound size={22} />
-              </div>
 
-              <div>
-                <h2 className="text-lg sm:text-xl font-bold text-[#2A1B12]">
-                  เปลี่ยนรหัสผ่าน
-                </h2>
-                <p className="text-sm text-[#9A8170] mt-1">
-                  ตั้งรหัสผ่านใหม่เพื่อความปลอดภัยของบัญชี
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {[
-            {
-              name: "oldPassword",
-              label: "รหัสผ่านปัจจุบัน",
-              placeholder: "กรอกรหัสผ่านปัจจุบัน",
-            },
-            {
-              name: "newPassword",
-              label: "รหัสผ่านใหม่",
-              placeholder: "กรอกรหัสผ่านใหม่",
-            },
-            {
-              name: "confirmPassword",
-              label: "ยืนยันรหัสผ่านใหม่",
-              placeholder: "กรอกรหัสผ่านใหม่อีกครั้ง",
-            },
-          ].map((item) => (
-            <div key={item.name} className="mb-5">
-              <label className="block text-sm font-semibold text-[#5F4638] mb-2">
-                {item.label}
-              </label>
-
-              <div className="relative">
-                <LockKeyhole
-                  size={18}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-[#B99B87] pointer-events-none"
-                />
-
-                <input
-                  type={showPassword[item.name] ? "text" : "password"}
-                  name={item.name}
-                  value={passwordForm[item.name]}
-                  onChange={handlePasswordChange}
-                  placeholder={item.placeholder}
-                  autoComplete="new-password"
-                  maxLength={64}
-                  required
-                  className="w-full rounded-2xl border border-orange-100 bg-[#FFF8F0] pl-11 pr-12 py-3.5 text-sm sm:text-base text-[#2A1B12] outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100 focus:bg-white"
-                />
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setShowPassword((prev) => ({
-                      ...prev,
-                      [item.name]: !prev[item.name],
-                    }))
-                  }
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9A8170] hover:text-[#FF6B35]"
-                  aria-label={
-                    showPassword[item.name] ? "ซ่อนรหัสผ่าน" : "แสดงรหัสผ่าน"
-                  }
-                >
-                  {showPassword[item.name] ? (
-                    <EyeOff size={19} />
-                  ) : (
-                    <Eye size={19} />
-                  )}
-                </button>
-              </div>
-            </div>
-          ))}
-
-          <div className="rounded-2xl bg-[#FFF8F0] border border-orange-100 p-4 mb-6">
-            <p className="text-sm font-semibold text-[#5F4638] mb-2">
-              เงื่อนไขรหัสผ่าน
-            </p>
-            <ul className="text-sm text-[#9A8170] space-y-1 list-disc pl-5">
-              <li>ความยาวอย่างน้อย 8 ตัวอักษร</li>
-              <li>มีตัวพิมพ์เล็กและตัวพิมพ์ใหญ่ภาษาอังกฤษ</li>
-              <li>มีตัวเลขอย่างน้อย 1 ตัว</li>
-              <li>มีอักขระพิเศษอย่างน้อย 1 ตัว</li>
-              <li>ไม่มีช่องว่าง</li>
-            </ul>
-          </div>
-
-          <button
-            type="submit"
-            disabled={passwordLoading}
-            className="w-full rounded-2xl bg-[#FF6B35] py-3.5 text-sm sm:text-base font-semibold text-white shadow-md shadow-orange-200 hover:bg-[#E8491D] disabled:opacity-60 disabled:cursor-not-allowed transition flex items-center justify-center gap-2"
-          >
-            <LockKeyhole size={18} />
-            {passwordLoading ? "กำลังเปลี่ยนรหัสผ่าน..." : "เปลี่ยนรหัสผ่าน"}
-          </button>
-        </form>
       </div>
     </div>
   );

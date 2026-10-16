@@ -1,5 +1,6 @@
 import usefoodDelivery from "../../globalState/fooddeliveryStore";
 import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import {
   Clock,
@@ -15,6 +16,88 @@ const FirstPagesStore = () => {
   const navigate = useNavigate();
 
   const token = usefoodDelivery((state) => state.token);
+
+  // =========================
+  // ตรวจสอบสิทธิ์แจ้งเตือน
+  // =========================
+
+  useEffect(() => {
+    if (!token) return;
+
+    // แสดงครั้งเดียวต่อแท็บ ไม่แสดงซ้ำเมื่อรีเฟรช
+    const promptKey = `robmorfood_store_notification_prompted_${token}`;
+
+    if (sessionStorage.getItem(promptKey)) return;
+    sessionStorage.setItem(promptKey, "true");
+
+    const checkNotification = async () => {
+      // เบราว์เซอร์ไม่รองรับ Notification
+      if (!("Notification" in window)) {
+        await Swal.fire({
+          icon: "info",
+          title: "การแจ้งเตือนยังไม่รองรับ",
+          html: `
+          <div style="
+            width: 100%;
+            box-sizing: border-box;
+            text-align: left;
+            line-height: 1.8;
+            overflow-wrap: anywhere;
+            font-size: 14px;
+          ">
+            <p style="margin: 0;">
+              หากต้องการรับการแจ้งเตือนออเดอร์
+              กรุณาใช้เบราว์เซอร์และอุปกรณ์ที่รองรับการแจ้งเตือน
+            </p>
+          </div>
+        `,
+          confirmButtonText: "เข้าใจแล้ว",
+          confirmButtonColor: "#f97316",
+          width: "min(90vw, 420px)",
+          padding: "1.25em",
+        });
+        return;
+      }
+
+      // อนุญาตแล้ว ไม่ต้องแสดงข้อความ
+      if (Notification.permission === "granted") return;
+
+      // ยังไม่อนุญาตหรือเคยปฏิเสธ
+      await Swal.fire({
+        icon: "warning",
+        title: "กรุณาเปิดการแจ้งเตือน",
+        html: `
+        <div style="
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
+          text-align: left;
+          line-height: 1.8;
+          overflow-wrap: anywhere;
+          font-size: 14px;
+        ">
+          <p style="margin: 0 0 12px;">
+            เพื่อไม่ให้พลาดการแจ้งเตือนออเดอร์จากลูกค้า
+            กรุณาไปที่การตั้งค่าเบราว์เซอร์
+            และอนุญาตให้เว็บไซต์ RobMorFood ส่งการแจ้งเตือน
+          </p>
+
+          <p style="margin: 0; color: #c2410c;">
+            เมื่ออนุญาตแล้ว คุณจะได้รับการแจ้งเตือนจากร้านได้สะดวกยิ่งขึ้น
+          </p>
+        </div>
+      `,
+        confirmButtonText: "เข้าใจแล้ว",
+        confirmButtonColor: "#f97316",
+        width: "min(90vw, 420px)",
+        padding: "1.25em",
+      });
+    };
+
+    checkNotification().catch((error) => {
+      console.error("ตรวจสอบสิทธิ์แจ้งเตือนร้านไม่สำเร็จ:", error);
+    });
+  }, [token]);
 
   // =========================
   // CATEGORY / MENU / STORE
@@ -234,7 +317,7 @@ const FirstPagesStore = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-6 mb-20">
+    <div className="max-w-6xl mx-auto px-1 py-6 mb-20">
       {/* =====================================================
 STORE HEADER
 ===================================================== */}
@@ -257,30 +340,7 @@ STORE HEADER
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={() => navigate("/store/storeEdit")}
-            className="
-          absolute
-          top-4
-          right-4
-          flex
-          items-center
-          gap-2
-          bg-white/90
-          backdrop-blur
-          px-4
-          py-2
-          rounded-full
-          shadow-lg
-          hover:bg-orange-500
-          hover:text-white
-          transition
-        "
-          >
-            <PencilSparkles size={18} />
-            จัดการเมนูอาหาร
-          </button>
+          
         </div>
 
         {/* =====================================================

@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { House, ClipboardList, Bike, User, Store } from "lucide-react";
+import {  ClipboardList, Bike, User, Store, Utensils } from "lucide-react";
 
 const StoreNavigation = () => {
   const navClass = ({ isActive }) =>
@@ -13,6 +13,11 @@ const StoreNavigation = () => {
         <NavLink to="Store" end className={navClass}>
           <Store className="h-6 w-6" />
           <span className="text-xs font-medium">ร้านอาหาร</span>
+        </NavLink>
+
+        <NavLink to="storeEdit" end className={navClass}>
+          <Utensils  className="h-6 w-6" />
+          <span className="text-xs font-medium">เมนูอาหาร</span>
         </NavLink>
 
         <NavLink to="Order" className={navClass}>

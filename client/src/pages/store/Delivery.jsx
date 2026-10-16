@@ -27,6 +27,254 @@ import usefoodDelivery from "../../globalState/fooddeliveryStore";
 import { getStoreDelivery, changeStatusDelivery } from "../../api/StoreOrder";
 import { assignDeliveryStaff } from "../../api/createStore";
 
+const DeliverySkeleton = () => {
+  return (
+    <div className="dv-root dv-skeleton-page">
+      <style>{`
+        .dv-skeleton-page {
+          --cream: #FFF8F0;
+          --peach: #FFE4C4;
+          --orange: #FF6B35;
+          --coral: #E8491D;
+          --charcoal: #2A1B12;
+          --cocoa: #8A6A54;
+
+          min-height: 100vh;
+          background: linear-gradient(
+            180deg,
+            #FFFCF7 0%,
+            #FFF3E4 25%,
+            #FFF8F0 100%
+          );
+          font-family: 'Noto Sans Thai', sans-serif;
+          color: var(--charcoal);
+          padding: 24px 16px 60px;
+        }
+
+        .dv-skeleton-page *,
+        .dv-skeleton-page *::before,
+        .dv-skeleton-page *::after {
+          box-sizing: border-box;
+        }
+
+        .dv-skeleton-page .dv-wrap {
+          max-width: 760px;
+          margin: 0 auto;
+        }
+
+        .dv-skeleton-page .dv-header {
+          margin-bottom: 22px;
+        }
+
+        .dv-skeleton {
+          background: #F3E7D9;
+          border-radius: 10px;
+          animation: dv-skeleton-pulse 1.4s ease-in-out infinite;
+        }
+
+        @keyframes dv-skeleton-pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: .45; }
+        }
+
+        .dv-skeleton-page .dv-tabs {
+          display: flex;
+          gap: 10px;
+          overflow: hidden;
+          padding: 2px 2px 8px;
+          margin-bottom: 22px;
+        }
+
+        .dv-skeleton-page .dv-list {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .dv-skeleton-page .dv-card {
+          background: rgba(255,255,255,.96);
+          border: 1px solid rgba(251,227,198,.8);
+          border-radius: 24px;
+          padding: 18px;
+          box-shadow: 0 12px 30px -22px rgba(42,27,18,.3);
+        }
+
+        .dv-skeleton-page .dv-divider {
+          border: none;
+          border-top: 1px dashed #F0DDC2;
+          margin: 17px 0;
+        }
+
+        .dv-skeleton-page .dv-card-top {
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 14px;
+        }
+
+        .dv-skeleton-page .dv-customer-row {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          min-width: 0;
+          flex: 1;
+        }
+
+        .dv-skeleton-page .dv-address-box {
+          display: flex;
+          align-items: flex-start;
+          gap: 11px;
+          padding: 14px;
+          border-radius: 17px;
+          background: #FFF8F0;
+          border: 1px solid #FBE9D4;
+        }
+
+        .dv-skeleton-page .dv-menu-item {
+          display: flex;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 9px 0;
+        }
+
+        .dv-skeleton-page .dv-menu-item + .dv-menu-item {
+          border-top: 1px dashed #F5EAD9;
+        }
+
+        .dv-skeleton-page .dv-skeleton-divider {
+          border: none;
+          border-top: 1px dashed #F0DDC2;
+          margin: 17px 0;
+        }
+
+        .dv-skeleton-page .dv-skeleton-line {
+          height: 12px;
+          margin-bottom: 9px;
+        }
+
+        .dv-skeleton-page .dv-skeleton-rider {
+          height: 48px;
+          border-radius: 12px;
+          margin-bottom: 15px;
+        }
+
+        .dv-skeleton-page .dv-skeleton-button {
+          height: 49px;
+          border-radius: 15px;
+        }
+
+        @media (max-width: 480px) {
+          .dv-skeleton-page {
+            padding: 18px 12px 50px;
+          }
+
+          .dv-skeleton-page .dv-card {
+            padding: 16px;
+          }
+
+          .dv-skeleton-page .dv-card-top {
+            gap: 10px;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .dv-skeleton-page .dv-skeleton {
+            animation: none;
+          }
+        }
+      `}</style>
+
+      <div className="dv-wrap">
+        {/* HEADER: ตำแหน่งเดียวกับหัวข้อจริง */}
+        <div className="dv-header">
+          <div className="dv-skeleton h-9 w-44 mb-3" />
+          <div className="dv-skeleton h-4 w-72 max-w-full" />
+        </div>
+
+        {/* TABS: ความสูงและระยะห่างตาม .dv-tabs จริง */}
+        <div className="dv-tabs">
+          {[112, 118, 118, 80].map((width, index) => (
+            <div
+              key={index}
+              className="dv-skeleton h-[39px] shrink-0 rounded-full"
+              style={{ width }}
+            />
+          ))}
+        </div>
+
+        {/* ORDER LIST */}
+        <div className="dv-list">
+          {[1, 2, 3].map((card) => (
+            <div key={card} className="dv-card">
+              {/* สถานะเลือกไรเดอร์: พื้นที่เดียวกับ .dv-card-select */}
+              <div className="dv-skeleton dv-skeleton-rider" />
+
+              {/* CUSTOMER + STATUS */}
+              <div className="dv-card-top">
+                <div className="dv-customer-row">
+                  <div className="dv-skeleton h-[46px] w-[46px] shrink-0 rounded-[15px]" />
+
+                  <div className="min-w-0 flex-1">
+                    <div className="dv-skeleton h-5 w-32 max-w-full mb-2" />
+                    <div className="dv-skeleton h-3 w-48 max-w-full" />
+                  </div>
+                </div>
+
+                <div className="dv-skeleton h-[30px] w-[104px] shrink-0 rounded-full" />
+              </div>
+
+              <hr className="dv-skeleton-divider" />
+
+              {/* ADDRESS TITLE */}
+              <div className="flex items-center gap-[7px] mb-[10px]">
+                <div className="dv-skeleton h-[17px] w-[17px] rounded-md" />
+                <div className="dv-skeleton h-4 w-24" />
+              </div>
+
+              {/* ADDRESS BOX: ขนาดตรงกับ .dv-address-box */}
+              <div className="dv-address-box">
+                <div className="dv-skeleton h-[38px] w-[38px] shrink-0 rounded-xl" />
+
+                <div className="min-w-0 flex-1 pt-1">
+                  <div className="dv-skeleton h-3 w-20 mb-2" />
+                  <div className="dv-skeleton dv-skeleton-line w-full" />
+                  <div className="dv-skeleton dv-skeleton-line w-4/5 mb-0" />
+                </div>
+              </div>
+
+              <hr className="dv-skeleton-divider" />
+
+              {/* MENU TITLE */}
+              <div className="flex items-center gap-[7px] mb-2">
+                <div className="dv-skeleton h-[17px] w-[17px] rounded-md" />
+                <div className="dv-skeleton h-4 w-24" />
+              </div>
+
+              {/* MENU ITEMS: ตรงกับ .dv-menu-item */}
+              {[1, 2].map((item) => (
+                <div key={item} className="dv-menu-item">
+                  <div className="min-w-0 flex-1">
+                    <div className="dv-skeleton h-4 w-36 max-w-full mb-2" />
+                    <div className="dv-skeleton h-3 w-24" />
+                  </div>
+
+                  <div className="dv-skeleton h-4 w-16 shrink-0" />
+                </div>
+              ))}
+
+              {/* ACTION BUTTONS: ปุ่มจัดส่ง + ดูรายละเอียด */}
+              <div className="flex gap-2 mt-4">
+                <div className="dv-skeleton dv-skeleton-button min-w-0 flex-1" />
+                <div className="dv-skeleton dv-skeleton-button min-w-0 flex-1" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const DeliveryPage = () => {
   const token = usefoodDelivery((state) => state.token);
 
@@ -247,7 +495,7 @@ const DeliveryPage = () => {
       label: "จัดส่งสำเร็จ",
       value: "COMPLETED",
     },
-        {
+    {
       label: "ทั้งหมด",
       value: "ALL",
     },
@@ -773,15 +1021,7 @@ const DeliveryPage = () => {
   // ==========================================
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-[#FFF8F0] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-10 h-10 border-4 border-orange-200 border-t-orange-500 rounded-full animate-spin mx-auto mb-4" />
-
-          <p className="text-gray-500"></p>
-        </div>
-      </div>
-    );
+    return <DeliverySkeleton />;
   }
 
   // ==========================================
@@ -1427,6 +1667,38 @@ const DeliveryPage = () => {
 
           <p className="dv-subtitle">ติดตามรายการอาหารที่ต้องจัดส่งให้ลูกค้า</p>
         </div>
+
+        {/* เชิญชวนเพิ่มไรเดอร์ เฉพาะร้านที่ยังไม่มีไรเดอร์ */}
+        {riderCount === 0 && (
+          <div className="mb-5 rounded-2xl border border-orange-200 bg-gradient-to-r from-orange-50 to-white p-5 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-orange-100 text-orange-600">
+                <Truck size={24} />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <h3 className="font-bold text-gray-900">
+                  เพิ่มไรเดอร์ให้ร้านของคุณ
+                </h3>
+
+                <p className="mt-1 text-sm leading-relaxed text-gray-600">
+                  ร้านของคุณยังไม่มีไรเดอร์
+                  เพิ่มพนักงานส่งอาหารเพื่อช่วยจัดส่งออเดอร์
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => navigate("/store/StoreStaff")}
+                  className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-orange-600 active:scale-95"
+                >
+                  <Users size={17} />
+                  เพิ่มไรเดอร์เลย
+                  <ChevronRight size={17} />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ==========================================
             BULK ASSIGN

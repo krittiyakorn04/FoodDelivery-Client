@@ -7,17 +7,13 @@ import {
   uploadFilesMenu,
   getOptionFormats,
 } from "../../api/StoreMenu";
+
 import UploadFile from "./UploadFile";
 import { Link } from "react-router-dom";
-import {
-  ChevronDown,
-  ChevronUp,
-  Trash2,
-  Plus,
-  FileText,
-} from "lucide-react";
+import { ChevronDown, ChevronUp, Trash2, Plus, FileText } from "lucide-react";
 import Swal from "sweetalert2";
 import Resizer from "react-image-file-resizer";
+import { useNavigate } from "react-router-dom";
 
 const FormMenu = () => {
   const token = usefoodDelivery((state) => state.token);
@@ -25,7 +21,7 @@ const FormMenu = () => {
   const categories = usefoodDelivery((state) => state.catagories);
   const getMenus = usefoodDelivery((state) => state.getMenus);
   const menus = usefoodDelivery((state) => state.menus);
-
+  const navigate = useNavigate();
   // =========================
   // FORM
   // =========================
@@ -78,8 +74,7 @@ const FormMenu = () => {
         icon: "error",
         title: "โหลดรูปแบบตัวเลือกไม่สำเร็จ",
         text:
-          error?.response?.data?.message ||
-          "ไม่สามารถโหลดรูปแบบตัวเลือกได้",
+          error?.response?.data?.message || "ไม่สามารถโหลดรูปแบบตัวเลือกได้",
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#FF6B35",
       });
@@ -237,9 +232,7 @@ const FormMenu = () => {
       await Swal.fire({
         icon: "error",
         title: "เกิดข้อผิดพลาด",
-        text:
-          error?.response?.data?.message ||
-          "ไม่สามารถเปลี่ยนสถานะเมนูได้",
+        text: error?.response?.data?.message || "ไม่สามารถเปลี่ยนสถานะเมนูได้",
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#FF6B35",
       });
@@ -300,9 +293,7 @@ const FormMenu = () => {
 
     setform((prev) => ({
       ...prev,
-      options: prev.options.filter(
-        (_, index) => index !== optionIndex,
-      ),
+      options: prev.options.filter((_, index) => index !== optionIndex),
     }));
 
     setOpenOptions((prev) => {
@@ -570,8 +561,7 @@ const FormMenu = () => {
         icon: "error",
         title: "ลบเมนูไม่สำเร็จ",
         text:
-          error?.response?.data?.message ||
-          "ไม่สามารถลบเมนูได้ กรุณาลองใหม่",
+          error?.response?.data?.message || "ไม่สามารถลบเมนูได้ กรุณาลองใหม่",
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#FF6B35",
       });
@@ -587,12 +577,8 @@ const FormMenu = () => {
       <form onSubmit={handleSubmit}>
         <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
           <div className="bg-white rounded-3xl shadow-sm p-6">
-            <h1 className="text-3xl font-bold text-gray-800">
-              เพิ่มเมนูอาหาร
-            </h1>
-            <p className="text-gray-500 mt-1">
-              กรอกข้อมูลเมนูของร้าน
-            </p>
+            <h1 className="text-3xl font-bold text-gray-800">เพิ่มเมนูอาหาร</h1>
+            <p className="text-gray-500 mt-1">กรอกข้อมูลเมนูของร้าน</p>
           </div>
 
           {/* ข้อมูลเมนู */}
@@ -601,9 +587,7 @@ const FormMenu = () => {
 
             <div className="grid md:grid-cols-2 gap-5">
               <div>
-                <label className="block mb-2 font-medium">
-                  ชื่อเมนู
-                </label>
+                <label className="block mb-2 font-medium">ชื่อเมนู</label>
                 <input
                   className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
                   value={form.menuItem}
@@ -614,9 +598,19 @@ const FormMenu = () => {
               </div>
 
               <div>
-                <label className="block mb-2 font-medium">
-                  หมวดหมู่
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="font-medium">หมวดหมู่</label>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate("/store/MenuCategory")}
+                    className="flex items-center gap-1 text-sm font-medium text-orange-600 hover:text-orange-700"
+                  >
+                    <Plus className="w-4 h-4" />
+                    เพิ่มหมวดหมู่
+                  </button>
+                </div>
+
                 <select
                   className="w-full border rounded-xl p-3 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400"
                   name="categoryId"
@@ -633,9 +627,7 @@ const FormMenu = () => {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block mb-2 font-medium">
-                  รายละเอียด
-                </label>
+                <label className="block mb-2 font-medium">รายละเอียด</label>
                 <textarea
                   rows={4}
                   className="w-full border rounded-xl p-3 resize-none focus:outline-none focus:ring-2 focus:ring-orange-400"
@@ -647,9 +639,7 @@ const FormMenu = () => {
               </div>
 
               <div>
-                <label className="block mb-2 font-medium">
-                  ราคา (บาท)
-                </label>
+                <label className="block mb-2 font-medium">ราคา (บาท)</label>
                 <input
                   type="number"
                   min="0"
@@ -835,10 +825,7 @@ const FormMenu = () => {
 
                           <div className="space-y-3">
                             {option.choices.map((choice, i) => (
-                              <div
-                                key={i}
-                                className="flex items-center gap-3"
-                              >
+                              <div key={i} className="flex items-center gap-3">
                                 <div className="flex-1">
                                   <input
                                     className="w-full border rounded-xl p-3"
@@ -934,9 +921,7 @@ const FormMenu = () => {
           <div className="bg-white rounded-2xl p-10 text-center border">
             <div className="text-6xl mb-3">🍜</div>
             <h3 className="text-xl font-semibold">ยังไม่มีเมนู</h3>
-            <p className="text-gray-500 mt-2">
-              เพิ่มเมนูแรกของร้านได้เลย
-            </p>
+            <p className="text-gray-500 mt-2">เพิ่มเมนูแรกของร้านได้เลย</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
