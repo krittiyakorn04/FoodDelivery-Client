@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   createCatagory,
   removeCatagory,
@@ -6,9 +7,21 @@ import {
 } from "../../api/StoreMenuCategory";
 import usefoodDelivery from "../../globalState/fooddeliveryStore";
 import Swal from "sweetalert2";
-import { Plus, Pencil, Trash2, Check, X, Search } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Check,
+  X,
+  Search,
+  ArrowLeft,
+  Tags,
+  UtensilsCrossed,
+} from "lucide-react";
 
 const FormMenuCategory = () => {
+  const navigate = useNavigate();
+
   const token = usefoodDelivery((state) => state.token);
   const categories = usefoodDelivery((state) => state.catagories);
   const getCategory = usefoodDelivery((state) => state.getCategory);
@@ -170,29 +183,57 @@ const FormMenuCategory = () => {
   };
 
   const filteredCategories = categories.filter((item) =>
-    (item.nameCate || "")
-      .toLowerCase()
-      .includes(search.trim().toLowerCase()),
+    (item.nameCate || "").toLowerCase().includes(search.trim().toLowerCase()),
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 pb-24 sm:p-6">
+    <div className="min-h-screen bg-[#FFFCF8] px-4 py-5 pb-24 sm:px-6 sm:py-7">
       <div className="mx-auto max-w-5xl">
-        {/* หัวข้อ */}
+        {/* ปุ่มกลับและหัวข้อ */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">
-            จัดการหมวดหมู่เมนู
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            เพิ่ม แก้ไข และลบหมวดหมู่เมนูอาหาร
-          </p>
+          <button
+            type="button"
+            onClick={() => {
+              navigate(-1);
+            }}
+            className="inline-flex mb-6 cursor-pointer items-center gap-2 rounded-full border border-orange-100 bg-white px-4 py-2 text-sm font-medium text-[#8A6A54] shadow-sm transition hover:border-orange-300 hover:text-orange-500"
+          >
+            <ArrowLeft size={16} />
+            กลับหน้าก่อนหน้า
+          </button>
+
+          <div className="rounded-2xl border border-[#F1E5D9] bg-white px-5 py-5 shadow-sm sm:px-6">
+            <div className="flex items-center gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#FFF0E7] text-[#FF6B35]">
+                <Tags size={25} />
+              </div>
+
+              <div className="min-w-0">
+                <h1 className="text-xl font-bold tracking-tight text-[#2A1B12] sm:text-2xl">
+                  จัดการหมวดหมู่เมนู
+                </h1>
+                <p className="mt-1 text-sm text-[#8B8179]">
+                  เพิ่ม แก้ไข และลบหมวดหมู่เมนูอาหารของร้าน
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* เพิ่มหมวดหมู่ */}
-        <section className="mb-6 rounded-xl border border-gray-200 bg-white p-5">
-          <h2 className="mb-4 font-semibold text-gray-800">
-            เพิ่มหมวดหมู่
-          </h2>
+        <section className="mb-6 rounded-2xl border border-[#F1E5D9] bg-white p-5 shadow-sm sm:p-6">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF0E7] text-[#FF6B35]">
+              <Plus size={21} />
+            </div>
+
+            <div>
+              <h2 className="font-bold text-[#2A1B12]">เพิ่มหมวดหมู่ใหม่</h2>
+              <p className="mt-0.5 text-xs text-[#8B8179]">
+                ตั้งชื่อเพื่อจัดกลุ่มเมนูอาหารให้ค้นหาได้ง่าย
+              </p>
+            </div>
+          </div>
 
           <form
             onSubmit={handleSubmit}
@@ -202,14 +243,14 @@ const FormMenuCategory = () => {
               value={nameCate}
               onChange={(e) => setname(e.target.value)}
               maxLength={100}
-              className="min-w-0 flex-1 rounded-lg border border-gray-300 px-4 py-2.5 text-sm outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500"
-              placeholder="กรอกชื่อหมวดหมู่ เช่น เครื่องดื่ม"
+              className="min-w-0 flex-1 rounded-xl border border-[#E9DED4] bg-[#FFFCF8] px-4 py-3 text-sm text-[#2A1B12] outline-none transition placeholder:text-[#B0A49A] focus:border-[#FF6B35] focus:bg-white focus:ring-2 focus:ring-orange-100"
+              placeholder="เช่น อาหารตามสั่ง, เครื่องดื่ม"
             />
 
             <button
               type="submit"
               disabled={loading}
-              className="flex items-center justify-center gap-2 rounded-lg bg-[#FF6B35] px-5 py-2.5 text-sm font-medium text-white hover:bg-[#E8491D] disabled:opacity-60"
+              className="flex items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-[#E8491D] disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Plus size={18} />
               เพิ่มหมวดหมู่
@@ -218,43 +259,59 @@ const FormMenuCategory = () => {
         </section>
 
         {/* รายการหมวดหมู่ */}
-        <section className="rounded-xl border border-gray-200 bg-white p-5">
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 className="font-semibold text-gray-800">
-                รายการหมวดหมู่
-              </h2>
-              <p className="mt-1 text-sm text-gray-500">
-                ทั้งหมด {categories.length} หมวดหมู่
-              </p>
+        <section className="overflow-hidden rounded-2xl border border-[#F1E5D9] bg-white shadow-sm">
+          <div className="flex flex-col gap-4 border-b border-[#F1E5D9] bg-[#FFF9F3] p-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#FF6B35] shadow-sm">
+                <UtensilsCrossed size={20} />
+              </div>
+
+              <div>
+                <h2 className="font-bold text-[#2A1B12]">รายการหมวดหมู่</h2>
+                <p className="mt-1 text-xs text-[#8B8179]">
+                  ทั้งหมด {categories.length} หมวดหมู่
+                </p>
+              </div>
             </div>
 
             <div className="relative w-full sm:w-64">
               <Search
                 size={17}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#A69A90]"
               />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm outline-none focus:border-orange-500"
+                className="w-full rounded-xl border border-[#E9DED4] bg-white py-2.5 pl-9 pr-3 text-sm text-[#2A1B12] outline-none transition placeholder:text-[#B0A49A] focus:border-[#FF6B35] focus:ring-2 focus:ring-orange-100"
                 placeholder="ค้นหาหมวดหมู่..."
               />
             </div>
           </div>
 
           {filteredCategories.length === 0 ? (
-            <div className="border-t border-gray-100 py-10 text-center text-sm text-gray-500">
-              {categories.length === 0
-                ? "ยังไม่มีหมวดหมู่เมนูอาหาร"
-                : "ไม่พบหมวดหมู่ที่ค้นหา"}
+            <div className="px-4 py-14 text-center">
+              <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#FFF3EA] text-[#FF6B35]">
+                <Tags size={26} />
+              </div>
+
+              <p className="font-medium text-[#6B5A4E]">
+                {categories.length === 0
+                  ? "ยังไม่มีหมวดหมู่เมนูอาหาร"
+                  : "ไม่พบหมวดหมู่ที่ค้นหา"}
+              </p>
+
+              <p className="mt-1 text-sm text-[#A69A90]">
+                {categories.length === 0
+                  ? "เพิ่มหมวดหมู่แรกของร้านได้จากด้านบน"
+                  : "ลองตรวจสอบคำค้นหาอีกครั้ง"}
+              </p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-[#F5EEE8]">
               {filteredCategories.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-4 px-5 py-4 transition hover:bg-[#FFFCF8] sm:flex-row sm:items-center sm:justify-between sm:px-6"
                 >
                   {editId === item.id ? (
                     <input
@@ -271,27 +328,33 @@ const FormMenuCategory = () => {
                           handleCancelEdit();
                         }
                       }}
-                      className="min-w-0 flex-1 rounded-lg border border-orange-400 px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-orange-400"
+                      className="min-w-0 flex-1 rounded-xl border border-[#FF6B35] bg-white px-3 py-2.5 text-sm text-[#2A1B12] outline-none ring-2 ring-orange-100"
                     />
                   ) : (
-                    <div className="min-w-0">
-                      <p className="break-words font-medium text-gray-800">
-                        {item.nameCate}
-                      </p>
-                      <p className="mt-1 text-xs text-gray-400">
-                        หมวดหมู่เมนูอาหาร
-                      </p>
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#FFF3EA] text-[#FF6B35]">
+                        <Tags size={18} />
+                      </div>
+
+                      <div className="min-w-0">
+                        <p className="break-words font-semibold text-[#2A1B12]">
+                          {item.nameCate}
+                        </p>
+                        <p className="mt-1 text-xs text-[#A69A90]">
+                          หมวดหมู่เมนูอาหาร
+                        </p>
+                      </div>
                     </div>
                   )}
 
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2 sm:shrink-0">
                     {editId === item.id ? (
                       <>
                         <button
                           type="button"
                           onClick={() => handleUpdate(item.id)}
                           disabled={loading}
-                          className="flex items-center justify-center gap-1.5 rounded-lg bg-green-600 px-3 py-2 text-sm text-white hover:bg-green-700 disabled:opacity-60"
+                          className="flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3.5 py-2.5 text-sm font-medium text-white transition hover:bg-emerald-700 disabled:opacity-60"
                         >
                           <Check size={16} />
                           บันทึก
@@ -300,7 +363,7 @@ const FormMenuCategory = () => {
                         <button
                           type="button"
                           onClick={handleCancelEdit}
-                          className="flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:bg-gray-50"
+                          className="flex items-center justify-center gap-1.5 rounded-xl border border-[#E9DED4] bg-white px-3.5 py-2.5 text-sm text-[#6B5A4E] transition hover:bg-gray-50"
                         >
                           <X size={16} />
                           ยกเลิก
@@ -311,7 +374,7 @@ const FormMenuCategory = () => {
                         <button
                           type="button"
                           onClick={() => handleEdit(item)}
-                          className="flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:border-orange-300 hover:bg-orange-50 hover:text-orange-600"
+                          className="flex items-center justify-center gap-1.5 rounded-xl border border-[#E9DED4] bg-white px-3.5 py-2.5 text-sm font-medium text-[#6B5A4E] transition hover:border-orange-300 hover:bg-orange-50 hover:text-[#E8491D]"
                         >
                           <Pencil size={15} />
                           แก้ไข
@@ -320,7 +383,7 @@ const FormMenuCategory = () => {
                         <button
                           type="button"
                           onClick={() => handleRemove(item.id)}
-                          className="flex items-center justify-center gap-1.5 rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-600 hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                          className="flex items-center justify-center gap-1.5 rounded-xl border border-[#E9DED4] bg-white px-3.5 py-2.5 text-sm font-medium text-[#6B5A4E] transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
                         >
                           <Trash2 size={15} />
                           ลบ

@@ -10,7 +10,14 @@ import {
 
 import UploadFile from "./UploadFile";
 import { Link } from "react-router-dom";
-import { ChevronDown, ChevronUp, Trash2, Plus, FileText } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Trash2,
+  Plus,
+  FileText,
+  ArrowLeft,
+} from "lucide-react";
 import Swal from "sweetalert2";
 import Resizer from "react-image-file-resizer";
 import { useNavigate } from "react-router-dom";
@@ -573,23 +580,45 @@ const FormMenu = () => {
   // =========================
 
   return (
-    <div className="min-h-screen bg-gray-50 mb-20">
+    <div className="min-h-screen bg-[#FFFCF8] pb-20">
       <form onSubmit={handleSubmit}>
-        <div className="max-w-5xl mx-auto p-4 md:p-6 space-y-6">
-          <div className="bg-white rounded-3xl shadow-sm p-6">
-            <h1 className="text-3xl font-bold text-gray-800">เพิ่มเมนูอาหาร</h1>
-            <p className="text-gray-500 mt-1">กรอกข้อมูลเมนูของร้าน</p>
+        <div className="mx-auto max-w-5xl space-y-6 px-4 py-5 sm:px-6 sm:py-7">
+          {/* ปุ่มกลับและหัวข้อ */}
+          <div>
+            <button
+              type="button"
+              onClick={() => {
+                navigate(-1);
+              }}
+              className="inline-flex mb-6 cursor-pointer items-center gap-2 rounded-full border border-orange-100 bg-white px-4 py-2 text-sm font-medium text-[#8A6A54] shadow-sm transition hover:border-orange-300 hover:text-orange-500"
+            >
+              <ArrowLeft size={16} />
+              กลับหน้าก่อนหน้า
+            </button>
+
+            <div className="rounded-2xl border border-[#F1E5D9] bg-white px-5 py-5 shadow-sm sm:px-6">
+              <h1 className="text-2xl font-bold tracking-tight text-[#2A1B12] sm:text-3xl">
+                เพิ่มเมนูอาหาร
+              </h1>
+              <p className="mt-2 text-sm text-[#8B8179]">
+                เพิ่มรายละเอียด ราคา รูปภาพ และตัวเลือกของเมนูในร้าน
+              </p>
+            </div>
           </div>
 
           {/* ข้อมูลเมนู */}
-          <div className="bg-white rounded-3xl shadow-sm p-6">
-            <h2 className="text-xl font-bold mb-5">ข้อมูลเมนู</h2>
+          <section className="rounded-2xl border border-[#F1E5D9] bg-white p-5 shadow-sm sm:p-6">
+            <h2 className="mb-5 text-lg font-bold text-[#2A1B12]">
+              ข้อมูลเมนู
+            </h2>
 
-            <div className="grid md:grid-cols-2 gap-5">
+            <div className="grid gap-5 md:grid-cols-2">
               <div>
-                <label className="block mb-2 font-medium">ชื่อเมนู</label>
+                <label className="mb-2 block text-sm font-medium text-[#514237]">
+                  ชื่อเมนู
+                </label>
                 <input
-                  className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="w-full rounded-xl border border-[#E9DED4] bg-[#FFFCF8] p-3 text-sm outline-none transition focus:border-[#FF6B35] focus:bg-white focus:ring-2 focus:ring-orange-100"
                   value={form.menuItem}
                   onChange={handleOnChacnge}
                   name="menuItem"
@@ -598,21 +627,22 @@ const FormMenu = () => {
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="font-medium">หมวดหมู่</label>
-
+                <div className="mb-2 flex items-center justify-between gap-2">
+                  <label className="text-sm font-medium text-[#514237]">
+                    หมวดหมู่
+                  </label>
                   <button
                     type="button"
                     onClick={() => navigate("/store/MenuCategory")}
-                    className="flex items-center gap-1 text-sm font-medium text-orange-600 hover:text-orange-700"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-[#FF6B35] transition hover:text-[#E8491D]"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus size={16} />
                     เพิ่มหมวดหมู่
                   </button>
                 </div>
 
                 <select
-                  className="w-full border rounded-xl p-3 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="w-full rounded-xl border border-[#E9DED4] bg-[#FFFCF8] p-3 text-sm outline-none transition focus:border-[#FF6B35] focus:bg-white focus:ring-2 focus:ring-orange-100"
                   name="categoryId"
                   value={form.categoryId}
                   onChange={handleOnChacnge}
@@ -627,24 +657,28 @@ const FormMenu = () => {
               </div>
 
               <div className="md:col-span-2">
-                <label className="block mb-2 font-medium">รายละเอียด</label>
+                <label className="mb-2 block text-sm font-medium text-[#514237]">
+                  รายละเอียดเมนู
+                </label>
                 <textarea
                   rows={4}
-                  className="w-full border rounded-xl p-3 resize-none focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="w-full resize-none rounded-xl border border-[#E9DED4] bg-[#FFFCF8] p-3 text-sm outline-none transition focus:border-[#FF6B35] focus:bg-white focus:ring-2 focus:ring-orange-100"
                   value={form.description}
                   onChange={handleOnChacnge}
                   name="description"
-                  placeholder="รายละเอียดเมนู"
+                  placeholder="อธิบายรายละเอียดหรือส่วนประกอบของเมนู"
                 />
               </div>
 
               <div>
-                <label className="block mb-2 font-medium">ราคา (บาท)</label>
+                <label className="mb-2 block text-sm font-medium text-[#514237]">
+                  ราคา (บาท)
+                </label>
                 <input
                   type="number"
                   min="0"
                   step="0.01"
-                  className="w-full border rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-orange-400"
+                  className="w-full rounded-xl border border-[#E9DED4] bg-[#FFFCF8] p-3 text-sm outline-none transition focus:border-[#FF6B35] focus:bg-white focus:ring-2 focus:ring-orange-100"
                   value={form.price}
                   onChange={handleOnChacnge}
                   name="price"
@@ -652,29 +686,33 @@ const FormMenu = () => {
                 />
               </div>
             </div>
-          </div>
+          </section>
 
           {/* รูปภาพ */}
-          <div className="bg-white rounded-3xl shadow-sm p-6">
-            <h2 className="text-xl font-bold mb-5">รูปเมนู</h2>
+          <section className="rounded-2xl border border-[#F1E5D9] bg-white p-5 shadow-sm sm:p-6">
+            <h2 className="mb-5 text-lg font-bold text-[#2A1B12]">
+              รูปภาพเมนู
+            </h2>
             <UploadFile form={form} setform={setform} />
-          </div>
+          </section>
 
           {/* ตัวเลือกเมนู */}
-          <div className="bg-white rounded-3xl shadow-sm p-6">
+          <section className="rounded-2xl border border-[#F1E5D9] bg-white p-5 shadow-sm sm:p-6">
             <div className="mb-5">
-              <h2 className="text-xl font-bold">ตัวเลือกเมนู</h2>
-              <p className="text-sm text-gray-500 mt-1">
-                เช่น ความเผ็ด ขนาด หรือท็อปปิ้ง
+              <h2 className="text-lg font-bold text-[#2A1B12]">ตัวเลือกเมนู</h2>
+              <p className="mt-1 text-sm text-[#8B8179]">
+                เช่น ระดับความเผ็ด ขนาดอาหาร หรือท็อปปิ้งเพิ่มเติม
               </p>
             </div>
 
             {form.options.length === 0 && (
-              <div className="border border-dashed rounded-2xl p-8 text-center text-gray-400 bg-gray-50">
-                <div className="text-4xl mb-2">⚙️</div>
-                <p className="font-medium">ยังไม่มีตัวเลือก</p>
-                <p className="text-sm mt-1">
-                  กด "เพิ่มหัวข้อ" ด้านล่างเพื่อเพิ่มตัวเลือก
+              <div className="rounded-2xl border border-dashed border-[#E9DED4] bg-[#FFFCF8] px-4 py-9 text-center">
+                <div className="mb-3 text-4xl">⚙️</div>
+                <p className="font-semibold text-[#514237]">
+                  ยังไม่มีตัวเลือกเมนู
+                </p>
+                <p className="mt-1 text-sm text-[#A69A90]">
+                  กดเพิ่มหัวข้อเพื่อกำหนดตัวเลือกให้ลูกค้า
                 </p>
               </div>
             )}
@@ -686,22 +724,26 @@ const FormMenu = () => {
                 return (
                   <div
                     key={index}
-                    className="border border-gray-200 rounded-2xl overflow-hidden bg-white"
+                    className="overflow-hidden rounded-2xl border border-[#F1E5D9] bg-white"
                   >
-                    <div className="flex items-center justify-between gap-3 px-4 py-3 bg-gray-50 border-b">
+                    <div className="flex items-center justify-between gap-3 border-b border-[#F1E5D9] bg-[#FFF9F3] px-4 py-3">
                       <button
                         type="button"
                         onClick={() => toggleOption(index)}
-                        className="flex items-center gap-3 flex-1 text-left"
+                        className="flex min-w-0 flex-1 items-center gap-3 text-left"
                       >
-                        {isOpen ? (
-                          <ChevronUp size={20} />
-                        ) : (
-                          <ChevronDown size={20} />
-                        )}
-                        <div>
-                          <p className="font-bold">หัวข้อที่ {index + 1}</p>
-                          <p className="text-sm text-gray-500">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white text-[#FF6B35] shadow-sm">
+                          {isOpen ? (
+                            <ChevronUp size={19} />
+                          ) : (
+                            <ChevronDown size={19} />
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-bold text-[#2A1B12]">
+                            หัวข้อที่ {index + 1}
+                          </p>
+                          <p className="truncate text-sm text-[#8B8179]">
                             {option.label || "ยังไม่ได้ตั้งชื่อหัวข้อ"}
                           </p>
                         </div>
@@ -710,25 +752,25 @@ const FormMenu = () => {
                       <button
                         type="button"
                         onClick={() => deleteOption(index)}
-                        className="flex items-center gap-1 text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition"
+                        className="flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-red-500 transition hover:bg-red-50"
                       >
-                        <Trash2 size={17} />
+                        <Trash2 size={16} />
                         <span className="hidden sm:inline">ลบหัวข้อ</span>
                       </button>
                     </div>
 
                     {isOpen && (
-                      <div className="p-5">
-                        {/* FORMAT SELECTOR */}
-                        <div className="mb-6 rounded-2xl border border-orange-200 bg-orange-50 p-4">
-                          <div className="flex items-center gap-2 mb-3">
-                            <FileText size={18} className="text-orange-500" />
+                      <div className="space-y-6 p-4 sm:p-5">
+                        {/* เลือก Format */}
+                        <div className="rounded-2xl border border-orange-100 bg-[#FFF9F3] p-4">
+                          <div className="mb-3 flex items-center gap-2">
+                            <FileText size={19} className="text-[#FF6B35]" />
                             <div>
-                              <p className="font-bold text-gray-800">
-                                เลือกรูปแบบตัวเลือก
+                              <p className="font-semibold text-[#2A1B12]">
+                                รูปแบบตัวเลือก
                               </p>
-                              <p className="text-xs text-gray-500">
-                                ข้อมูลที่เลือกจะเข้ามาในกล่องนี้ทันที
+                              <p className="text-xs text-[#8B8179]">
+                                เลือกรูปแบบที่บันทึกไว้เพื่อนำมาใช้
                               </p>
                             </div>
                           </div>
@@ -738,7 +780,7 @@ const FormMenu = () => {
                             onChange={(e) =>
                               applyFormatToOption(index, e.target.value)
                             }
-                            className="w-full border border-orange-200 rounded-xl p-3 bg-white focus:outline-none focus:ring-2 focus:ring-orange-400"
+                            className="w-full rounded-xl border border-[#E9DED4] bg-white p-3 text-sm outline-none focus:border-[#FF6B35] focus:ring-2 focus:ring-orange-100"
                           >
                             <option value="">
                               {loadingFormats
@@ -753,17 +795,14 @@ const FormMenu = () => {
                           </select>
 
                           {option.sourceFormatName && (
-                            <div className="mt-2 flex items-center justify-between">
-                              <p className="text-xs text-orange-600">
-                                ใช้ข้อมูลจากรูปแบบ:{" "}
-                                <span className="font-semibold">
-                                  {option.sourceFormatName}
-                                </span>
+                            <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+                              <p className="text-xs text-[#B45309]">
+                                ใช้รูปแบบ: {option.sourceFormatName}
                               </p>
                               <button
                                 type="button"
                                 onClick={() => clearSelectedFormat(index)}
-                                className="text-xs text-gray-500 hover:text-red-500"
+                                className="text-xs text-[#8B8179] hover:text-red-500"
                               >
                                 ยกเลิกการเลือก Format
                               </button>
@@ -771,14 +810,14 @@ const FormMenu = () => {
                           )}
                         </div>
 
-                        {/* OPTION SETTINGS */}
-                        <div className="grid md:grid-cols-3 gap-4 mb-5">
+                        {/* ตั้งค่าหัวข้อ */}
+                        <div className="grid gap-4 md:grid-cols-3">
                           <div>
-                            <label className="block mb-2 text-sm font-medium">
+                            <label className="mb-2 block text-sm font-medium text-[#514237]">
                               ชื่อหัวข้อ
                             </label>
                             <input
-                              className="w-full border rounded-xl p-3"
+                              className="w-full rounded-xl border border-[#E9DED4] p-3 text-sm outline-none focus:border-[#FF6B35] focus:ring-2 focus:ring-orange-100"
                               value={option.label}
                               name="label"
                               onChange={(e) => handleOptionChange(e, index)}
@@ -786,21 +825,21 @@ const FormMenu = () => {
                             />
                           </div>
 
-                          <div className="flex items-center md:justify-center">
-                            <label className="flex items-center gap-2 cursor-pointer">
+                          <div className="flex items-center">
+                            <label className="flex cursor-pointer items-center gap-2 text-sm text-[#514237]">
                               <input
                                 type="checkbox"
                                 name="required"
                                 checked={option.required}
                                 onChange={(e) => handleOptionChange(e, index)}
-                                className="w-4 h-4 accent-orange-500"
+                                className="h-4 w-4 accent-[#FF6B35]"
                               />
-                              <span className="text-sm">บังคับเลือก</span>
+                              บังคับเลือก
                             </label>
                           </div>
 
                           <div>
-                            <label className="block mb-2 text-sm font-medium">
+                            <label className="mb-2 block text-sm font-medium text-[#514237]">
                               เลือกได้สูงสุด
                             </label>
                             <input
@@ -809,62 +848,63 @@ const FormMenu = () => {
                               name="maxRequire"
                               value={option.maxRequire}
                               onChange={(e) => handleOptionChange(e, index)}
-                              className="w-full border rounded-xl p-3"
+                              className="w-full rounded-xl border border-[#E9DED4] p-3 text-sm outline-none focus:border-[#FF6B35] focus:ring-2 focus:ring-orange-100"
                             />
                           </div>
                         </div>
 
-                        {/* CHOICES */}
+                        {/* รายการตัวเลือก */}
                         <div>
-                          <div className="flex items-center justify-between mb-3">
-                            <h3 className="font-bold">ตัวเลือก</h3>
-                            <span className="text-sm text-gray-400">
+                          <div className="mb-3 flex items-center justify-between">
+                            <h3 className="font-bold text-[#2A1B12]">
+                              รายการตัวเลือก
+                            </h3>
+                            <span className="text-xs text-[#8B8179]">
                               {option.choices.length} รายการ
                             </span>
                           </div>
 
                           <div className="space-y-3">
                             {option.choices.map((choice, i) => (
-                              <div key={i} className="flex items-center gap-3">
-                                <div className="flex-1">
+                              <div
+                                key={i}
+                                className="flex flex-wrap items-center gap-2 sm:flex-nowrap sm:gap-3"
+                              >
+                                <input
+                                  className="min-w-0 flex-1 rounded-xl border border-[#E9DED4] p-3 text-sm outline-none focus:border-[#FF6B35] focus:ring-2 focus:ring-orange-100"
+                                  value={choice.name}
+                                  name="name"
+                                  onChange={(e) =>
+                                    handleChoiceChange(e, index, i)
+                                  }
+                                  placeholder="ชื่อตัวเลือก เช่น ไม่เผ็ด"
+                                />
+
+                                <div className="relative w-28 shrink-0 sm:w-36">
                                   <input
-                                    className="w-full border rounded-xl p-3"
-                                    value={choice.name}
-                                    name="name"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    className="w-full rounded-xl border border-[#E9DED4] p-3 pr-10 text-sm outline-none focus:border-[#FF6B35] focus:ring-2 focus:ring-orange-100"
+                                    value={choice.extraPrice}
+                                    name="extraPrice"
                                     onChange={(e) =>
                                       handleChoiceChange(e, index, i)
                                     }
-                                    placeholder="ชื่อตัวเลือก เช่น ไม่เผ็ด"
+                                    placeholder="0"
                                   />
-                                </div>
-
-                                <div className="w-32 sm:w-40">
-                                  <div className="relative">
-                                    <input
-                                      type="number"
-                                      min="0"
-                                      step="0.01"
-                                      className="w-full border rounded-xl p-3 pr-12"
-                                      value={choice.extraPrice}
-                                      name="extraPrice"
-                                      onChange={(e) =>
-                                        handleChoiceChange(e, index, i)
-                                      }
-                                      placeholder="0"
-                                    />
-                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">
-                                      บาท
-                                    </span>
-                                  </div>
+                                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[#A69A90]">
+                                    บาท
+                                  </span>
                                 </div>
 
                                 <button
                                   type="button"
                                   onClick={() => deleteChoice(index, i)}
-                                  className="w-10 h-10 flex items-center justify-center rounded-xl text-red-500 hover:bg-red-50 transition flex-shrink-0"
+                                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-red-500 transition hover:bg-red-50"
                                   title="ลบตัวเลือก"
                                 >
-                                  <Trash2 size={18} />
+                                  <Trash2 size={17} />
                                 </button>
                               </div>
                             ))}
@@ -873,7 +913,7 @@ const FormMenu = () => {
                           <button
                             type="button"
                             onClick={() => addChoice(index)}
-                            className="mt-4 flex items-center gap-2 text-orange-500 hover:text-orange-600 font-semibold text-sm"
+                            className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-[#FF6B35] hover:text-[#E8491D]"
                           >
                             <Plus size={17} />
                             เพิ่มตัวเลือก
@@ -889,18 +929,18 @@ const FormMenu = () => {
             <button
               type="button"
               onClick={addOption}
-              className="mt-5 w-full flex items-center justify-center gap-2 border-2 border-dashed border-orange-200 bg-orange-50 hover:bg-orange-100 hover:border-orange-300 text-orange-500 px-4 py-3 rounded-xl font-semibold transition"
+              className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-orange-200 bg-[#FFF9F3] px-4 py-3 font-semibold text-[#FF6B35] transition hover:border-[#FF6B35] hover:bg-orange-50"
             >
               <Plus size={18} />
               เพิ่มหัวข้อ
             </button>
-          </div>
+          </section>
 
-          {/* SAVE */}
+          {/* ปุ่มบันทึก */}
           <div className="sticky bottom-4 z-10">
             <button
               type="submit"
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 rounded-2xl shadow-lg transition"
+              className="w-full rounded-2xl bg-[#FF6B35] py-4 font-bold text-white shadow-lg transition hover:bg-[#E8491D]"
             >
               บันทึกเมนู
             </button>
@@ -908,77 +948,104 @@ const FormMenu = () => {
         </div>
       </form>
 
-      {/* MENU LIST */}
-      <div className="max-w-5xl mx-auto px-4 md:px-6 pb-10">
-        <hr className="my-8" />
-
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-2xl font-bold">เมนูทั้งหมด</h2>
-          <span className="text-gray-500">{menus.length} เมนู</span>
+      {/* รายการเมนูทั้งหมด */}
+      <div className="mx-auto max-w-5xl px-4 pb-10 sm:px-6">
+        <div className="mb-5 flex items-center justify-between border-t border-[#F1E5D9] pt-7">
+          <div>
+            <h2 className="text-xl font-bold text-[#2A1B12] sm:text-2xl">
+              เมนูทั้งหมด
+            </h2>
+            <p className="mt-1 text-sm text-[#8B8179]">
+              รายการเมนูอาหารของร้าน
+            </p>
+          </div>
+          <span className="rounded-full bg-[#FFF0E7] px-3 py-1.5 text-sm font-semibold text-[#E8491D]">
+            {menus.length} เมนู
+          </span>
         </div>
 
         {menus.length === 0 ? (
-          <div className="bg-white rounded-2xl p-10 text-center border">
-            <div className="text-6xl mb-3">🍜</div>
-            <h3 className="text-xl font-semibold">ยังไม่มีเมนู</h3>
-            <p className="text-gray-500 mt-2">เพิ่มเมนูแรกของร้านได้เลย</p>
+          <div className="rounded-2xl border border-[#F1E5D9] bg-white px-4 py-12 text-center">
+            <div className="mb-3 text-5xl">🍜</div>
+            <h3 className="font-semibold text-[#2A1B12]">ยังไม่มีเมนูอาหาร</h3>
+            <p className="mt-1 text-sm text-[#8B8179]">
+              เพิ่มเมนูแรกของร้านได้จากแบบฟอร์มด้านบน
+            </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
             {menus.map((item) => (
               <div
                 key={item.id}
-                className="bg-white rounded-2xl shadow-sm border hover:shadow-lg transition overflow-hidden"
+                className="overflow-hidden rounded-2xl border border-[#F1E5D9] bg-white shadow-sm transition hover:shadow-md"
               >
                 {item.images?.length > 0 ? (
                   <img
                     src={item.images[0].url}
                     alt={item.menuItem}
-                    className="w-full h-52 object-cover"
+                    className="h-52 w-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-52 bg-gray-100 flex items-center justify-center text-gray-400">
-                    ไม่มีรูป
+                  <div className="flex h-52 w-full items-center justify-center bg-[#FFF5EC] text-sm text-[#A69A90]">
+                    ไม่มีรูปภาพเมนู
                   </div>
                 )}
 
                 <div className="p-5">
-                  <div className="flex justify-between items-start gap-3">
+                  <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h3 className="font-bold text-lg truncate">
+                      <h3 className="truncate font-bold text-[#2A1B12]">
                         {item.menuItem}
                       </h3>
-                      <p className="text-gray-500 mt-1 line-clamp-2">
-                        {item.description}
+                      <p className="mt-1 line-clamp-2 text-sm text-[#8B8179]">
+                        {item.description || "ไม่มีรายละเอียดเมนู"}
                       </p>
                     </div>
 
-                    <span className="bg-orange-100 text-orange-600 px-3 py-1 rounded-full text-sm whitespace-nowrap">
+                    <span className="shrink-0 rounded-full bg-[#FFF0E7] px-3 py-1 text-xs font-medium text-[#E8491D]">
                       ขาย {item.sold}
                     </span>
                   </div>
 
-                  <div className="mt-5 flex items-center justify-between gap-3">
-                    <span className="text-2xl font-bold text-orange-500">
-                      ฿{item.price}
-                    </span>
+                  <div className="mt-4 space-y-4 border-t border-[#F1E5D9] pt-4">
+                    {/* ราคาและสถานะ */}
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-xs text-[#9A8D82]">ราคาเมนู</p>
+                        <p className="text-2xl font-bold text-[#E8491D]">
+                          ฿{item.price}
+                        </p>
+                      </div>
 
+                      <span
+                        className={`rounded-full px-3 py-1.5 text-xs font-semibold ${
+                          item.isAvailable
+                            ? "bg-[#E8F5E9] text-[#388E3C]"
+                            : "bg-[#F5F0EC] text-[#8B8179]"
+                        }`}
+                      >
+                        {item.isAvailable ? "● เปิดขายอยู่" : "● ปิดขายอยู่"}
+                      </span>
+                    </div>
+
+                    {/* ปุ่มจัดการ */}
                     <div className="flex gap-2">
                       <button
                         type="button"
                         onClick={() => handleToggleAvailability(item)}
-                        className={`px-4 py-2 rounded-xl font-semibold ${
+                        className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-3 text-sm font-semibold transition active:scale-[0.98] ${
                           item.isAvailable
-                            ? "bg-green-500 hover:bg-green-600 text-white"
-                            : "bg-gray-400 hover:bg-gray-500 text-white"
+                            ? "border border-[#F4B7A0] bg-[#FFF4EE] text-[#D94F24] hover:bg-[#FFE7DC]"
+                            : "bg-[#FF6B35] text-white shadow-sm shadow-orange-200 hover:bg-[#E8491D]"
                         }`}
                       >
-                        {item.isAvailable ? "เปิดขาย" : "ปิดขาย"}
+                        <span className="h-2 w-2 rounded-full bg-current" />
+                        {item.isAvailable ? "ปิดการขาย" : "เปิดขายเมนู"}
                       </button>
 
                       <Link
                         to={`/store/EditMenu/${item.id}`}
-                        className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl"
+                        className="flex items-center justify-center rounded-xl border border-[#F1E5D9] bg-white px-4 py-3 text-sm font-medium text-[#65564B] transition hover:bg-[#FFFCF8]"
                       >
                         แก้ไข
                       </Link>
@@ -986,7 +1053,7 @@ const FormMenu = () => {
                       <button
                         type="button"
                         onClick={() => handleDelete(item.id)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl"
+                        className="flex items-center justify-center rounded-xl border border-red-100 bg-white px-4 py-3 text-sm font-medium text-red-500 transition hover:bg-red-50"
                       >
                         ลบ
                       </button>

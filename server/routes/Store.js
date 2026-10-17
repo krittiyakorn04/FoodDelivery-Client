@@ -7,6 +7,7 @@ const {
   getStoreStaff,
   changeStoreStaffStatus,
   updateStoreStaff,
+  deleteStoreStaff,
 } = require("../controllers/Store/StoreAuth");
 const {
   updateStore,
@@ -186,6 +187,7 @@ router.post("/store/staff", authStore, storeCheck, createStoreStaff);
 router.get("/store/staff", authStore, storeCheck, getStoreStaff);
 router.patch("/store/staff/:id/status", authStore, storeCheck, changeStoreStaffStatus);
 router.patch("/store/staff/:id", authStore, storeCheck, updateStoreStaff);
+router.patch("/store/staff/:id", authStore, storeCheck, deleteStoreStaff);
 router.patch("/store/delivery/:id/assign", authStore, storeCheck, assignDeliveryStaff);
 router.get("/store/staff/notifications", authStaff, getDeliveryNotifications);
 

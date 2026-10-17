@@ -663,6 +663,59 @@ exports.changeStoreStaffStatus = async (req, res) => {
   }
 };
 
+exports.deleteStoreStaff = async (req, res) => {
+  try {
+    const storeId = req.store.id;
+    const staffId = Number(req.params.id);
+
+    if (!Number.isInteger(staffId) || staffId <= 0) {
+      return res.status(400).json({
+        message: "รหัสคนส่งไม่ถูกต้อง",
+      });
+    }
+
+    const staff = await prisma.storeStaff.findFirst({
+      where: {
+        id: staffId,
+        storeId,
+      },
+    });
+
+    if (!staff) {
+      return res.status(404).json({
+        message: "ไม่พบบัญชีคนส่ง",
+      });
+    }
+
+    await prisma.storeStaff.delete({
+      where: {
+        id: staff.id,
+      },
+    });
+
+    return res.status(200).json({
+      message: "ลบบัญชีคนส่งสำเร็จ",
+    });
+  } catch (error) {
+    console.error("deleteStoreStaff Error =", error);
+
+    // Foreign key constraint: บัญชีอาจมีประวัติหรือข้อมูลที่เชื่อมโยงอยู่
+    if (
+      error.code === "P2003" ||
+      error.code === "P2014"
+    ) {
+      return res.status(409).json({
+        message:
+          "ไม่สามารถลบบัญชีนี้ได้ เนื่องจากมีประวัติการจัดส่งหรือข้อมูลที่เกี่ยวข้อง แนะนำให้ปิดใช้งานบัญชีแทน",
+      });
+    }
+
+    return res.status(500).json({
+      message: "เกิดข้อผิดพลาดในการลบบัญชีคนส่ง",
+    });
+  }
+};
+
 exports.updateStoreStaff = async (req, res) => {
   try {
     const storeId = req.store.id;

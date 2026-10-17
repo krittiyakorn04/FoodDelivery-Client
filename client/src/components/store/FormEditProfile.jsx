@@ -9,10 +9,9 @@ import {
   X,
   Navigation,
   LocateFixed,
-  LockKeyhole,
-  Eye,
-  EyeOff,
   Megaphone,
+  Truck,
+  ArrowLeft,
 } from "lucide-react";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
@@ -897,8 +896,19 @@ const FormEditProfile = () => {
   // =========================================================
 
   return (
-    <div className="min-h-screen bg-[#FFF8F0] pb-16">
+    <div className="min-h-screen bg-[#FFF8F0] pb-28">
       <form onSubmit={handleSubmit}>
+        {/* Back Button */}
+        <div className="mx-auto max-w-6xl px-4 pt-5 sm:px-6 lg:px-8">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="mb-1 inline-flex items-center gap-2 rounded-full border border-orange-100 bg-white px-4 py-2 text-sm font-medium text-[#8A6A54] shadow-sm transition hover:border-orange-300 hover:text-orange-500"
+          >
+            <ArrowLeft size={16} />
+            กลับหน้าก่อนหน้า
+          </button>
+        </div>
         {/* =====================================================
             HEADER / STORE PREVIEW
         ====================================================== */}
@@ -1044,36 +1054,6 @@ const FormEditProfile = () => {
 
           <div className="space-y-5">
             {/* =====================================================
-                NOTICE
-            ====================================================== */}
-            <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-orange-100 sm:p-6">
-              <div className="mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-yellow-50 text-yellow-600">
-                    <Megaphone size={20} />
-                  </span>
-
-                  <div>
-                    <h2 className="font-bold text-gray-800">ประกาศร้าน</h2>
-
-                    <p className="text-xs text-gray-400">
-                      ข้อความนี้จะแสดงให้ลูกค้าเห็นในหน้าร้าน
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <textarea
-                name="Notice"
-                value={editForm.Notice}
-                onChange={handleOnChange}
-                placeholder="เช่น วันนี้เปิดปกติ | ช่วง 11:30 - 13:00 อาจใช้เวลาจัดส่งเพิ่ม"
-                rows={4}
-                className="w-full resize-none rounded-2xl border border-yellow-100 bg-yellow-50/70 px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-orange-300 focus:bg-white focus:ring-2 focus:ring-orange-100"
-              />
-            </section>
-
-            {/* =====================================================
                 ACCOUNT
             ====================================================== */}
             <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-orange-100 sm:p-6">
@@ -1124,7 +1104,70 @@ const FormEditProfile = () => {
               </div>
             </section>
 
+            {/* Delivery Fee */}
+            <div className="mb-5 rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+              <div className="mb-4 flex items-center gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#FFF3E4]">
+                  <Truck size={22} className="text-[#FF6B35]" />
+                </div>
 
+                <div>
+                  <h3 className="text-sm font-semibold text-[#2A1B12]">
+                    ค่าจัดส่ง
+                  </h3>
+                  <p className="mt-1 text-xs text-[#A58D7B]">
+                    กำหนดค่าจัดส่งที่ลูกค้าต้องชำระ
+                  </p>
+                </div>
+              </div>
+
+              <div className="relative">
+                <input
+                  type="number"
+                  name="deliveryFee"
+                  min="0"
+                  step="1"
+                  value={editForm.deliveryFee}
+                  onChange={handleOnChange}
+                  placeholder="0"
+                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pr-16 text-sm text-gray-700 outline-none transition focus:border-orange-300 focus:bg-white focus:ring-2 focus:ring-orange-100"
+                />
+
+                <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">
+                  บาท
+                </span>
+              </div>
+            </div>
+
+            {/* =====================================================
+                NOTICE
+            ====================================================== */}
+            <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-orange-100 sm:p-6">
+              <div className="mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-yellow-50 text-yellow-600">
+                    <Megaphone size={20} />
+                  </span>
+
+                  <div>
+                    <h2 className="font-bold text-gray-800">ประกาศร้าน</h2>
+
+                    <p className="text-xs text-gray-400">
+                      ข้อความนี้จะแสดงให้ลูกค้าเห็นในหน้าร้าน
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <textarea
+                name="Notice"
+                value={editForm.Notice}
+                onChange={handleOnChange}
+                placeholder="เช่น วันนี้เปิดปกติ | ช่วง 11:30 - 13:00 อาจใช้เวลาจัดส่งเพิ่ม"
+                rows={4}
+                className="w-full resize-none rounded-2xl border border-yellow-100 bg-yellow-50/70 px-4 py-3 text-sm text-gray-700 outline-none transition placeholder:text-gray-400 focus:border-orange-300 focus:bg-white focus:ring-2 focus:ring-orange-100"
+              />
+            </section>
 
             {/* =====================================================
                 STORE INFORMATION

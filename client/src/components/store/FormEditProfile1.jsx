@@ -8,6 +8,7 @@ import {
   AlertCircle,
   ShieldCheck,
   Bike,
+  LockKeyhole
 } from "lucide-react";
 
 const StoreSetting = () => {
@@ -23,7 +24,7 @@ const StoreSetting = () => {
     {
       title: "เปลี่ยนรหัสผ่าน",
       description: "เปลี่ยนรหัสผ่านร้านอาหาร",
-      icon: Store,
+      icon: LockKeyhole,
       path: "/store/edit-password",
     },
     {
@@ -66,7 +67,7 @@ const StoreSetting = () => {
 
   return (
     <div className="min-h-screen bg-[#FFF8F0]">
-      <div className="max-w-6xl mx-auto px-5 py-8">
+      <div className="max-w-6xl mx-auto px-5 py-8 pb-28">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-[#2A1B12]">

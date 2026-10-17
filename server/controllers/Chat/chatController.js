@@ -1185,7 +1185,7 @@ exports.sendStoreDeliveryMessage = async (req, res) => {
                 // แจ้งพนักงานส่ง
                 if (deliveryInfo.deliveryStaffId) {
                     await createNotification({
-                        title: "💬 ข้อความใหม่จากร้าน",
+                        title: "ข้อความใหม่จากร้าน",
                         message: "ร้านส่งข้อความใหม่ในแชทจัดส่ง",
                         type: "CHAT_MESSAGE",
                         deliveryStaffId: deliveryInfo.deliveryStaffId,

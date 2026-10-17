@@ -4,7 +4,6 @@ import { User, Phone, Mail, ArrowLeft, Save } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { updateUserProfile } from "../../api/UserProfile";
-import { LockKeyhole, Eye, EyeOff, KeyRound } from "lucide-react";
 import { updateUserPassword } from "../../api/UserProfile";
 
 const FormEditUserProfile = () => {
@@ -14,116 +13,7 @@ const FormEditUserProfile = () => {
   const getUser = usefoodDelivery((state) => state.getUser);
   const users = usefoodDelivery((state) => state.users);
 
-  const [passwordForm, setPasswordForm] = useState({
-    oldPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-
-  const [showPassword, setShowPassword] = useState({
-    oldPassword: false,
-    newPassword: false,
-    confirmPassword: false,
-  });
-
-  const [passwordLoading, setPasswordLoading] = useState(false);
-
-  const handlePasswordChange = (e) => {
-    setPasswordForm({
-      ...passwordForm,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleChangePassword = async (e) => {
-    e.preventDefault();
-
-    const { oldPassword, newPassword, confirmPassword } = passwordForm;
-
-    if (!oldPassword || !newPassword || !confirmPassword) {
-      return Swal.fire({
-        icon: "warning",
-        title: "กรุณากรอกข้อมูลให้ครบ",
-        confirmButtonColor: "#FF6B35",
-      });
-    }
-
-    const passwordRegex =
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9\s])\S{8,64}$/;
-
-    if (!passwordRegex.test(newPassword)) {
-      return Swal.fire({
-        icon: "warning",
-        title: "รหัสผ่านใหม่ไม่ถูกต้อง",
-        text: "รหัสผ่านต้องมี 8-64 ตัวอักษร มีตัวพิมพ์ใหญ่ ตัวพิมพ์เล็ก ตัวเลข และอักขระพิเศษ โดยไม่มีช่องว่าง",
-        confirmButtonColor: "#FF6B35",
-      });
-    }
-
-    if (newPassword !== confirmPassword) {
-      return Swal.fire({
-        icon: "warning",
-        title: "รหัสผ่านไม่ตรงกัน",
-        text: "กรุณายืนยันรหัสผ่านใหม่ให้ตรงกัน",
-        confirmButtonColor: "#FF6B35",
-      });
-    }
-
-    if (oldPassword === newPassword) {
-      return Swal.fire({
-        icon: "warning",
-        title: "รหัสผ่านใหม่ต้องแตกต่าง",
-        text: "กรุณากำหนดรหัสผ่านใหม่ที่ไม่ซ้ำกับรหัสผ่านปัจจุบัน",
-        confirmButtonColor: "#FF6B35",
-      });
-    }
-
-    const result = await Swal.fire({
-      icon: "question",
-      title: "ยืนยันการเปลี่ยนรหัสผ่าน",
-      text: "คุณต้องการเปลี่ยนรหัสผ่านใช่หรือไม่",
-      showCancelButton: true,
-      confirmButtonText: "ยืนยัน",
-      cancelButtonText: "ยกเลิก",
-      confirmButtonColor: "#FF6B35",
-    });
-
-    if (!result.isConfirmed) return;
-
-    try {
-      setPasswordLoading(true);
-
-      const res = await updateUserPassword(token, {
-        oldPassword,
-        newPassword,
-      });
-
-      await Swal.fire({
-        icon: "success",
-        title: "เปลี่ยนรหัสผ่านสำเร็จ",
-        text: res?.data?.message || "เปลี่ยนรหัสผ่านเรียบร้อยแล้ว",
-        confirmButtonColor: "#FF6B35",
-      });
-
-      setPasswordForm({
-        oldPassword: "",
-        newPassword: "",
-        confirmPassword: "",
-      });
-    } catch (error) {
-      await Swal.fire({
-        icon: "error",
-        title: "เปลี่ยนรหัสผ่านไม่สำเร็จ",
-        text:
-          error?.response?.data?.message ||
-          "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง",
-        confirmButtonColor: "#FF6B35",
-      });
-    } finally {
-      setPasswordLoading(false);
-    }
-  };
-
+ 
   const [editForm, setEditForm] = useState({
     username: "",
     email: "",

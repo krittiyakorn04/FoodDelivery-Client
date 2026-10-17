@@ -12,6 +12,7 @@ import {
   ReceiptText,
   User,
   CalendarDays,
+  ArrowLeft,
 } from "lucide-react";
 import Swal from "sweetalert2";
 
@@ -148,11 +149,7 @@ const StoreOrderReports = () => {
     if (!result.isConfirmed) return;
 
     try {
-      const res = await updateStoreOrderReport(
-        token,
-        reportId,
-        status,
-      );
+      const res = await updateStoreOrderReport(token, reportId, status);
 
       const updatedReport = res.data?.report;
 
@@ -162,8 +159,7 @@ const StoreOrderReports = () => {
             ? {
                 ...item,
                 status: updatedReport?.status || status,
-                updatedAt:
-                  updatedReport?.updatedAt || new Date().toISOString(),
+                updatedAt: updatedReport?.updatedAt || new Date().toISOString(),
               }
             : item,
         ),
@@ -205,7 +201,17 @@ const StoreOrderReports = () => {
 
   return (
     <div className="min-h-screen bg-[#FFF8F0] px-4 py-6 md:px-8">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-5xl  mx-auto">
+        <button
+          type="button"
+          onClick={() => {
+            navigate(-1);
+          }}
+          className="inline-flex mb-6 cursor-pointer items-center gap-2 rounded-full border border-orange-100 bg-white px-4 py-2 text-sm font-medium text-[#8A6A54] shadow-sm transition hover:border-orange-300 hover:text-orange-500"
+        >
+          <ArrowLeft size={16} />
+          กลับหน้าก่อนหน้า
+        </button>
         {/* Header */}
         <div className="bg-gradient-to-r from-[#FF6B35] to-[#E8491D] rounded-[2rem] p-6 md:p-8 mb-6 shadow-lg shadow-orange-100">
           <div className="flex items-center justify-between gap-4">
@@ -305,17 +311,12 @@ const StoreOrderReports = () => {
                   {/* Report Header */}
                   <button
                     type="button"
-                    onClick={() =>
-                      setExpandedId(isExpanded ? null : report.id)
-                    }
+                    onClick={() => setExpandedId(isExpanded ? null : report.id)}
                     className="w-full text-left p-5 md:p-6 hover:bg-orange-50/30 transition"
                   >
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center shrink-0">
-                        <ReceiptText
-                          size={22}
-                          className="text-orange-500"
-                        />
+                        <ReceiptText size={22} className="text-orange-500" />
                       </div>
 
                       <div className="flex-1 min-w-0">
@@ -400,9 +401,7 @@ const StoreOrderReports = () => {
                             onClick={(e) => {
                               e.stopPropagation();
 
-                              navigate(
-                                `/store/order-detail/${report.orderId}`,
-                              );
+                              navigate(`/store/order-detail/${report.orderId}`);
                             }}
                             className="
                               w-full
@@ -504,10 +503,7 @@ const StoreOrderReports = () => {
                                     onClick={(e) => {
                                       e.stopPropagation();
 
-                                      handleUpdateReport(
-                                        report.id,
-                                        status,
-                                      );
+                                      handleUpdateReport(report.id, status);
                                     }}
                                     className={`
                                       flex items-center justify-center gap-2

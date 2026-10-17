@@ -250,16 +250,16 @@ const FormOpen = () => {
       {/* <NavbarStore /> */}
 
       <div className="px-4 py-6 pb-28">
-        <div className="mx-auto max-w-2xl">
+        <div className="mx-auto max-w-6xl">
           {/* Header */}
           <div className="mb-6">
             <button
               type="button"
-              onClick={() => navigate("/store/Profile")}
+              onClick={() => navigate(-1)}
               className="mb-4 inline-flex items-center gap-2 rounded-full border border-orange-100 bg-white px-4 py-2 text-sm font-medium text-[#8A6A54] shadow-sm transition hover:border-orange-300 hover:text-orange-500"
             >
               <ArrowLeft size={16} />
-              กลับหน้าโปรไฟล์
+              กลับหน้าก่อนหน้า
             </button>
 
             <div className="flex items-center gap-4">
@@ -302,9 +302,7 @@ const FormOpen = () => {
                   </div>
                 </div>
 
-                <span className="shrink-0 rounded-full bg-orange-50 px-3 py-1 text-xs font-bold text-orange-600">
-                  เลือกแล้ว {selectedDays.length}/7
-                </span>
+               
               </div>
 
               <div className="grid grid-cols-7 gap-1.5 sm:gap-2">

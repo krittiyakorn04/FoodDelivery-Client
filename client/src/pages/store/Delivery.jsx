@@ -25,7 +25,7 @@ import Swal from "sweetalert2";
 import usefoodDelivery from "../../globalState/fooddeliveryStore";
 
 import { getStoreDelivery, changeStatusDelivery } from "../../api/StoreOrder";
-import { assignDeliveryStaff } from "../../api/createStore";
+import { assignDeliveryStaff, getStoreStaff } from "../../api/createStore";
 
 const DeliverySkeleton = () => {
   return (
@@ -58,7 +58,7 @@ const DeliverySkeleton = () => {
         }
 
         .dv-skeleton-page .dv-wrap {
-          max-width: 760px;
+          max-width: 1152px;
           margin: 0 auto;
         }
 
@@ -284,6 +284,18 @@ const DeliveryPage = () => {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("PENDING");
 
+  const [staffList, setStaffList] = useState([]);
+  const loadStaff = async () => {
+    if (!token) return;
+
+    try {
+      const res = await getStoreStaff(token);
+      setStaffList(res.data.staff || []);
+    } catch (error) {
+      console.error("โหลดบัญชีคนส่งไม่สำเร็จ:", error);
+    }
+  };
+
   // ==========================================
   // BULK ASSIGN
   // ==========================================
@@ -322,7 +334,10 @@ const DeliveryPage = () => {
   };
 
   useEffect(() => {
+    if (!token) return;
+
     loadDelivery();
+    loadStaff();
   }, [token]);
 
   // ==========================================
@@ -338,32 +353,12 @@ const DeliveryPage = () => {
   // ==========================================
 
   const deliveryStaffs = useMemo(() => {
-    const staffMap = new Map();
+    return staffList.filter(
+      (staff) =>
+        staff.isActive !== false && (!staff.role || staff.role === "DELIVERY"),
+    );
+  }, [staffList]);
 
-    deliveries.forEach((delivery) => {
-      if (!Array.isArray(delivery?.deliveryStaffs)) {
-        return;
-      }
-
-      delivery.deliveryStaffs.forEach((staff) => {
-        if (!staff?.id) {
-          return;
-        }
-
-        if (staff.isActive === false) {
-          return;
-        }
-
-        if (staff.role && staff.role !== "DELIVERY") {
-          return;
-        }
-
-        staffMap.set(String(staff.id), staff);
-      });
-    });
-
-    return Array.from(staffMap.values());
-  }, [deliveries]);
 
   // ==========================================
   // RIDER COUNT
@@ -647,7 +642,7 @@ const DeliveryPage = () => {
     if (riderCount === 0) {
       await Swal.fire({
         icon: "info",
-        title: "ไม่มีไรเดอร์",
+        title: "ไม่มีผู้ส่ง",
         text: "ร้านสามารถจัดส่งเองได้",
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#f97316",
@@ -671,8 +666,8 @@ const DeliveryPage = () => {
     if (!selectedStaffId) {
       await Swal.fire({
         icon: "warning",
-        title: "กรุณาเลือกไรเดอร์",
-        text: "กรุณาเลือกไรเดอร์ก่อนมอบหมายงาน",
+        title: "กรุณาเลือกผู้ส่ง",
+        text: "กรุณาเลือกผู้ส่งก่อนมอบหมายงาน",
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#f97316",
       });
@@ -687,8 +682,8 @@ const DeliveryPage = () => {
     if (!staff) {
       await Swal.fire({
         icon: "error",
-        title: "ไม่พบไรเดอร์",
-        text: "ไม่พบข้อมูลไรเดอร์ที่เลือก",
+        title: "ไม่พบผู้ส่ง",
+        text: "ไม่พบข้อมูลผู้ส่งที่เลือก",
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#f97316",
       });
@@ -698,7 +693,7 @@ const DeliveryPage = () => {
 
     const confirm = await Swal.fire({
       icon: "question",
-      title: "มอบหมายไรเดอร์?",
+      title: "มอบหมายผู้ส่ง?",
       html: `
           <div style="font-size:15px;line-height:1.8">
             มอบหมาย
@@ -762,12 +757,12 @@ const DeliveryPage = () => {
         });
       }
     } catch (error) {
-      console.error("มอบหมายไรเดอร์ไม่สำเร็จ:", error);
+      console.error("มอบหมายผู้ส่งไม่สำเร็จ:", error);
 
       await Swal.fire({
         icon: "error",
-        title: "มอบหมายไรเดอร์ไม่สำเร็จ",
-        text: error?.response?.data?.message || "ไม่สามารถมอบหมายไรเดอร์ได้",
+        title: "มอบหมายผู้ส่งไม่สำเร็จ",
+        text: error?.response?.data?.message || "ไม่สามารถมอบหมายผู้ส่งได้",
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#f97316",
       });
@@ -788,7 +783,7 @@ const DeliveryPage = () => {
     if (delivery.status !== "PENDING") {
       await Swal.fire({
         icon: "warning",
-        title: "ไม่สามารถเปลี่ยนไรเดอร์ได้",
+        title: "ไม่สามารถเปลี่ยนผู้ส่งได้",
         text: "งานนี้เริ่มจัดส่งแล้ว",
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#f97316",
@@ -800,7 +795,7 @@ const DeliveryPage = () => {
     if (riderCount === 0) {
       await Swal.fire({
         icon: "info",
-        title: "ไม่มีไรเดอร์",
+        title: "ไม่มีผู้ส่ง",
         text: "ขณะนี้ไม่มีพนักงานส่งอาหารที่พร้อมใช้งาน ร้านสามารถส่งเองได้",
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#f97316",
@@ -819,8 +814,8 @@ const DeliveryPage = () => {
       if (String(delivery.deliveryStaffId) === String(onlyStaff.id)) {
         await Swal.fire({
           icon: "info",
-          title: "มีไรเดอร์คนเดียว",
-          text: `${onlyStaff.name} เป็นไรเดอร์ Active เพียงคนเดียวในขณะนี้`,
+          title: "มีผู้ส่งคนเดียว",
+          text: `${onlyStaff.name} เป็นผู้ส่ง Active เพียงคนเดียวในขณะนี้`,
           confirmButtonText: "ตกลง",
           confirmButtonColor: "#f97316",
         });
@@ -842,21 +837,21 @@ const DeliveryPage = () => {
       });
 
       const result = await Swal.fire({
-        title: "เปลี่ยนไรเดอร์",
-        text: "เลือกไรเดอร์ที่จะรับออเดอร์นี้",
+        title: "เปลี่ยนผู้ส่ง",
+        text: "เลือกผู้ส่งที่จะรับออเดอร์นี้",
         input: "select",
         inputOptions: options,
         inputValue: delivery.deliveryStaffId
           ? String(delivery.deliveryStaffId)
           : "",
-        inputPlaceholder: "เลือกไรเดอร์",
+        inputPlaceholder: "เลือกผู้ส่ง",
         showCancelButton: true,
-        confirmButtonText: "เปลี่ยนไรเดอร์",
+        confirmButtonText: "เปลี่ยนผู้ส่ง",
         cancelButtonText: "ยกเลิก",
         confirmButtonColor: "#f97316",
         inputValidator: (value) => {
           if (!value) {
-            return "กรุณาเลือกไรเดอร์";
+            return "กรุณาเลือกผู้ส่ง";
           }
 
           return undefined;
@@ -881,7 +876,7 @@ const DeliveryPage = () => {
     if (String(delivery.deliveryStaffId) === String(staff.id)) {
       await Swal.fire({
         icon: "info",
-        title: "ไรเดอร์คนเดิม",
+        title: "ผู้ส่งคนเดิม",
         text: `ออเดอร์นี้มอบหมายให้ ${staff.name} อยู่แล้ว`,
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#f97316",
@@ -892,10 +887,10 @@ const DeliveryPage = () => {
 
     const confirm = await Swal.fire({
       icon: "question",
-      title: "เปลี่ยนไรเดอร์?",
+      title: "เปลี่ยนผู้ส่ง?",
       html: `
             <div style="font-size:15px;line-height:1.8">
-              เปลี่ยนไรเดอร์เป็น
+              เปลี่ยนผู้ส่งเป็น
               <br/>
               <b>${staff.name}</b>
               ${
@@ -925,18 +920,18 @@ const DeliveryPage = () => {
 
       await Swal.fire({
         icon: "success",
-        title: "เปลี่ยนไรเดอร์สำเร็จ",
+        title: "เปลี่ยนผู้ส่งสำเร็จ",
         text: `มอบหมายงานให้ ${staff.name} แล้ว`,
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#f97316",
       });
     } catch (error) {
-      console.error("เปลี่ยนไรเดอร์ไม่สำเร็จ:", error);
+      console.error("เปลี่ยนผู้ส่งไม่สำเร็จ:", error);
 
       await Swal.fire({
         icon: "error",
-        title: "เปลี่ยนไรเดอร์ไม่สำเร็จ",
-        text: error?.response?.data?.message || "ไม่สามารถเปลี่ยนไรเดอร์ได้",
+        title: "เปลี่ยนผู้ส่งไม่สำเร็จ",
+        text: error?.response?.data?.message || "ไม่สามารถเปลี่ยนผู้ส่งได้",
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#f97316",
       });
@@ -1066,7 +1061,7 @@ const DeliveryPage = () => {
         }
 
         .dv-wrap {
-          max-width: 760px;
+          max-width: 1152px;
           margin: 0 auto;
         }
 
@@ -1678,11 +1673,11 @@ const DeliveryPage = () => {
 
               <div className="min-w-0 flex-1">
                 <h3 className="font-bold text-gray-900">
-                  เพิ่มไรเดอร์ให้ร้านของคุณ
+                  เพิ่มผู้ส่งให้ร้านของคุณ
                 </h3>
 
                 <p className="mt-1 text-sm leading-relaxed text-gray-600">
-                  ร้านของคุณยังไม่มีไรเดอร์
+                  ร้านของคุณยังไม่มีผู้ส่ง
                   เพิ่มพนักงานส่งอาหารเพื่อช่วยจัดส่งออเดอร์
                 </p>
 
@@ -1692,7 +1687,7 @@ const DeliveryPage = () => {
                   className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-orange-600 active:scale-95"
                 >
                   <Users size={17} />
-                  เพิ่มไรเดอร์เลย
+                  เพิ่มผู้ส่งของร้านคุณเลย
                   <ChevronRight size={17} />
                 </button>
               </div>
@@ -1738,7 +1733,7 @@ const DeliveryPage = () => {
                 onChange={(e) => setSelectedStaffId(e.target.value)}
                 disabled={assigning}
               >
-                <option value="">เลือกไรเดอร์</option>
+                <option value="">เลือกผู้ส่ง</option>
 
                 {deliveryStaffs.map((staff) => (
                   <option key={staff.id} value={staff.id}>
@@ -1861,7 +1856,7 @@ const DeliveryPage = () => {
 
                               <div className="min-w-0">
                                 <div className="text-sm font-semibold text-red-700">
-                                  ไรเดอร์ถูกปิดใช้งาน
+                                  ผู้ส่งถูกปิดใช้งาน
                                 </div>
 
                                 <div className="mt-0.5 truncate text-xs text-red-600">
@@ -1877,7 +1872,7 @@ const DeliveryPage = () => {
                               onClick={() => handleChangeRider(delivery)}
                               disabled={assigning}
                             >
-                              เปลี่ยนไรเดอร์
+                              เปลี่ยนผู้ส่ง
                             </button>
                           </div>
                         ) : (
@@ -1890,7 +1885,7 @@ const DeliveryPage = () => {
                             </span>
 
                             <span className="dv-assigned-info">
-                              มีไรเดอร์แล้ว:{" "}
+                              มีผู้ส่งแล้ว:{" "}
                               <strong>{rider?.name || "ไม่ทราบชื่อ"}</strong>
                               {rider?.phone ? ` • ${rider.phone}` : ""}
                             </span>
@@ -1901,7 +1896,7 @@ const DeliveryPage = () => {
                               onClick={() => handleChangeRider(delivery)}
                               disabled={assigning}
                             >
-                              แก้ไขไรเดอร์
+                              แก้ไขผู้ส่ง
                             </button>
                           </div>
                         )
@@ -1913,7 +1908,7 @@ const DeliveryPage = () => {
                       ) : riderCount === 1 ? (
                         <div className="dv-self-delivery">
                           <Users size={17} />
-                          <span>ระบบกำลังจัดการไรเดอร์</span>
+                          <span>ระบบกำลังจัดการผู้ส่ง</span>
                         </div>
                       ) : (
                         <label

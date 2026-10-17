@@ -130,10 +130,11 @@ exports.getOrderDetail = async (req, res) => {
 
 
 
+
+
 exports.createOrder = async (req, res) => {
   try {
     const { cartId, addressId, note } = req.body;
-
     const userId = req.user.id;
 
     if (!cartId) {
@@ -165,7 +166,7 @@ exports.createOrder = async (req, res) => {
       });
     }
 
-    if (cart.menu.length === 0) {
+    if (!cart.menu || cart.menu.length === 0) {
       return res.status(400).json({
         message: "ตะกร้าว่าง",
       });
@@ -185,25 +186,45 @@ exports.createOrder = async (req, res) => {
     }
 
     let orderRoundId = null;
-    let currentRound = null;
 
     if (cart.store.orderMode === "ROUND") {
-      const now = new Date();
+      // เวลาประเทศไทย HH:mm
+      const thaiTime = new Intl.DateTimeFormat("en-GB", {
+        timeZone: "Asia/Bangkok",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+      }).format(new Date());
+
+      const [currentHour, currentMinute] = thaiTime
+        .split(":")
+        .map(Number);
 
       const currentMinutes =
-        now.getHours() * 60 + now.getMinutes();
+        currentHour * 60 + currentMinute;
 
+      // ใน Prisma schema startTime/endTime เป็น String
       const timeToMinutes = (time) => {
-        if (!time) return null;
+        if (typeof time !== "string") {
+          return null;
+        }
 
-        const [hour, minute] = String(time)
-          .slice(0, 5)
-          .split(":")
-          .map(Number);
+        const match = time.trim().match(/^(\d{1,2}):(\d{2})/);
+
+        if (!match) {
+          return null;
+        }
+
+        const hour = Number(match[1]);
+        const minute = Number(match[2]);
 
         if (
-          Number.isNaN(hour) ||
-          Number.isNaN(minute)
+          !Number.isInteger(hour) ||
+          !Number.isInteger(minute) ||
+          hour < 0 ||
+          hour > 23 ||
+          minute < 0 ||
+          minute > 59
         ) {
           return null;
         }
@@ -220,38 +241,82 @@ exports.createOrder = async (req, res) => {
         },
       });
 
-      currentRound = rounds.find((round) => {
+      console.log("========== CREATE ORDER ==========");
+      console.log("Store ID:", cart.store.id);
+      console.log("Order mode:", cart.store.orderMode);
+      console.log("เวลาไทย:", thaiTime);
+      console.log("นาทีปัจจุบัน:", currentMinutes);
+      console.log(
+        "รอบที่มีในฐานข้อมูล:",
+        rounds.map((round) => ({
+          id: round.id,
+          roundNumber: round.roundNumber,
+          startTime: round.startTime,
+          endTime: round.endTime,
+          status: round.status,
+          startMinutes: timeToMinutes(round.startTime),
+          endMinutes: timeToMinutes(round.endTime),
+        }))
+      );
+
+      const currentRound = rounds.find((round) => {
         const start = timeToMinutes(round.startTime);
         const end = timeToMinutes(round.endTime);
 
-        if (start === null || end === null) {
+        if (
+          start === null ||
+          end === null ||
+          start === end
+        ) {
           return false;
         }
 
+        // รอบปกติ เช่น 09:00–11:00
+        if (start < end) {
+          return (
+            currentMinutes >= start &&
+            currentMinutes < end
+          );
+        }
+
+        // รอบข้ามเที่ยงคืน เช่น 22:00–02:00
         return (
-          currentMinutes >= start &&
+          currentMinutes >= start ||
           currentMinutes < end
         );
       });
 
       if (!currentRound) {
         return res.status(400).json({
-          message:
-            "ขณะนี้ไม่อยู่ในช่วงเวลารับออเดอร์ของร้าน",
+          message: "ขณะนี้ไม่อยู่ในช่วงเวลารับออเดอร์ของร้าน",
+          debug: {
+            thaiTime,
+            currentMinutes,
+            rounds: rounds.map((round) => ({
+              roundNumber: round.roundNumber,
+              startTime: round.startTime,
+              endTime: round.endTime,
+              startMinutes: timeToMinutes(round.startTime),
+              endMinutes: timeToMinutes(round.endTime),
+            })),
+          },
         });
       }
 
-      if (currentRound.status !== "OPEN") {
-        return res.status(400).json({
-          message: "รอบนี้ปิดรับออเดอร์แล้ว",
-        });
-      }
+      console.log("เลือกรอบได้:", {
+        id: currentRound.id,
+        roundNumber: currentRound.roundNumber,
+        startTime: currentRound.startTime,
+        endTime: currentRound.endTime,
+        status: currentRound.status,
+      });
 
+      // ไม่ใช้ status เป็นตัวบล็อก เพราะหน้า Checkout
+      // ตัดสินช่วงรับออเดอร์จากเวลา
       if (
         currentRound.hasOrderLimit &&
         currentRound.maxOrders !== null &&
-        currentRound.currentOrders >=
-        currentRound.maxOrders
+        currentRound.currentOrders >= currentRound.maxOrders
       ) {
         return res.status(400).json({
           message: "รอบนี้มีออเดอร์เต็มแล้ว",
@@ -262,58 +327,47 @@ exports.createOrder = async (req, res) => {
     }
 
     const foodTotal = cart.menu.reduce(
-      (total, item) => {
-        return (
-          total +
-          Number(item.price) *
-          Number(item.count)
-        );
-      },
-      0,
+      (total, item) =>
+        total + Number(item.price) * Number(item.count),
+      0
     );
 
-    const deliveryFee = Number(
-      cart.store.deliveryFee || 0,
-    );
-
+    const deliveryFee = Number(cart.store.deliveryFee || 0);
     const totalPrice = foodTotal + deliveryFee;
 
     const result = await prisma.$transaction(
       async (tx) => {
-        const delivery =
-          await tx.delivery.create({
-            data: {
-              storeId: cart.store.id,
-              orderRoundId,
-              deliveryStaffId: null,
-              status: "PENDING",
-            },
-          });
+        const delivery = await tx.delivery.create({
+          data: {
+            storeId: cart.store.id,
+            orderRoundId,
+            deliveryStaffId: null,
+            status: "PENDING",
+          },
+        });
 
-        const newOrder =
-          await tx.order.create({
-            data: {
-              customerId: userId,
-              storeId: cart.store.id,
-              deliveryId: delivery.id,
-              orderRoundId,
-              status: "PENDING",
-              totalPrice,
-              note: note || "",
-            },
-          });
+        const newOrder = await tx.order.create({
+          data: {
+            customerId: userId,
+            storeId: cart.store.id,
+            deliveryId: delivery.id,
+            orderRoundId,
+            status: "PENDING",
+            totalPrice,
+            note: note || "",
+          },
+        });
 
-        const payment =
-          await tx.payment.create({
-            data: {
-              orderId: newOrder.id,
-              method: "PROMPTPAY",
-              status: "PENDING",
-              amount: totalPrice,
-              slipImageUrl: null,
-              confirmedAt: null,
-            },
-          });
+        const payment = await tx.payment.create({
+          data: {
+            orderId: newOrder.id,
+            method: "PROMPTPAY",
+            status: "PENDING",
+            amount: totalPrice,
+            slipImageUrl: null,
+            confirmedAt: null,
+          },
+        });
 
         await tx.menuOnCart.updateMany({
           where: {
@@ -325,7 +379,7 @@ exports.createOrder = async (req, res) => {
           },
         });
 
-        if (orderRoundId) {
+        if (orderRoundId !== null) {
           await tx.orderRound.update({
             where: {
               id: orderRoundId,
@@ -352,7 +406,7 @@ exports.createOrder = async (req, res) => {
       },
       {
         timeout: 10000,
-      },
+      }
     );
 
     await createNotification({
@@ -381,6 +435,7 @@ exports.createOrder = async (req, res) => {
     });
   }
 };
+
 
 
 

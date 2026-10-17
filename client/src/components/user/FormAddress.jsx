@@ -15,7 +15,7 @@ import {
   Map,
   ArrowLeft,
 } from "lucide-react";
-import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
 import {
   MapContainer,
@@ -170,6 +170,24 @@ function getAddressList(response) {
 }
 
 // =====================================================
+// SweetAlert2 notification helper
+// =====================================================
+
+const showAlert = (icon, title, text = "") =>
+  Swal.fire({
+    icon,
+    title,
+    text,
+    confirmButtonColor: "#E87532",
+    cancelButtonColor: "#9CA3AF",
+    customClass: {
+      popup: "rounded-3xl",
+      confirmButton: "rounded-xl px-5 py-2.5",
+      cancelButton: "rounded-xl px-5 py-2.5",
+    },
+  });
+
+// =====================================================
 // Main component
 // =====================================================
 
@@ -215,8 +233,10 @@ export default function FormAddAddress() {
     } catch (error) {
       console.error("โหลดที่อยู่ไม่สำเร็จ:", error);
 
-      toast.error(
-        error.response?.data?.message || "โหลดรายการที่อยู่ไม่สำเร็จ"
+      showAlert(
+        "error",
+        "โหลดรายการที่อยู่ไม่สำเร็จ",
+        error.response?.data?.message || "กรุณาลองอีกครั้ง"
       );
     } finally {
       setLoadingAddresses(false);
@@ -270,7 +290,7 @@ export default function FormAddAddress() {
 
   const handleGetCurrentLocation = () => {
     if (!navigator.geolocation) {
-      toast.error("เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง");
+      showAlert("error", "ไม่สามารถระบุตำแหน่งได้", "เบราว์เซอร์ไม่รองรับการระบุตำแหน่ง");
       return;
     }
 
@@ -281,20 +301,18 @@ export default function FormAddAddress() {
         selectPosition(result.coords.latitude, result.coords.longitude);
 
         setLocating(false);
-        toast.success("ค้นหาพิกัดปัจจุบันสำเร็จ");
+        showAlert("success", "ค้นหาพิกัดสำเร็จ", "ระบุตำแหน่งปัจจุบันเรียบร้อยแล้ว");
       },
       (error) => {
         console.error("GPS error:", error);
         setLocating(false);
 
         if (error.code === 1) {
-          toast.error("กรุณาอนุญาตให้เว็บไซต์เข้าถึงตำแหน่ง");
+          showAlert("warning", "ไม่สามารถเข้าถึงตำแหน่งได้", "กรุณาอนุญาตให้เว็บไซต์เข้าถึงตำแหน่ง");
         } else if (error.code === 2) {
-          toast.error(
-            "ไม่พบตำแหน่ง กรุณาตรวจสอบ GPS หรือการตั้งค่าตำแหน่ง"
-          );
+          showAlert("error", "ไม่พบตำแหน่ง", "กรุณาตรวจสอบ GPS หรือการตั้งค่าตำแหน่ง");
         } else {
-          toast.error("ค้นหาพิกัดไม่สำเร็จ กรุณาลองอีกครั้ง");
+          showAlert("error", "ค้นหาพิกัดไม่สำเร็จ", "กรุณาลองอีกครั้ง");
         }
       },
       {
@@ -344,17 +362,17 @@ export default function FormAddAddress() {
     e.preventDefault();
 
     if (!token) {
-      toast.error("กรุณาเข้าสู่ระบบก่อนจัดการที่อยู่");
+      showAlert("warning", "กรุณาเข้าสู่ระบบ", "กรุณาเข้าสู่ระบบก่อนจัดการที่อยู่");
       return;
     }
 
     if (!form.label.trim()) {
-      toast.error("กรุณาระบุชื่อที่อยู่");
+      showAlert("warning", "กรุณาระบุชื่อที่อยู่");
       return;
     }
 
     if (!form.address.trim()) {
-      toast.error("กรุณากรอกรายละเอียดที่อยู่");
+      showAlert("warning", "กรุณากรอกรายละเอียดที่อยู่");
       return;
     }
 
@@ -369,7 +387,7 @@ export default function FormAddAddress() {
       Math.abs(lat) > 90 ||
       Math.abs(lng) > 180
     ) {
-      toast.error("กรุณาเลือกพิกัดบนแผนที่ให้ถูกต้อง");
+      showAlert("warning", "พิกัดไม่ถูกต้อง", "กรุณาเลือกพิกัดบนแผนที่ให้ถูกต้อง");
       return;
     }
 
@@ -386,10 +404,10 @@ export default function FormAddAddress() {
 
       if (editingId !== null) {
         await updateAddress(token, editingId, data);
-        toast.success("แก้ไขที่อยู่สำเร็จ");
+        await showAlert("success", "แก้ไขที่อยู่สำเร็จ");
       } else {
         await createAddress(token, data);
-        toast.success("เพิ่มที่อยู่สำเร็จ");
+        await showAlert("success", "เพิ่มที่อยู่สำเร็จ");
       }
 
       resetForm();
@@ -398,8 +416,10 @@ export default function FormAddAddress() {
       console.error("บันทึกที่อยู่ไม่สำเร็จ:", error);
       console.error("API error:", error.response?.data);
 
-      toast.error(
-        error.response?.data?.message || "บันทึกที่อยู่ไม่สำเร็จ"
+      showAlert(
+        "error",
+        "บันทึกที่อยู่ไม่สำเร็จ",
+        error.response?.data?.message || "กรุณาลองอีกครั้ง"
       );
     } finally {
       setLoading(false);
@@ -411,9 +431,24 @@ export default function FormAddAddress() {
   // ===================================================
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm("คุณต้องการลบที่อยู่นี้ใช่หรือไม่?");
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "ยืนยันการลบที่อยู่",
+      text: "คุณต้องการลบที่อยู่นี้ใช่หรือไม่?",
+      showCancelButton: true,
+      confirmButtonText: "ลบที่อยู่",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#E87532",
+      cancelButtonColor: "#9CA3AF",
+      reverseButtons: true,
+      customClass: {
+        popup: "rounded-3xl",
+        confirmButton: "rounded-xl px-5 py-2.5",
+        cancelButton: "rounded-xl px-5 py-2.5",
+      },
+    });
 
-    if (!confirmed) return;
+    if (!result.isConfirmed) return;
 
     try {
       setDeletingId(id);
@@ -424,13 +459,15 @@ export default function FormAddAddress() {
         resetForm();
       }
 
-      toast.success("ลบที่อยู่สำเร็จ");
+      await showAlert("success", "ลบที่อยู่สำเร็จ");
       await loadAddresses();
     } catch (error) {
       console.error("ลบที่อยู่ไม่สำเร็จ:", error);
 
-      toast.error(
-        error.response?.data?.message || "ลบที่อยู่ไม่สำเร็จ"
+      showAlert(
+        "error",
+        "ลบที่อยู่ไม่สำเร็จ",
+        error.response?.data?.message || "กรุณาลองอีกครั้ง"
       );
     } finally {
       setDeletingId(null);

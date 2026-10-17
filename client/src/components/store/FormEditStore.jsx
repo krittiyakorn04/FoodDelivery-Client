@@ -10,7 +10,6 @@ import {
 } from "../../api/StoreMenu";
 
 import {
-  Settings2,
   Plus,
   Search,
   Trash2,
@@ -23,6 +22,8 @@ import {
   Check,
   CircleAlert,
 } from "lucide-react";
+
+import Swal from "sweetalert2";
 
 const FormEditStore = () => {
   const navigate = useNavigate();
@@ -246,11 +247,20 @@ const FormEditStore = () => {
   };
 
   const handleDeleteFormat = async (format) => {
-    const confirmDelete = window.confirm(
-      `ต้องการลบรูปแบบ "${format.name}" ใช่หรือไม่?`,
-    );
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "ยืนยันการลบรูปแบบ",
+      text: `คุณต้องการลบรูปแบบ "${format.name}" ใช่หรือไม่?`,
+      showCancelButton: true,
+      confirmButtonText: "ลบรูปแบบ",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#E8491D",
+      cancelButtonColor: "#6B7280",
+      reverseButtons: true,
+      focusCancel: true,
+    });
 
-    if (!confirmDelete) return;
+    if (!result.isConfirmed) return;
 
     try {
       await deleteOptionFormat(token, format.id);
@@ -342,8 +352,6 @@ const FormEditStore = () => {
             )}
           </div>
         </section>
-        
-
 
         {/* =========================
             MENU MANAGEMENT
@@ -397,7 +405,7 @@ const FormEditStore = () => {
           </button>
         </section>
 
-                {/* =========================
+        {/* =========================
             OPTION FORMAT
         ========================= */}
 
@@ -878,12 +886,6 @@ const FormEditStore = () => {
                                 ฿{menu.price}
                               </span>
 
-                              <button
-                                type="button"
-                                className="flex h-9 w-9 items-center justify-center rounded-xl bg-orange-50 text-lg font-semibold text-orange-500 transition hover:bg-orange-100"
-                              >
-                                <Plus size={19} />
-                              </button>
                             </div>
                           </div>
                         </div>

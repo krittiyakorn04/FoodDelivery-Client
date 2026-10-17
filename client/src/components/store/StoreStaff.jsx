@@ -10,6 +10,8 @@ import {
   X,
   Loader2,
   Users,
+  Trash2,
+  ArrowLeft,
 } from "lucide-react";
 
 import {
@@ -17,11 +19,14 @@ import {
   createStoreStaff,
   updateStoreStaff,
   changeStoreStaffStatus,
+  deleteStoreStaff,
 } from "../../api/createStore";
 import usefoodDelivery from "../../globalState/fooddeliveryStore";
+import { useNavigate } from "react-router-dom";
 
 const StoreStaff = () => {
   const token = usefoodDelivery((state) => state.token);
+  const navigate = useNavigate();
 
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,7 +55,7 @@ const StoreStaff = () => {
       Swal.fire({
         icon: "error",
         title: "โหลดข้อมูลไม่สำเร็จ",
-        text: error.response?.data?.message || "ไม่สามารถโหลดข้อมูลคนส่งได้",
+        text: error.response?.data?.message || "ไม่สามารถโหลดข้อมูลผู้ส่งได้",
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#FF6B35",
       });
@@ -118,7 +123,7 @@ const StoreStaff = () => {
     if (!form.name.trim()) {
       Swal.fire({
         icon: "warning",
-        title: "กรุณากรอกชื่อคนส่ง",
+        title: "กรุณากรอกชื่อผู้ส่ง",
         confirmButtonText: "ตกลง",
         confirmButtonColor: "#FF6B35",
       });
@@ -218,7 +223,7 @@ const StoreStaff = () => {
 
         await Swal.fire({
           icon: "success",
-          title: "สร้างบัญชีคนส่งสำเร็จ",
+          title: "สร้างบัญชีผู้ส่งสำเร็จ",
           text: "สามารถใช้ Username และ Password นี้เข้าสู่ระบบได้",
           confirmButtonText: "ตกลง",
           confirmButtonColor: "#FF6B35",
@@ -249,8 +254,8 @@ const StoreStaff = () => {
       icon: "question",
       title: willActive ? "เปิดใช้งานบัญชีนี้?" : "ปิดใช้งานบัญชีนี้?",
       text: willActive
-        ? "คนส่งจะสามารถเข้าสู่ระบบได้"
-        : "คนส่งจะไม่สามารถเข้าสู่ระบบได้",
+        ? "ผู้ส่งจะสามารถเข้าสู่ระบบได้"
+        : "ผู้ส่งจะไม่สามารถเข้าสู่ระบบได้",
       showCancelButton: true,
       confirmButtonText: willActive ? "เปิดใช้งาน" : "ปิดใช้งาน",
       cancelButtonText: "ยกเลิก",
@@ -286,9 +291,61 @@ const StoreStaff = () => {
     }
   };
 
+  const handleDeleteStaff = async (item) => {
+    const result = await Swal.fire({
+      icon: "warning",
+      title: "ลบบัญชีผู้ส่ง?",
+      html: `คุณต้องการลบบัญชี <b>${item.name}</b> (@${item.username}) หรือไม่`,
+      showCancelButton: true,
+      confirmButtonText: "ลบบัญชี",
+      cancelButtonText: "ยกเลิก",
+      confirmButtonColor: "#DC2626",
+      cancelButtonColor: "#9CA3AF",
+      reverseButtons: true,
+    });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await deleteStoreStaff(token, item.id);
+
+      setStaff((prev) => prev.filter((staffItem) => staffItem.id !== item.id));
+
+      await Swal.fire({
+        icon: "success",
+        title: "ลบบัญชีสำเร็จ",
+        text: "ลบบัญชีผู้ส่งเรียบร้อยแล้ว",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#FF6B35",
+      });
+    } catch (error) {
+      console.error("handleDeleteStaff Error =", error);
+
+      Swal.fire({
+        icon: "error",
+        title: "ลบบัญชีไม่สำเร็จ",
+        text:
+          error.response?.data?.message ||
+          "ไม่สามารถลบบัญชีผู้ส่งได้ กรุณาลองใหม่",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#FF6B35",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#FFF8F0] px-4 py-6">
       <div className="mx-auto max-w-6xl">
+        <button
+          type="button"
+          onClick={() => {
+            navigate(-1);
+          }}
+          className="inline-flex mb-6 cursor-pointer items-center gap-2 rounded-full border border-orange-100 bg-white px-4 py-2 text-sm font-medium text-[#8A6A54] shadow-sm transition hover:border-orange-300 hover:text-orange-500"
+        >
+          <ArrowLeft size={16} />
+          กลับหน้าก่อนหน้า
+        </button>
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <div className="flex items-center gap-3">
@@ -298,11 +355,11 @@ const StoreStaff = () => {
 
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">
-                  จัดการคนส่ง
+                  จัดการผู้ส่ง
                 </h1>
 
                 <p className="text-sm text-gray-500">
-                  เพิ่มและจัดการบัญชีคนส่งของร้าน
+                  เพิ่มและจัดการบัญชีผู้ส่งของร้าน
                 </p>
               </div>
             </div>
@@ -314,14 +371,14 @@ const StoreStaff = () => {
             className="flex items-center justify-center gap-2 rounded-2xl bg-[#FF6B35] px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-[#E8491D]"
           >
             <Plus size={20} />
-            เพิ่มคนส่ง
+            เพิ่มผู้ส่ง
           </button>
         </div>
 
         <div className="mb-5 rounded-3xl bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">คนส่งทั้งหมด</p>
+              <p className="text-sm text-gray-500">ผู้ส่งทั้งหมด</p>
 
               <p className="mt-1 text-2xl font-bold text-gray-800">
                 {staff.length}
@@ -352,11 +409,11 @@ const StoreStaff = () => {
             </div>
 
             <h2 className="text-lg font-bold text-gray-800">
-              ยังไม่มีบัญชีคนส่ง
+              ยังไม่มีบัญชีผู้ส่ง
             </h2>
 
             <p className="mt-2 text-sm text-gray-500">
-              เพิ่มบัญชีคนส่งเพื่อให้สามารถรับงานจัดส่งอาหารได้
+              เพิ่มบัญชีผู้ส่งเพื่อให้สามารถรับงานจัดส่งอาหารได้
             </p>
 
             <button
@@ -365,7 +422,7 @@ const StoreStaff = () => {
               className="mt-5 inline-flex items-center gap-2 rounded-2xl bg-[#FF6B35] px-5 py-3 font-semibold text-white transition hover:bg-[#E8491D]"
             >
               <Plus size={19} />
-              เพิ่มคนส่ง
+              เพิ่มผู้ส่ง
             </button>
           </div>
         ) : (
@@ -428,11 +485,11 @@ const StoreStaff = () => {
                   </div>
                 </div>
 
-                <div className="mt-5 flex gap-2">
+                <div className="mt-5 flex flex-wrap gap-2">
                   <button
                     type="button"
                     onClick={() => openEditModal(item)}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-orange-200 bg-orange-50 px-4 py-3 text-sm font-semibold text-[#E8491D] transition hover:bg-orange-100"
+                    className="flex min-w-0 flex-1 items-center justify-center gap-2 rounded-2xl border border-orange-200 bg-orange-50 px-3 py-3 text-sm font-semibold text-[#E8491D] transition hover:bg-orange-100"
                   >
                     <Pencil size={17} />
                     แก้ไข
@@ -441,15 +498,23 @@ const StoreStaff = () => {
                   <button
                     type="button"
                     onClick={() => handleChangeStatus(item)}
-                    className={`flex flex-1 items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition ${
+                    className={`flex min-w-0 flex-1 items-center justify-center gap-2 rounded-2xl px-3 py-3 text-sm font-semibold transition ${
                       item.isActive
                         ? "bg-red-50 text-red-600 hover:bg-red-100"
                         : "bg-green-50 text-green-600 hover:bg-green-100"
                     }`}
                   >
                     <Power size={17} />
-
                     {item.isActive ? "ปิดใช้งาน" : "เปิดใช้งาน"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteStaff(item)}
+                    className="flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-red-700"
+                  >
+                    <Trash2 size={17} />
+                    ลบ
                   </button>
                 </div>
               </div>
@@ -463,12 +528,12 @@ const StoreStaff = () => {
               <div className="flex items-center justify-between border-b border-orange-100 px-5 py-4">
                 <div>
                   <h2 className="text-lg font-bold text-gray-800">
-                    {editingStaff ? "แก้ไขข้อมูลคนส่ง" : "เพิ่มบัญชีคนส่ง"}
+                    {editingStaff ? "แก้ไขข้อมูลผู้ส่ง" : "เพิ่มบัญชีผู้ส่ง"}
                   </h2>
 
                   <p className="mt-0.5 text-xs text-gray-500">
                     {editingStaff
-                      ? "แก้ไขข้อมูลของบัญชีคนส่ง"
+                      ? "แก้ไขข้อมูลของบัญชีผู้ส่ง"
                       : "สร้างบัญชีสำหรับเข้าสู่ระบบงานจัดส่ง"}
                   </p>
                 </div>
@@ -485,7 +550,7 @@ const StoreStaff = () => {
               <form onSubmit={handleSubmit} className="space-y-4 p-5">
                 <div>
                   <label className="mb-1.5 block text-sm font-semibold text-gray-700">
-                    ชื่อคนส่ง
+                    ชื่อผู้ส่ง
                   </label>
 
                   <div className="relative">

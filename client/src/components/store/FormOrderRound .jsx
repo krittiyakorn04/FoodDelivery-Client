@@ -1,5 +1,13 @@
 import { useState, useEffect } from "react";
-import { Clock3, Users, Save, Trash2, Settings2, Truck } from "lucide-react";
+import {
+  Clock3,
+  Users,
+  Save,
+  Trash2,
+  Settings2,
+  Truck,
+  ArrowLeft,
+} from "lucide-react";
 import {
   createOrderRound,
   updateOrderRound,
@@ -7,8 +15,10 @@ import {
 } from "../../api/OrderRound";
 import usefoodDelivery from "../../globalState/fooddeliveryStore";
 import Swal from "sweetalert2";
+import { useNavigate } from "react-router-dom";
 
 const FormOrderRound = () => {
+  const Navigate = useNavigate();
   const token = usefoodDelivery((state) => state.token);
   const getOrderRound = usefoodDelivery((state) => state.getOrderRound);
   const orderRound = usefoodDelivery((state) => state.orderRound);
@@ -194,27 +204,30 @@ const FormOrderRound = () => {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-gradient-to-br from-[#FFFCF7] via-[#FFF5E9] to-[#FFF8F0] px-3 py-6 pb-32 sm:px-5 sm:py-8 md:px-6 lg:px-8">
-      {" "}
-      <div className="mx-auto w-full max-w-3xl">
-        {/* Header */}{" "}
+      <div className="mx-auto w-full max-w-6xl">
+        <button
+          type="button"
+          onClick={() => Navigate(-1)}
+          className="mb-4 inline-flex items-center gap-2 rounded-full border border-orange-100 bg-white px-4 py-2 text-sm font-medium text-[#8A6A54] shadow-sm transition hover:border-orange-300 hover:text-orange-500"
+        >
+          <ArrowLeft size={16} />
+          กลับหน้าก่อนหน้า
+        </button>
+        {/* Header */}
         <div className="mb-4 rounded-3xl border border-orange-100 bg-white p-4 shadow-sm sm:mb-5 sm:p-6">
-          {" "}
           <div className="flex items-start gap-3 sm:gap-4">
-            {" "}
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-orange-100 text-orange-500 sm:h-12 sm:w-12">
-              {" "}
-              <Clock3 size={22} strokeWidth={2.5} />{" "}
-            </div>{" "}
+              <Clock3 size={22} strokeWidth={2.5} />
+            </div>
             <div className="min-w-0">
-              {" "}
               <h1 className="text-lg font-bold text-[#2A1B12] sm:text-2xl">
-                ตั้งค่ารอบรับออเดอร์{" "}
-              </h1>{" "}
+                ตั้งค่ารอบรับออเดอร์
+              </h1>
               <p className="mt-1 text-xs leading-5 text-[#8A6A54] sm:text-sm">
-                ระบบจะสร้างรอบอัตโนมัติจากเวลาเปิด-ปิดร้าน{" "}
-              </p>{" "}
-            </div>{" "}
-          </div>{" "}
+                ระบบจะสร้างรอบอัตโนมัติจากเวลาเปิด-ปิดร้าน
+              </p>
+            </div>
+          </div>
         </div>
         <form onSubmit={handleSubmit}>
           {/* Duration */}
@@ -239,8 +252,6 @@ const FormOrderRound = () => {
               onChange={handleOnChange}
               className="h-12 w-full rounded-2xl border border-orange-100 bg-[#FFFDF9] px-4 text-sm font-semibold text-[#2A1B12] outline-none transition focus:border-orange-400 focus:ring-4 focus:ring-orange-100"
             >
-              <option value={30}>30 นาที</option>
-              <option value={45}>45 นาที</option>
               <option value={60}>1 ชั่วโมง</option>
               <option value={90}>1 ชั่วโมง 30 นาที</option>
               <option value={120}>2 ชั่วโมง</option>
@@ -313,12 +324,12 @@ const FormOrderRound = () => {
             <div className="space-y-2.5 text-xs leading-5 text-[#6F5544] sm:text-sm sm:leading-6">
               <p>ลูกค้าสามารถสั่งอาหารได้ตลอดเวลาของรอบ</p>
               <p>
-                หลังจบรอบ ระบบเผื่อเวลา{" "}
+                หลังจบรอบ ระบบเผื่อเวลา
                 <b className="text-orange-600">20 นาที</b> สำหรับเตรียมและจัดส่ง
               </p>
               <p>รอบถัดไปจะเริ่มหลังจากช่วงเวลา 20 นาที</p>
               <p>
-                เวลา 20 นาที{" "}
+                เวลา 20 นาที
                 <b className="text-orange-600">ไม่รวมอยู่ในเวลารับออเดอร์</b>
               </p>
             </div>

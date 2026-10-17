@@ -491,7 +491,7 @@ const StoreOrders = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#FFFCF7] via-[#FFF3E4] to-[#FFF8F0] px-4 py-6 pb-28">
-        <div className="max-w-3xl mx-auto animate-pulse">
+        <div className="max-w-6xl mx-auto animate-pulse">
           {/* HEADER */}
           <div className="h-8 w-44 bg-orange-100 rounded-xl" />
 
@@ -588,7 +588,7 @@ const StoreOrders = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#FFFCF7] via-[#FFF3E4] to-[#FFF8F0] px-4 py-6 pb-28">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-6xl mx-auto">
         {/* ====================================== 
             HEADER 
         ====================================== */}

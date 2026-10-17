@@ -1498,7 +1498,7 @@ exports.markDelivered = async (req, res) => {
       await prisma.notification.create({
         data: {
           title: "จัดส่งอาหารสำเร็จ",
-          message: `ออเดอร์ #${order.id} จัดส่งถึงคุณแล้ว ขอบคุณที่ใช้บริการ RobMorFood`,
+          message: `ออเดอร์ #ORD00${order.id} จัดส่งถึงคุณแล้ว ขอบคุณที่ใช้บริการ RobMorFood`,
           type: "DELIVERY_COMPLETED",
 
           customerId: order.customerId,

@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { ShoppingCart, Plus, Minus, X } from "lucide-react";
-import Swal from "sweetalert2";
 import { getCart, removeCart, updateCart } from "../../api/UserOrder";
 
 const UserCart = ({ token, storeId, cart, setCart, onClose }) => {

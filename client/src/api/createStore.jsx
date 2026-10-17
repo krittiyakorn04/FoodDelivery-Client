@@ -154,6 +154,14 @@ export const updateStoreStaff = async (token, id, data) => {
   });
 };
 
+export const deleteStoreStaff = (token, id) => {
+  return axios.delete(`${API}/store-staff/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 export const changeStoreStaffStatus = async (token, id) => {
   return axios.patch(
     `${API}/store/staff/${id}/status`,
@@ -237,7 +245,7 @@ export const getDeliveryDetailStaff = (token, id) => {
 
 export const updateStorePassword = (token, data) => {
   return axios.patch(
-    "http://localhost:5000/api/store/profile/change-password",
+    `${API}/store/profile/change-password`,
     {
       oldPassword: data.oldPassword,
       newPassword: data.newPassword,

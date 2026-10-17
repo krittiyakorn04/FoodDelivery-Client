@@ -46,6 +46,7 @@ const CheckoutPage = () => {
   // =========================
 
   const [cart, setCart] = useState(null);
+  const [storeData, setStoreData] = useState(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -76,27 +77,44 @@ const CheckoutPage = () => {
   // =========================
 
   useEffect(() => {
-    const loadCart = async () => {
+    const loadCheckoutData = async () => {
       if (!token || !storeId) {
         setLoading(false);
         setCart(null);
+        setStoreData(null);
         return;
       }
 
+      setLoading(true);
+
       try {
-        const res = await getCart(token, storeId);
+        const cartPromise = getCart(token, storeId);
+        const storePromise = getStoreClient(token, storeId);
 
-        console.log("ข้อมูล Cart Checkout =", res.data);
+        const [cartResult, storeResult] = await Promise.allSettled([
+          cartPromise,
+          storePromise,
+        ]);
 
-        setCart(res.data);
-      } catch (error) {
-        setCart(null);
+        if (cartResult.status === "fulfilled") {
+          setCart(cartResult.value.data);
+        } else {
+          console.error("โหลด Cart Checkout ไม่สำเร็จ", cartResult.reason);
+          setCart(null);
+        }
+
+        if (storeResult.status === "fulfilled") {
+          setStoreData(storeResult.value.data);
+        } else {
+          console.error("โหลดข้อมูลรอบจากร้านไม่สำเร็จ", storeResult.reason);
+          setStoreData(null);
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    loadCart();
+    loadCheckoutData();
   }, [token, storeId]);
 
   // =========================
@@ -179,17 +197,74 @@ const CheckoutPage = () => {
   // ORDER ROUND
   // =========================
 
-  const orderRound = cart?.orderRound || null;
+  // =========================
+  // ORDER ROUND
+  // ใช้หลักการเดียวกับ StoreClient
+  // =========================
+
+  const timeToMinutes = (time) => {
+    if (!time) return null;
+
+    const [hour, minute] = String(time).slice(0, 5).split(":").map(Number);
+
+    if (
+      !Number.isInteger(hour) ||
+      !Number.isInteger(minute) ||
+      hour < 0 ||
+      hour > 23 ||
+      minute < 0 ||
+      minute > 59
+    ) {
+      return null;
+    }
+
+    return hour * 60 + minute;
+  };
+
+  const getCurrentOrderRound = (rounds = []) => {
+    const now = new Date();
+
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    for (const round of rounds) {
+      const start = timeToMinutes(round.startTime);
+      const end = timeToMinutes(round.endTime);
+
+      if (start === null || end === null) continue;
+
+      // อยู่ในช่วงเวลารับออเดอร์
+      if (currentMinutes >= start && currentMinutes < end) {
+        return {
+          ...round,
+          roundStatus: "OPEN",
+        };
+      }
+
+      // หมดเวลารับออเดอร์แล้ว แต่ยังอยู่ในช่วงเตรียมอาหาร 20 นาที
+      if (currentMinutes >= end && currentMinutes < end + 20) {
+        return {
+          ...round,
+          roundStatus: "PREPARING",
+        };
+      }
+    }
+
+    return null;
+  };
+
+  const orderRound =
+    cart?.store?.orderMode === "ROUND"
+      ? getCurrentOrderRound(storeData?.orderRound || [])
+      : null;
 
   const isRoundFull =
     orderRound?.hasOrderLimit === true &&
     Number(orderRound?.currentOrders || 0) >=
       Number(orderRound?.maxOrders || 0);
 
-  const roundStatus = orderRound?.status || null;
+  const roundStatus = orderRound?.roundStatus || orderRound?.status || null;
 
   const isRoundOpen = roundStatus === "OPEN";
-
   // =========================
   // FOOD TOTAL
   // =========================
@@ -853,6 +928,18 @@ const CheckoutPage = () => {
       return;
     }
 
+    if (cart?.store?.orderMode === "ROUND" && !orderRound) {
+      await Swal.fire({
+        icon: "info",
+        title: "ขณะนี้ไม่มีรอบรับออเดอร์",
+        text: "กรุณารอรอบถัดไปของร้าน",
+        confirmButtonText: "ตกลง",
+        confirmButtonColor: "#f97316",
+      });
+
+      return;
+    }
+
     if (isRoundFull) {
       Swal.fire({
         icon: "warning",
@@ -929,156 +1016,156 @@ const CheckoutPage = () => {
     }
   };
 
-// =========================
-// LOADING CHECKOUT
-// =========================
+  // =========================
+  // LOADING CHECKOUT
+  // =========================
 
-if (loading) {
-  return (
-    <div className="min-h-screen mb-10 bg-[#FFF8F0] animate-pulse">
-      <div className="mx-auto max-w-6xl p-4 sm:p-6 pb-32">
-        {/* Header */}
-        <div className="mb-7 flex items-center gap-4">
-          <div className="h-11 w-11 shrink-0 rounded-2xl bg-orange-100" />
+  if (loading) {
+    return (
+      <div className="min-h-screen mb-10 bg-[#FFF8F0] animate-pulse">
+        <div className="mx-auto max-w-6xl p-4 sm:p-6 pb-32">
+          {/* Header */}
+          <div className="mb-7 flex items-center gap-4">
+            <div className="h-11 w-11 shrink-0 rounded-2xl bg-orange-100" />
 
-          <div className="space-y-2">
-            <div className="h-7 w-48 rounded-lg bg-orange-100" />
-            <div className="h-4 w-56 max-w-full rounded bg-gray-200" />
-          </div>
-        </div>
-
-        {/* Store + Order Round */}
-        <div className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
-          {/* Store Information */}
-          <div className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
-            <div className="flex items-center gap-3 border-b border-gray-100 p-5">
-              <div className="h-11 w-11 shrink-0 rounded-2xl bg-orange-100" />
-
-              <div className="min-w-0 flex-1 space-y-2">
-                <div className="h-3 w-24 rounded bg-gray-200" />
-                <div className="h-5 w-40 max-w-full rounded bg-gray-200" />
-              </div>
-
-              <div className="h-7 w-24 rounded-full bg-emerald-100" />
-            </div>
-
-            <div className="flex items-center justify-between gap-4 p-5">
-              <div className="space-y-2">
-                <div className="h-3 w-28 rounded bg-gray-200" />
-                <div className="h-4 w-40 max-w-full rounded bg-gray-100" />
-              </div>
-
-              <div className="h-12 w-28 rounded-2xl bg-orange-50" />
-            </div>
-          </div>
-
-          {/* Order Round */}
-          <div className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
-            <div className="flex items-center gap-3 border-b border-gray-100 p-5">
-              <div className="h-11 w-11 shrink-0 rounded-2xl bg-orange-100" />
-
-              <div className="space-y-2">
-                <div className="h-3 w-28 rounded bg-gray-200" />
-                <div className="h-5 w-24 rounded bg-gray-200" />
-              </div>
-
-              <div className="ml-auto h-7 w-24 rounded-full bg-emerald-100" />
-            </div>
-
-            <div className="space-y-3 p-5">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="h-36 rounded-2xl bg-orange-50" />
-                <div className="h-36 rounded-2xl bg-gray-100" />
-              </div>
-
-              <div className="h-16 rounded-2xl bg-emerald-50" />
-            </div>
-          </div>
-        </div>
-
-        {/* Address */}
-        <div className="mb-5 rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
             <div className="space-y-2">
-              <div className="h-5 w-28 rounded bg-gray-200" />
-              <div className="h-4 w-48 max-w-full rounded bg-gray-100" />
-            </div>
-
-            <div className="h-4 w-20 rounded bg-orange-100" />
-          </div>
-
-          <div className="rounded-xl border border-orange-100 bg-orange-50/50 p-4">
-            <div className="flex items-start gap-3">
-              <div className="mt-1 h-5 w-5 shrink-0 rounded-full bg-orange-200" />
-
-              <div className="flex-1 space-y-3">
-                <div className="h-4 w-28 rounded bg-gray-200" />
-                <div className="h-4 w-full rounded bg-gray-100" />
-                <div className="h-3 w-36 rounded bg-gray-100" />
-              </div>
+              <div className="h-7 w-48 rounded-lg bg-orange-100" />
+              <div className="h-4 w-56 max-w-full rounded bg-gray-200" />
             </div>
           </div>
-        </div>
 
-        {/* Food Items */}
-        <div className="mb-5 rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <div className="h-5 w-28 rounded bg-gray-200" />
-            <div className="h-4 w-16 rounded bg-gray-100" />
-          </div>
+          {/* Store + Order Round */}
+          <div className="mb-5 grid grid-cols-1 gap-5 lg:grid-cols-2">
+            {/* Store Information */}
+            <div className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
+              <div className="flex items-center gap-3 border-b border-gray-100 p-5">
+                <div className="h-11 w-11 shrink-0 rounded-2xl bg-orange-100" />
 
-          <div className="space-y-4">
-            {[1, 2, 3].map((item) => (
-              <div
-                key={item}
-                className="flex gap-3 border-b border-gray-100 py-4 last:border-0"
-              >
-                <div className="h-20 w-20 shrink-0 rounded-xl bg-gray-100" />
-
-                <div className="min-w-0 flex-1 space-y-3">
-                  <div className="h-4 w-40 max-w-full rounded bg-gray-200" />
-                  <div className="h-3 w-28 rounded bg-gray-100" />
-                  <div className="h-3 w-16 rounded bg-orange-100" />
+                <div className="min-w-0 flex-1 space-y-2">
+                  <div className="h-3 w-24 rounded bg-gray-200" />
+                  <div className="h-5 w-40 max-w-full rounded bg-gray-200" />
                 </div>
 
-                <div className="h-5 w-20 shrink-0 rounded bg-orange-100" />
+                <div className="h-7 w-24 rounded-full bg-emerald-100" />
               </div>
-            ))}
-          </div>
 
-          {/* Total */}
-          <div className="mt-5 space-y-4">
-            <div className="flex justify-between">
-              <div className="h-4 w-20 rounded bg-gray-100" />
-              <div className="h-4 w-24 rounded bg-gray-100" />
+              <div className="flex items-center justify-between gap-4 p-5">
+                <div className="space-y-2">
+                  <div className="h-3 w-28 rounded bg-gray-200" />
+                  <div className="h-4 w-40 max-w-full rounded bg-gray-100" />
+                </div>
+
+                <div className="h-12 w-28 rounded-2xl bg-orange-50" />
+              </div>
             </div>
 
-            <div className="flex justify-between">
-              <div className="h-4 w-20 rounded bg-gray-100" />
+            {/* Order Round */}
+            <div className="overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-sm">
+              <div className="flex items-center gap-3 border-b border-gray-100 p-5">
+                <div className="h-11 w-11 shrink-0 rounded-2xl bg-orange-100" />
+
+                <div className="space-y-2">
+                  <div className="h-3 w-28 rounded bg-gray-200" />
+                  <div className="h-5 w-24 rounded bg-gray-200" />
+                </div>
+
+                <div className="ml-auto h-7 w-24 rounded-full bg-emerald-100" />
+              </div>
+
+              <div className="space-y-3 p-5">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="h-36 rounded-2xl bg-orange-50" />
+                  <div className="h-36 rounded-2xl bg-gray-100" />
+                </div>
+
+                <div className="h-16 rounded-2xl bg-emerald-50" />
+              </div>
+            </div>
+          </div>
+
+          {/* Address */}
+          <div className="mb-5 rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="space-y-2">
+                <div className="h-5 w-28 rounded bg-gray-200" />
+                <div className="h-4 w-48 max-w-full rounded bg-gray-100" />
+              </div>
+
+              <div className="h-4 w-20 rounded bg-orange-100" />
+            </div>
+
+            <div className="rounded-xl border border-orange-100 bg-orange-50/50 p-4">
+              <div className="flex items-start gap-3">
+                <div className="mt-1 h-5 w-5 shrink-0 rounded-full bg-orange-200" />
+
+                <div className="flex-1 space-y-3">
+                  <div className="h-4 w-28 rounded bg-gray-200" />
+                  <div className="h-4 w-full rounded bg-gray-100" />
+                  <div className="h-3 w-36 rounded bg-gray-100" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Food Items */}
+          <div className="mb-5 rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="h-5 w-28 rounded bg-gray-200" />
               <div className="h-4 w-16 rounded bg-gray-100" />
             </div>
 
-            <div className="flex justify-between border-t border-gray-100 pt-4">
-              <div className="h-6 w-24 rounded bg-gray-200" />
-              <div className="h-6 w-28 rounded bg-orange-100" />
+            <div className="space-y-4">
+              {[1, 2, 3].map((item) => (
+                <div
+                  key={item}
+                  className="flex gap-3 border-b border-gray-100 py-4 last:border-0"
+                >
+                  <div className="h-20 w-20 shrink-0 rounded-xl bg-gray-100" />
+
+                  <div className="min-w-0 flex-1 space-y-3">
+                    <div className="h-4 w-40 max-w-full rounded bg-gray-200" />
+                    <div className="h-3 w-28 rounded bg-gray-100" />
+                    <div className="h-3 w-16 rounded bg-orange-100" />
+                  </div>
+
+                  <div className="h-5 w-20 shrink-0 rounded bg-orange-100" />
+                </div>
+              ))}
             </div>
+
+            {/* Total */}
+            <div className="mt-5 space-y-4">
+              <div className="flex justify-between">
+                <div className="h-4 w-20 rounded bg-gray-100" />
+                <div className="h-4 w-24 rounded bg-gray-100" />
+              </div>
+
+              <div className="flex justify-between">
+                <div className="h-4 w-20 rounded bg-gray-100" />
+                <div className="h-4 w-16 rounded bg-gray-100" />
+              </div>
+
+              <div className="flex justify-between border-t border-gray-100 pt-4">
+                <div className="h-6 w-24 rounded bg-gray-200" />
+                <div className="h-6 w-28 rounded bg-orange-100" />
+              </div>
+            </div>
+
+            <div className="mt-5 h-12 rounded-2xl bg-orange-50" />
           </div>
 
-          <div className="mt-5 h-12 rounded-2xl bg-orange-50" />
-        </div>
+          {/* Note */}
+          <div className="mb-6 rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
+            <div className="mb-3 h-5 w-28 rounded bg-gray-200" />
+            <div className="h-24 rounded-xl bg-gray-100" />
+          </div>
 
-        {/* Note */}
-        <div className="mb-6 rounded-2xl border border-orange-100 bg-white p-5 shadow-sm">
-          <div className="mb-3 h-5 w-28 rounded bg-gray-200" />
-          <div className="h-24 rounded-xl bg-gray-100" />
+          {/* Confirm Order */}
+          <div className="h-14 w-full rounded-xl bg-green-100" />
         </div>
-
-        {/* Confirm Order */}
-        <div className="h-14 w-full rounded-xl bg-green-100" />
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   // =========================
   // NO CART
@@ -1237,6 +1324,8 @@ HEADER
           </div>
 
           {/* ORDER ROUND */}
+
+          {/* ORDER ROUND */}
           {orderRound ? (
             <div className="bg-white rounded-3xl border border-orange-100/80 shadow-sm overflow-hidden">
               <div className="px-5 py-5 border-b border-gray-100">
@@ -1249,7 +1338,6 @@ HEADER
                         strokeWidth={1.8}
                       />
                     </div>
-
                     <div>
                       <p className="text-xs text-gray-400 mb-1">
                         รอบการสั่งอาหาร
@@ -1293,7 +1381,6 @@ HEADER
                       <Clock3 size={15} className="text-[#F07836]" />
                       <p className="text-xs text-gray-500">เวลาของรอบ</p>
                     </div>
-
                     <p className="text-lg font-semibold text-[#2A1B12]">
                       {orderRound.startTime}
                     </p>
@@ -1308,7 +1395,6 @@ HEADER
                       <ShoppingBag size={15} className="text-gray-500" />
                       <p className="text-xs text-gray-500">จำนวนออเดอร์</p>
                     </div>
-
                     <p className="text-lg font-semibold text-[#2A1B12]">
                       {orderRound.currentOrders || 0}
                       <span className="text-sm font-normal text-gray-400">
@@ -1317,7 +1403,6 @@ HEADER
                           : " ออเดอร์"}
                       </span>
                     </p>
-
                     <p className="text-xs text-gray-400 mt-1.5">
                       {orderRound.hasOrderLimit
                         ? "จำนวนสูงสุดของรอบ"
@@ -1334,14 +1419,12 @@ HEADER
                       strokeWidth={1.8}
                     />
                   </div>
-
                   <div className="min-w-0 flex-1">
                     <p className="text-xs text-gray-500">เวลาส่งโดยประมาณ</p>
                     <p className="text-sm font-semibold text-[#2A1B12] mt-0.5">
                       ภายใน {addMinutesToTime(orderRound.endTime, 20)} น.
                     </p>
                   </div>
-
                   <span className="text-xs font-medium text-emerald-700 shrink-0">
                     +20 นาที
                   </span>
@@ -1376,12 +1459,29 @@ HEADER
                 )}
               </div>
             </div>
+          ) : cart?.store?.orderMode === "ROUND" ? (
+            <div className="bg-white rounded-3xl border border-orange-100/80 shadow-sm p-6 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center shrink-0">
+                <Clock3
+                  size={22}
+                  className="text-amber-600"
+                  strokeWidth={1.8}
+                />
+              </div>
+              <div>
+                <p className="font-semibold text-[#2A1B12]">
+                  ขณะนี้ไม่อยู่ในช่วงรับออเดอร์
+                </p>
+                <p className="text-sm text-gray-400 mt-1">
+                  กรุณารอรอบถัดไปของร้าน
+                </p>
+              </div>
+            </div>
           ) : (
             <div className="bg-white rounded-3xl border border-orange-100/80 shadow-sm p-6 flex items-center gap-4">
               <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center shrink-0">
                 <Store size={22} className="text-[#F07836]" strokeWidth={1.8} />
               </div>
-
               <div>
                 <p className="font-semibold text-[#2A1B12]">
                   รับออเดอร์ตลอดเวลา
@@ -2070,7 +2170,7 @@ HEADER
                                   >
                                     {extraPrice > 0
                                       ? `+฿${extraPrice.toFixed(2)}`
-                                      : "ธรรมดา"}
+                                      : ""}
                                   </span>
                                 </button>
                               );

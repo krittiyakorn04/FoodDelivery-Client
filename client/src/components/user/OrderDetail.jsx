@@ -17,11 +17,8 @@ import {
   Star,
   MessageCircle,
   Home,
-  Navigation,
+  Phone,
 } from "lucide-react";
-
-import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
 
 import Swal from "sweetalert2";
 
@@ -1933,14 +1930,26 @@ CHAT DELIVERY
             </div>
 
             <div className="min-w-0 flex-1">
-              <p className="mb-1 text-xs font-medium text-gray-400"></p>
-              <button
-                type="button"
-                onClick={() => navigate(`/user/storeRead/${order.storeId}`)}
-                className="truncate text-left text-lg font-bold text-[#2A1B12] transition hover:text-[#F07836]"
-              >
-                {order.store?.storeName || "ไม่พบชื่อร้าน"}
-              </button>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <button
+                  type="button"
+                  onClick={() => navigate(`/user/storeRead/${order.storeId}`)}
+                  className="text-left text-lg font-bold text-[#2A1B12] transition hover:text-[#F07836]"
+                >
+                  {order.store?.storeName || "ไม่พบชื่อร้าน"}
+                </button>
+
+                {order.store?.phone && (
+                  <a
+                    href={`tel:${order.store.phone}`}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-[#F07836] transition hover:text-[#E8491D]"
+                  >
+                    <Phone size={15} />
+                    <span>{order.store.phone}</span>
+                  </a>
+                )}
+              </div>
+
               <div className="mt-2 flex items-center gap-1.5 text-xs text-gray-500">
                 <span className="h-2 w-2 rounded-full bg-[#F07836]" />
                 ร้านค้าที่คุณสั่งอาหาร

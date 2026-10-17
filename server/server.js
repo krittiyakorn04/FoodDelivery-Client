@@ -7,7 +7,6 @@ const http = require("http");
 const {
   updateOrderRoundStatus,
 } = require("./services/orderRoundService");
-const startOrderReminder = require("./utils/orderReminder");
 
 
 
@@ -75,9 +74,8 @@ setInterval(() => {
   updateOrderRoundStatus();
 }, 10000);
 
-startOrderReminder();
 
-const PORT = 5000;
+
 server.listen(5000, () => {
   console.log("server is running on port 5000");
 });

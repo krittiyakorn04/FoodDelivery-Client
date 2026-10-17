@@ -399,52 +399,145 @@ const StoreClient = () => {
 
   if (!store) {
     return (
-      <div className="min-h-screen bg-[#FFF8F0] animate-pulse">
-        {/* Header / Banner */}
-        <div className="h-56 bg-orange-100" />
+      <div className="min-h-screen bg-[#FFF8F0] font-kanit animate-pulse">
+        <div className="mx-auto max-w-6xl px-3 py-6 mb-14">
+          {/* Banner — ขนาดเดียวกับหน้าจริง */}
+          <div className="h-56 w-full rounded-t-3xl bg-orange-100" />
 
-        <div className="mx-auto max-w-6xl px-4 py-6">
-          {/* Store info */}
-          <div className="flex items-center gap-4">
-            <div className="h-24 w-24 rounded-2xl bg-orange-200" />
+          {/* Store Header */}
+          <div className="relative -mt-10 mb-8 rounded-3xl border border-orange-100 bg-white p-7 shadow-xl">
+            {/* สถานะร้าน */}
+            <div className="absolute right-7 top-7 h-8 w-28 rounded-full bg-green-100" />
 
-            <div className="flex-1 space-y-3">
-              <div className="h-6 w-56 rounded-lg bg-orange-200" />
-              <div className="h-4 w-40 rounded-lg bg-orange-100" />
-              <div className="h-4 w-64 rounded-lg bg-orange-100" />
+            {/* ชื่อร้าน */}
+            <div className="h-9 w-2/3 max-w-64 rounded-lg bg-orange-200" />
+
+            {/* Social links */}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <div className="h-8 w-24 rounded-full bg-orange-100" />
+              <div className="h-8 w-28 rounded-full bg-orange-100" />
+              <div className="h-8 w-20 rounded-full bg-orange-100" />
+            </div>
+
+            {/* ประเภทร้าน */}
+            <div className="mt-3 flex gap-2">
+              <div className="h-7 w-24 rounded-full bg-orange-100" />
+              <div className="h-7 w-28 rounded-full bg-orange-100" />
+            </div>
+
+            {/* คะแนนและค่าส่ง */}
+            <div className="mt-4 flex gap-5 border-b border-orange-100 pb-5">
+              <div className="h-5 w-36 rounded-lg bg-orange-100" />
+              <div className="h-5 w-28 rounded-lg bg-orange-100" />
+            </div>
+
+            {/* เวลาเปิดปิด / ที่ตั้ง / แชท */}
+            <div className="mt-5 flex flex-wrap gap-2.5">
+              <div className="h-10 w-52 rounded-full bg-orange-100" />
+              <div className="h-10 w-32 rounded-full bg-orange-100" />
+              <div className="h-10 w-36 rounded-full bg-orange-100" />
+            </div>
+
+            {/* ประกาศร้าน */}
+            <div className="mt-6 flex gap-3 rounded-2xl border border-orange-100 bg-[#FFF8F0] p-5">
+              <div className="h-9 w-9 shrink-0 rounded-full bg-orange-200" />
+              <div className="flex-1 space-y-3">
+                <div className="h-5 w-24 rounded-lg bg-orange-200" />
+                <div className="h-4 w-full rounded-lg bg-orange-100" />
+                <div className="h-4 w-3/4 rounded-lg bg-orange-100" />
+              </div>
             </div>
           </div>
 
-          {/* Category */}
-          <div className="mt-8 flex gap-3 overflow-hidden">
-            <div className="h-10 w-24 rounded-full bg-orange-200" />
-            <div className="h-10 w-28 rounded-full bg-orange-100" />
-            <div className="h-10 w-24 rounded-full bg-orange-100" />
-            <div className="h-10 w-28 rounded-full bg-orange-100" />
+          {/* รูปแบบรับออเดอร์ */}
+          <div className="mt-5 rounded-2xl border border-orange-100 bg-white p-4 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 shrink-0 rounded-xl bg-orange-100" />
+              <div className="flex-1 space-y-2">
+                <div className="h-6 w-40 rounded-lg bg-orange-200" />
+                <div className="h-4 w-48 rounded-lg bg-orange-100" />
+              </div>
+            </div>
+
+            <div className="mt-4 flex items-center gap-3 rounded-2xl border border-green-100 bg-green-50 p-4">
+              <div className="h-10 w-10 shrink-0 rounded-full bg-green-100" />
+              <div className="flex-1 space-y-2">
+                <div className="h-5 w-40 rounded-lg bg-green-100" />
+                <div className="h-4 w-56 max-w-full rounded-lg bg-green-100" />
+              </div>
+            </div>
           </div>
 
-          {/* Menu */}
-          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {[1, 2, 3, 4, 5, 6].map((item) => (
-              <div
-                key={item}
-                className="overflow-hidden rounded-3xl bg-white shadow-sm"
-              >
-                <div className="h-48 bg-orange-100" />
+          {/* เมนูแนะนำ */}
+          <div className="mt-8 mb-8">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="h-7 w-1.5 rounded-full bg-orange-300" />
+              <div className="space-y-2">
+                <div className="h-7 w-32 rounded-lg bg-orange-200" />
+                <div className="h-4 w-36 rounded-lg bg-orange-100" />
+              </div>
+            </div>
 
-                <div className="space-y-3 p-4">
-                  <div className="h-5 w-3/4 rounded-lg bg-orange-200" />
-                  <div className="h-4 w-full rounded-lg bg-orange-100" />
-                  <div className="h-4 w-1/2 rounded-lg bg-orange-100" />
-
-                  <div className="flex items-center justify-between pt-2">
-                    <div className="h-5 w-20 rounded-lg bg-orange-200" />
-                    <div className="h-9 w-9 rounded-full bg-orange-200" />
+            <div className="grid grid-cols-2 gap-4">
+              {[1, 2].map((item) => (
+                <div
+                  key={item}
+                  className="overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm"
+                >
+                  <div className="h-40 bg-orange-100" />
+                  <div className="space-y-3 p-4">
+                    <div className="h-5 w-3/4 rounded-lg bg-orange-200" />
+                    <div className="h-8 w-full rounded-lg bg-orange-100" />
+                    <div className="flex items-center justify-between">
+                      <div className="h-5 w-20 rounded-lg bg-orange-200" />
+                      <div className="h-10 w-10 rounded-full bg-orange-200" />
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+
+          {/* ช่องค้นหา */}
+          <div className="mt-5 h-12 w-full rounded-xl border border-orange-100 bg-white" />
+
+          {/* หมวดหมู่ */}
+          <div className="flex gap-3 overflow-hidden py-5">
+            <div className="h-10 w-24 shrink-0 rounded-full bg-orange-200" />
+            <div className="h-10 w-28 shrink-0 rounded-full bg-orange-100" />
+            <div className="h-10 w-24 shrink-0 rounded-full bg-orange-100" />
+            <div className="h-10 w-28 shrink-0 rounded-full bg-orange-100" />
+          </div>
+
+          {/* รายการเมนู */}
+          {[1, 2].map((section) => (
+            <div key={section} className="mb-10 border-t border-gray-200 pt-6">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="h-7 w-1.5 rounded-full bg-orange-300" />
+                <div className="h-7 w-36 rounded-lg bg-orange-200" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                {[1, 2, 3, 4].map((item) => (
+                  <div
+                    key={item}
+                    className="overflow-hidden rounded-2xl border border-orange-100 bg-white shadow-sm"
+                  >
+                    <div className="h-40 bg-orange-100" />
+                    <div className="space-y-3 p-4">
+                      <div className="h-5 w-3/4 rounded-lg bg-orange-200" />
+                      <div className="h-4 w-full rounded-lg bg-orange-100" />
+                      <div className="h-4 w-1/2 rounded-lg bg-orange-100" />
+                      <div className="flex items-center justify-between pt-1">
+                        <div className="h-5 w-20 rounded-lg bg-orange-200" />
+                        <div className="h-10 w-10 rounded-full bg-orange-200" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -595,7 +688,7 @@ const StoreClient = () => {
             store.instagramUrl ||
             store.tiktokUrl ||
             store.lineUrl) && (
-            <div className="flex flex-wrap items-center gap-2 mt-3">
+            <div className="flex flex-wrap items-center gap-2 mt-3 mb-4">
               {/* Facebook */}
               {store.facebookUrl && (
                 <a
@@ -791,13 +884,6 @@ const StoreClient = () => {
             {/* เวลา */}
             <div className="flex items-center gap-1.5 text-[#8A6A54] text-xs sm:text-sm flex-shrink-0">
               <Bike size={15} className="text-[#FF6B35] flex-shrink-0" />
-
-              <span>ส่งภายใน 20-30 นาที</span>
-            </div>
-
-            {/* ค่าส่ง */}
-            <div className="flex items-center gap-1 text-[#8A6A54] text-xs sm:text-sm flex-shrink-0">
-              <span className="text-[#FF6B35] font-bold">฿</span>
 
               <span>ค่าส่ง {Number(store?.deliveryFee ?? 0)} บาท</span>
             </div>
